@@ -3,7 +3,8 @@
 This starts the same server Claude Code uses (``uv --directory <repo> run mt5-mcp``) with
 ``MT5_ENABLE_TRADING=0`` forced, so trading tools are never registered. The server reuses the
 already running bridge; no new MT5 connection is created. Only the allowlisted read-only tools
-below are ever called, and collection stops if the server advertises any trading tool.
+below are ever called, and collection stops if the server advertises any trading tool or any
+tool not annotated read-only.
 
 The output is the raw tool responses in the ``mcp-export`` format. All conversion and
 validation happens afterwards in ``trading.market_data.mcp_export``.
@@ -60,12 +61,20 @@ async def verify_read_only(session: ToolSession) -> None:
     exposed_trading = sorted(TRADING_TOOLS & tools.keys())
     if exposed_trading:
         raise CollectorError(f"Server exposes trading tools {exposed_trading}; refusing to collect")
-    for name in sorted(READ_ONLY_TOOLS):
-        tool = tools.get(name)
-        if tool is None:
-            raise CollectorError(f"Server does not provide required tool {name!r}")
-        if tool.annotations is None or tool.annotations.read_only_hint is not True:
-            raise CollectorError(f"Tool {name!r} is not annotated read-only")
+    missing = sorted(READ_ONLY_TOOLS - tools.keys())
+    if missing:
+        raise CollectorError(f"Server does not provide required tools {missing}")
+    # Fail closed on any advertised tool that is not declared read-only, including trading
+    # tools under names this module does not know about.
+    not_read_only = sorted(
+        name
+        for name, tool in tools.items()
+        if tool.annotations is None or tool.annotations.read_only_hint is not True
+    )
+    if not_read_only:
+        raise CollectorError(
+            f"Server advertises tools not annotated read-only {not_read_only}; refusing to collect"
+        )
 
 
 async def call_read_only(

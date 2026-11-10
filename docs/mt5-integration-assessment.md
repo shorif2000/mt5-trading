@@ -74,9 +74,9 @@ Observed live: offset `7200` (UTC+2), confident. Before the terminal connected, 
 - Bars and ticks are capped by `MT5_MAX_BARS` (5000). Range queries keep the earliest bars and
   set `truncated`.
 - Count-mode `get_rates` includes the **currently forming bar** as its last row.
-- **Observed: a disconnected terminal still answers.** It returned cached account data
-  (0 positions, 0 orders) and bar history that was months old. After it connected, the same
-  account showed 1 position and 3 pending orders.
+- **Observed: a disconnected terminal still answers.** It returned cached account data and bar
+  history that was months old. After it connected, the reported positions and pending orders
+  differed from the cached ones.
 - **Observed: right after reconnecting**, GBPUSD and USDJPY returned history ending in
   2024 until MT5 had synced. A retry a few seconds later was complete.
 - The bridge allows 16 concurrent connections (`bridge/src/mt5_bridge/server.py:41`). A second
@@ -85,7 +85,8 @@ Observed live: offset `7200` (UTC+2), confident. Before the terminal connected, 
 
 Verified broker symbols: `EURUSD`, `GBPUSD`, `USDJPY` (3 digits), `XAUUSD` (2 digits,
 contract size 100). `XAUUSD.crp` exists but is a conversion-only symbol (`trade_mode` 0) and
-must not be used. The account is **real** (`trade_mode` 2) with currency GBP.
+must not be used. Check `account_info.trade_mode` before every session: the terminal may be
+logged into a live account.
 
 ## 5. Integration approach
 
@@ -108,7 +109,8 @@ documented protocol. It reuses the running bridge and the terminal's existing co
 second MT5 connection or bridge is created. It does **not** call Claude's MCP session.
 
 Safety in the collector:
-- It refuses to run if the server advertises any trading tool.
+- It refuses to run if the server advertises any tool not annotated read-only, which
+  includes every trading tool (`tools_trade.py` annotates them `read_only_hint=False`).
 - Every required tool must be annotated read-only.
 - Only 7 allowlisted tools are ever called. `check_order` and `calc_*` are excluded.
 
@@ -174,7 +176,7 @@ the broker's fixed offset, for example `2026-11-10T21:00:00+02:00`. Models rejec
 
 ## 7. Example redacted export
 
-The full file is `data/example_mcp_export.json`. It is trimmed to 3 bars per timeframe, so it
+The full file is `data/example_mcp_export.json`. Its account, positions and orders are synthetic. It is trimmed to 3 bars per timeframe, so it
 deliberately fails the minimum-candle rule. Excerpt, extracted from that file (the last M15
 row is the forming bar, which `ingest` drops):
 
@@ -196,8 +198,8 @@ row is the forming bar, which `ingest` drops):
   },
   "account_info": {
     "login": "REDACTED",
-    "trade_mode": 2,
-    "currency": "GBP",
+    "trade_mode": 0,
+    "currency": "USD",
     "balance": 0
   },
   "symbols": {
@@ -257,7 +259,7 @@ code 3 when the snapshot is older than `--maximum-age-seconds`. If collection fa
   captured.
 - `calculation_currency` (margin currency) is left unset pending a decision on its meaning.
 - Correlated exposure and currency conversion are not computed.
-- The research account is **real**. Read-only access is enforced by this app, by the
+- The terminal may be logged into a live account. Read-only access is enforced by this app, by the
   `mt5-mcp` configuration and by the bridge. It still relies on the registered server keeping
   `MT5_ENABLE_TRADING` unset.
 - No economic calendar source is integrated.
