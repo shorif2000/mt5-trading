@@ -57,6 +57,7 @@ class Metrics:
     by_month: dict[str, tuple[int, Decimal]]
     exit_reasons: dict[str, int]
     final_balance: Decimal
+    starting_balance: Decimal
     losses_above_risk_limit: int  # only possible when price gaps through the stop
 
 
@@ -139,6 +140,7 @@ def metrics(result: BacktestResult) -> Metrics:
         by_month={k: (len(v), sum(v, Decimal(0))) for k, v in sorted(by_month.items())},
         exit_reasons=dict(Counter(t.exit_reason for t in trades).most_common()),
         final_balance=result.final_balance,
+        starting_balance=result.starting_balance,
         losses_above_risk_limit=sum(
             1 for t in trades if t.maximum_risk is not None and -t.net_gbp > t.maximum_risk
         ),
@@ -207,7 +209,7 @@ def render_period(name: str, window: str, m: Metrics) -> str:
         f"| Gross - costs = net reconciles | {'yes' if m.costs_reconcile else 'NO'} |",
         f"| Average planned reward:risk at the actual fill | {_ratio(m.average_planned_rr)} |",
         f"| Average realised R (net / estimated loss) | {_ratio(m.average_realised_r)} |",
-        f"| Final paper balance (from £100) | {_money(m.final_balance)} |",
+        f"| Final paper balance (from {_money(m.starting_balance)}) | {_money(m.final_balance)} |",
         f"| Losses above the 2% limit (stop gaps) | {m.losses_above_risk_limit} |",
         "",
     ]
