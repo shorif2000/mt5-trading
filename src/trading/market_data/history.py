@@ -9,7 +9,7 @@ are written to a git-ignored ``*.local.json`` file. Nothing here can place or ch
 import asyncio
 import json
 from collections.abc import Sequence
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -117,7 +117,11 @@ async def _download(
         terminal = status.get("terminal") if isinstance(status, dict) else None
         if not isinstance(terminal, dict) or terminal.get("connected") is not True:
             raise CollectorError("MT5 terminal is not connected to the broker server")
-        result: dict[str, Any] = {"terminal_status": status, "series": []}
+        result: dict[str, Any] = {
+            "downloaded_utc": datetime.now(UTC).isoformat(),
+            "terminal_status": status,
+            "series": [],
+        }
         for symbol, timeframe in requests:
             result["series"].append(await download_rates(session, symbol, timeframe, start, end))
         if account_group is not None:

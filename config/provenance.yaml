@@ -1,0 +1,28 @@
+# Declared provenance of the research code and backtests, recorded in every backtest report.
+# Update it when the tools used to write or run the code change. The backtest also records
+# evidence it can read itself: Co-Authored-By trailers in git, whether it was started from a
+# Claude Code session (CLAUDECODE), and the commit of the MT5 bridge repository.
+ai_assistance:
+  tool: Claude Code (CLI)
+  model: Claude Opus 5.5
+  model_id: claude-opus-5-5
+  role: >
+    Wrote the strategy implementation, backtest engine, cost model and tests from
+    owner-approved specifications, reviewed by the owner through pull requests, and ran the
+    backtests. Strategy rules and risk limits were set and approved by the owner.
+  # Claude Code skills invoked while producing this code and these results.
+  skills_used: []
+  # Sub-agents and tools used outside writing code.
+  agents_used:
+    - name: web-fetch
+      use: research only (broker holiday notice pages; access was blocked; no code produced)
+  other_tools:
+    - web search (broker notices and exchange calendars; research only)
+add_ons:
+  mcp_servers:
+    - name: mt5
+      project: meta-trader-5-mcp
+      use: >
+        Read-only MT5 access through a local bridge: market data, history, deal history and
+        broker margin (calc_margin). Trading tools disabled (MT5_ENABLE_TRADING=0).
+  python_packages: see the environment section (exact versions per run)

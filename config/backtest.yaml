@@ -1,6 +1,8 @@
 # XAUUSD Version 1.0 backtest execution cost model. 1 point = USD 0.01 per ounce, so 40 points
 # is USD 0.40 per ounce: USD 0.40 on 0.01 lot (1 oz), USD 40 on 1.0 lot (100 oz).
-starting_balance_gbp: 100
+# Paper ledger starting balance for each period (owner decision 2026-11-10: GBP 1,000; the
+# GBP 100 run is kept as report 20261110T221350Z_c343da11c7). Risk stays 2 % per trade.
+starting_balance_gbp: 1000
 
 # EVIDENCE. Adverse slippage of the account's own stop-loss exits: the deal price against the
 # stop price of the order MT5 created when the stop triggered, longs and shorts combined.
