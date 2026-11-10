@@ -63,6 +63,26 @@ marker**. `MT5_BROKER_UTC_OFFSET_HOURS` can fix the offset.
 Observed live: offset `7200` (UTC+2), confident. Before the terminal connected, the offset was
 `null` and every `*_utc` field was missing.
 
+**Daylight saving time.** The bridge applies the *current* offset to every epoch, including
+history, so its `*_utc` values are one hour wrong for anything before the broker's last DST
+change. This app does not use them as timestamps. `BrokerClock` (`src/trading/market_data/
+mcp_export.py`) converts each epoch with the offset in force at that moment:
+
+- Broker wall time = wall time in `broker_timezone` + `broker_shift_hours`. The default is
+  `America/New_York` + 7 h, the "New York close" convention: UTC+3 during US DST, UTC+2
+  otherwise.
+- Evidence for this broker: in H4 history from 14 Oct to 10 Nov 2026, which spans the EU (25 Oct)
+  and US (1 Nov) changes, every forex and gold week opened at Monday 00:00 broker time,
+  including the week of 26 Oct. An EU-rule or fixed UTC+2 server would have opened on Sunday at
+  23:00 that week.
+- The rule must give the live `terminal_status` offset at collection time, or the export is
+  rejected. Override it with `ingest --broker-timezone/--broker-shift-hours` for another broker.
+- A broker time skipped or repeated by a DST change (Sunday 09:00 to 10:00 broker on change
+  days, while the market is closed) is rejected rather than guessed.
+- Bridge `*_utc` annotations are still checked: they must equal `epoch - live offset`.
+- Every tool response with broker times must carry `broker_offset_seconds`, equal to the live
+  offset and confident.
+
 ## 4. Errors, timeouts and limitations
 
 - Connect timeout 3 s and read timeout 30 s (`src/mt5_mcp/bridge_client.py:20`). The bridge
@@ -145,8 +165,10 @@ Rejects the whole export, listing every reason, when any of these holds:
 - **Time:**
   - the broker offset is unknown or not confident,
   - it is not a 15-minute multiple,
-  - a response reports a different offset,
-  - a bridge `*_utc` value disagrees with our conversion,
+  - a response is missing offset metadata or reports a different offset,
+  - the configured broker time-zone rule does not give the live offset,
+  - a broker time is skipped or repeated by a DST change,
+  - a bridge `*_utc` value is not `epoch - live offset`,
   - `exported_at_utc` is timezone-naive, or
   - a tick is in the future.
 - **Freshness:**
@@ -162,8 +184,9 @@ Rejects the whole export, listing every reason, when any of these holds:
   - more than one incomplete bar, or
   - a gap longer than 75 min that is not the weekend close.
 - **The currently forming candle is always dropped.** A bar counts as complete only when
-  `open + duration <= exported_at_utc`, and `exported_at_utc` is taken *before* any data is
-  read. `CandleSeries` enforces this again at model level.
+  `open + duration <= exported_at_utc - clock_skew_seconds` (5 s by default), so a local clock
+  running slightly ahead of the broker cannot admit a forming bar. `exported_at_utc` is taken
+  *before* any data is read. `CandleSeries` enforces completion again at model level.
 - **Specs:**
   - name differs from the requested symbol (catches `XAUUSD.crp`),
   - non-positive contract size, tick size, tick value or volumes, or
@@ -260,8 +283,9 @@ code 3 when the snapshot is older than `--maximum-age-seconds`. If collection fa
 - Gap detection is a heuristic. It tolerates breaks of 75 minutes or less and the Friday to
   Sunday close. Holidays and broker maintenance will cause rejections; rerun later or review
   them manually.
-- The weekend rule uses UTC weekdays. It has not been validated against this broker's DST
-  transitions.
+- The broker time-zone rule is verified from one month of history around the 2026 changes.
+  If the broker changes its convention, the live-offset check catches it only at collection
+  time; history converted before that is not re-checked.
 - MT5 account info has no broker timestamp. `AccountSnapshot.timestamp` is the local
   collection start time (`exported_at_utc`), recorded before `get_account_info` is called. It
   is not a broker-generated time and does not prove the account figures are fresh.

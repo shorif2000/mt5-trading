@@ -43,12 +43,20 @@ def ingest(
     output: Path = typer.Option(Path("data/snapshot.local.json"), help="Validated snapshot"),
     maximum_age_seconds: int = typer.Option(120, min=1),
     minimum_candles: int = typer.Option(50, min=1),
+    broker_timezone: str = typer.Option(
+        ExportSettings.broker_timezone, help="IANA zone the broker clock follows"
+    ),
+    broker_shift_hours: int = typer.Option(
+        ExportSettings.broker_shift_hours, help="Hours added to that zone's wall time"
+    ),
 ) -> None:
     """Validate a raw read-only MT5 MCP export and write a validated snapshot."""
     settings = ExportSettings(
         max_export_age_seconds=maximum_age_seconds,
         max_quote_age_seconds=maximum_age_seconds,
         min_completed_candles=minimum_candles,
+        broker_timezone=broker_timezone,
+        broker_shift_hours=broker_shift_hours,
     )
     try:
         data = load_mcp_export(export, now=datetime.now(UTC), settings=settings)
