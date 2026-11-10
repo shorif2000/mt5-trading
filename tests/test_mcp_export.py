@@ -784,6 +784,7 @@ def early_close_on_9_november(status: str) -> dict[str, Any]:
         "end": "2026-11-09T18:00",
         "reason": "test early close",
         "source": "Broker trading notice",
+        "source_url": "https://example.test/notice",
         "retrieved": "2026-11-01",
         "status": status,
     }

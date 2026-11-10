@@ -223,8 +223,11 @@ they follow US daylight saving. Verified from this broker's H1 and M15 history, 
 - **Fields:** `type` (`full_closure`, `early_close` or `late_open`), `profiles` and/or
   `symbols`, `start`/`end` with an optional `timezone`, `reason`, `source`, `source_url`,
   `retrieved` and `status`.
-- **Only `confirmed` entries explain a gap.** `unconfirmed` entries are named in the rejection
-  message but never accept one.
+- **Only `confirmed` entries explain a gap,** and a confirmed entry must cite the official
+  notice in `source_url`. `unconfirmed` entries are named in the rejection message but never
+  accept one. The dates still under investigation (26–27 Nov, 24–25 Dec, 31 Dec 2026 and
+  1 Jan 2027, for gold and forex separately) are unconfirmed whole-day placeholders until the
+  broker's notices are available.
 - **No overlaps:** overlapping confirmed entries for the same profile or symbol are rejected
   as duplicates or conflicts.
 - **Precedence:** these come from broker notices and take precedence. None are shipped yet.

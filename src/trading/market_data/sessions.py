@@ -274,6 +274,8 @@ def _parse_closure(
     source_url = entry.get("source_url")
     if source_url is not None and (not isinstance(source_url, str) or not source_url):
         raise ValueError(f"{where}.source_url: must be text")
+    if status == "confirmed" and source_url is None:
+        raise ValueError(f"{where}.source_url: required for a confirmed closure (official notice)")
     retrieved = _optional_date(entry.get("retrieved"), f"{where}.retrieved")
     if retrieved is None:
         raise ValueError(f"{where}.retrieved: required")
