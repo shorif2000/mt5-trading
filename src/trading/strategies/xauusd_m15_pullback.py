@@ -46,6 +46,9 @@ class Setup:
     stop: Decimal  # rounded to the tick, away from the entry
     pullback_extreme: float
     atr: float  # M15 ATR at the signal bar
+    # Reporting only: index of the first bar of the contiguous run of pullback bars that the
+    # latest touch belongs to. Signal candles from the same pullback share it.
+    pullback_event_start: int = -1
 
 
 def round_away(price: float, tick: Decimal, direction: Direction) -> Decimal:
@@ -103,6 +106,21 @@ class XauusdM15Pullback:
     def trend_at(self, moment: datetime) -> Direction | None:
         return self.trend(self.last_completed_h1(moment))
 
+    def _touches(self, j: int, direction: Direction) -> bool:
+        ema_j, atr_j = self.m15_ema[j], self.m15_atr[j]
+        if ema_j is None or atr_j is None:
+            return False
+        reach = self.params.touch_atr_fraction * atr_j
+        if direction == Direction.BUY:
+            return self.m15[j].low <= ema_j + reach
+        return self.m15[j].high >= ema_j - reach
+
+    def _event_start(self, latest_touch: int, direction: Direction) -> int:
+        start = latest_touch
+        while start > 0 and self._touches(start - 1, direction):
+            start -= 1
+        return start
+
     def evaluate(self, index: int) -> Setup | None:
         """Entry conditions 1-6 at the completed M15 bar ``index`` (7, one position, is the
         engine's). Returns None when there is no setup."""
@@ -139,4 +157,11 @@ class XauusdM15Pullback:
             stop_price = extreme + p.stop_buffer_atr * atr
         if not confirmed:
             return None
-        return Setup(direction, index, round_away(stop_price, self.tick, direction), extreme, atr)
+        return Setup(
+            direction,
+            index,
+            round_away(stop_price, self.tick, direction),
+            extreme,
+            atr,
+            pullback_event_start=self._event_start(touches[-1], direction),
+        )

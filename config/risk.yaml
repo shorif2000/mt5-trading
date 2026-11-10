@@ -40,12 +40,12 @@ position_sizing:
     USDJPY: null
     XAUUSD: 0
   # Total adverse slippage allowance per trade in points (entry and stop together).
-  # XAUUSD: 45 points (USD 0.45 per oz; 1 point = USD 0.01), about the 90th percentile of
-  # adverse stop-loss slippage in the account's own fills (6,583 stop exits, read-only history,
-  # 2026-11-10: median 7, p90 37-43, p95 55-64 points). Market-entry slippage is not
-  # measurable (MT5 records no requested price), so the allowance covers entry and stop.
+  # XAUUSD: not set. Stop-loss slippage is evidenced (config/backtest.yaml: p90 40, p95 60
+  # points) but market-entry slippage cannot be measured, so a combined allowance would be
+  # an assumption. Live XAUUSD sizing therefore rejects until an entry allowance is chosen;
+  # the backtest sizes each cost scenario with entry + p95 stop slippage.
   slippage_points:
     EURUSD: null
     GBPUSD: null
     USDJPY: null
-    XAUUSD: 45
+    XAUUSD: null

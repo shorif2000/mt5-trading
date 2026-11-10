@@ -54,12 +54,17 @@ def run_periods(
         "## Status and assumptions",
         "",
         f"- Paper ledger: starts at £{config.starting_balance} for each period; 2% risk per trade.",
+        f"- Cost scenario: {config.costs.label}.",
         *[f"- {note}" for note in cost_notes],
         "- **Not news-filtered:** no economic calendar source (Version 1.0 decision).",
-        "- Fills: buys at the ask (bid open + bar spread), sells at the bid; stops and targets "
-        "checked on the bid (longs) or ask (shorts); stop assumed first when both are touched in "
-        "one bar; gaps fill at the open. Bar spread is one value per bar, so intrabar spread "
+        "- Fills: longs buy at the ask (entry bar spread paid) and sell at the bid; shorts sell "
+        "at the bid and buy back at the ask (exit bar spread paid). Stop exits slip by the "
+        "evidenced stop percentile; take profits fill at the target; entries and market exits "
+        "(forced close, trend exit) slip by the entry scenario. Stop assumed first when both "
+        "are touched in one bar; gaps fill at the open. One spread value per bar, so intrabar "
         "spikes are not modelled.",
+        "- Target: 2R from the quoted entry (Appendix A.F); the planned reward:risk at the "
+        "actual fill is reported separately and is below 2 after entry slippage.",
         "- Forced close 16:45 New York; no entries 16:00-19:00 New York; no overnight positions.",
         "- Margin: MT5 `calc_margin` at the historical entry price, but with today's leverage "
         "and today's GBPUSD for the margin conversion.",
@@ -90,3 +95,52 @@ def run_periods(
 
 def decimal_or_none(value: object) -> Decimal | None:
     return None if value is None else Decimal(str(value))
+
+
+def run_scenarios(
+    *,
+    scenarios: Sequence[tuple[str, BacktestConfig]],
+    base: str,
+    m15: Sequence[Bar],
+    h1: Sequence[Bar],
+    conversion_m15: Sequence[Bar],
+    spec: InstrumentSpec,
+    conversion_spec: InstrumentSpec,
+    calendar: MarketCalendar,
+    margin_provider: MarginProvider | None,
+    cost_notes: Sequence[str],
+) -> str:
+    """The base scenario in full, preceded by a summary of every scenario and period."""
+    summary = [
+        "## Cost scenarios",
+        "",
+        "Entry slippage is unknown, so every result depends on a labelled scenario. Stop-exit "
+        "slippage uses percentiles of the account's observed stop-loss slippage.",
+        "",
+        "| Scenario | " + " | ".join(f"{name}: trades / net / PF" for name, _, _ in PERIODS) + " |",
+        "|---|" + "---|" * len(PERIODS),
+    ]
+    base_text = ""
+    for name, config in scenarios:
+        text, results = run_periods(
+            m15=m15,
+            h1=h1,
+            conversion_m15=conversion_m15,
+            spec=spec,
+            conversion_spec=conversion_spec,
+            calendar=calendar,
+            config=config,
+            margin_provider=margin_provider,
+            cost_notes=cost_notes,
+        )
+        cells = []
+        for _, result in results:
+            m = metrics(result)
+            pf = "n/a" if m.profit_factor is None else f"{m.profit_factor:.2f}"
+            cells.append(f"{m.trades} / £{m.net_gbp:,.2f} / {pf}")
+        marker = " **(base)**" if name == base else ""
+        summary.append(f"| {config.costs.label}{marker} | " + " | ".join(cells) + " |")
+        if name == base:
+            base_text = text
+    head, _, rest = base_text.partition("## Data coverage")
+    return head + "\n".join(summary) + "\n\n## Data coverage" + rest
