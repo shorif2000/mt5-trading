@@ -58,6 +58,13 @@ uv run ruff check .
 uv run mypy src
 ```
 
+## Market calendar
+
+`config/market_sessions.yaml` defines when each market is scheduled to be open (New York time).
+Missing candles are accepted only while a market is closed. Holidays and early closes are not
+shipped: add each one under `closures` from the broker's published schedule, or `ingest` will
+reject the gap.
+
 ## Project principles
 
 1. Market data must be timestamped and checked for freshness.
