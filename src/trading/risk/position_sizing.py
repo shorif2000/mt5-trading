@@ -54,4 +54,6 @@ def calculate_volume(
     estimated_loss = volume * loss_per_lot
     if estimated_loss > risk_cash:
         return SizingResult(None, estimated_loss, False, "Calculated loss exceeds risk cash.")
-    return SizingResult(volume, estimated_loss, True, "Volume calculated; independent review required.")
+    return SizingResult(
+        volume, estimated_loss, True, "Volume calculated; independent review required."
+    )
