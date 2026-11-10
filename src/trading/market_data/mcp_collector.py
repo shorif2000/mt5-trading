@@ -1,10 +1,11 @@
 """Collect a raw export from the existing ``mt5-mcp`` server over its documented stdio interface.
 
-This starts the same server Claude Code uses (``uv --directory <repo> run mt5-mcp``) with
-``MT5_ENABLE_TRADING=0`` forced, so trading tools are never registered. The server reuses the
-already running bridge; no new MT5 connection is created. Only the allowlisted read-only tools
-below are ever called, and collection stops if the server advertises any trading tool or any
-tool not annotated read-only.
+This starts the server registered for Claude Code as ``mt5`` in ``~/.claude.json``
+(``<uv> --directory <repo> run mt5-mcp``), read from that registration rather than from user
+input, with ``MT5_ENABLE_TRADING=0`` forced, so trading tools are never registered. The server
+reuses the already running bridge; no new MT5 connection is created. Only the allowlisted
+read-only tools below are ever called, and collection stops if the server advertises any tool
+not annotated read-only.
 
 The output is the raw tool responses in the ``mcp-export`` format. All conversion and
 validation happens afterwards in ``trading.market_data.mcp_export``.
@@ -12,7 +13,8 @@ validation happens afterwards in ``trading.market_data.mcp_export``.
 
 import asyncio
 import json
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Protocol
@@ -43,6 +45,12 @@ TRADING_TOOLS = frozenset(
     }
 )
 DEFAULT_CALL_TIMEOUT_SECONDS = 60.0
+CLAUDE_CONFIG_PATH = Path.home() / ".claude.json"
+REGISTERED_SERVER_NAME = "mt5"
+# Account fields that identify the account holder or broker server. Replaced before the raw
+# export is written; validation only needs them to be non-empty strings.
+REDACTED_ACCOUNT_FIELDS = ("login", "name", "server", "company")
+REDACTED = "REDACTED"
 
 
 class CollectorError(Exception):
@@ -65,16 +73,22 @@ async def verify_read_only(session: ToolSession) -> None:
     if missing:
         raise CollectorError(f"Server does not provide required tools {missing}")
     # Fail closed on any advertised tool that is not declared read-only, including trading
-    # tools under names this module does not know about.
-    not_read_only = sorted(
-        name
-        for name, tool in tools.items()
-        if tool.annotations is None or tool.annotations.read_only_hint is not True
-    )
+    # tools under names this module does not know about, and on contradictory annotations.
+    not_read_only = sorted(name for name, tool in tools.items() if not _is_read_only(tool))
     if not_read_only:
         raise CollectorError(
             f"Server advertises tools not annotated read-only {not_read_only}; refusing to collect"
         )
+
+
+def _is_read_only(tool: Any) -> bool:
+    annotations = getattr(tool, "annotations", None)
+    if annotations is None:
+        return False
+    if getattr(annotations, "read_only_hint", None) is not True:
+        return False
+    # A tool cannot be both read-only and destructive; treat that as untrustworthy metadata.
+    return getattr(annotations, "destructive_hint", None) is not True
 
 
 async def call_read_only(
@@ -99,6 +113,15 @@ async def call_read_only(
     return dict(result.structured_content)
 
 
+def redact_account(info: Mapping[str, Any]) -> dict[str, Any]:
+    """Replace account-identifying fields; a failed call (``tool_error``) is kept as is."""
+    if "tool_error" in info:
+        return dict(info)
+    return {
+        key: REDACTED if key in REDACTED_ACCOUNT_FIELDS else value for key, value in info.items()
+    }
+
+
 async def collect(
     session: ToolSession,
     *,
@@ -115,7 +138,7 @@ async def collect(
         "format": EXPORT_FORMAT,
         "exported_at_utc": exported_at.isoformat(),
         "terminal_status": await call_read_only(session, "terminal_status"),
-        "account_info": await call_read_only(session, "get_account_info"),
+        "account_info": redact_account(await call_read_only(session, "get_account_info")),
         # Unfiltered: exposure includes every symbol, not only the research instruments.
         "positions": await call_read_only(session, "get_positions"),
         "orders": await call_read_only(session, "get_orders"),
@@ -137,11 +160,54 @@ async def collect(
     return export
 
 
-def server_parameters(bridge_repo: Path, uv_executable: str = "uv") -> StdioServerParameters:
+@dataclass(frozen=True)
+class RegisteredServer:
+    uv_executable: Path
+    bridge_repo: Path
+
+
+def registered_server(
+    config_path: Path = CLAUDE_CONFIG_PATH, name: str = REGISTERED_SERVER_NAME
+) -> RegisteredServer:
+    """Read the user-scope ``mt5`` MCP registration and accept only the expected exact shape:
+    ``<absolute uv> --directory <absolute repo> run mt5-mcp`` over stdio, with trading not
+    enabled. Only that registration's values are used; nothing else in the file is read out."""
+    try:
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise CollectorError(f"Cannot read MCP registration from {config_path}: {exc}") from exc
+    servers = config.get("mcpServers") if isinstance(config, dict) else None
+    entry = servers.get(name) if isinstance(servers, dict) else None
+    if not isinstance(entry, dict):
+        raise CollectorError(f"No user-scope MCP server {name!r} registered in {config_path}")
+    if entry.get("type", "stdio") != "stdio":
+        raise CollectorError(f"MCP server {name!r} is not a stdio server")
+    env = entry.get("env") or {}
+    if not isinstance(env, dict) or env.get("MT5_ENABLE_TRADING", "0") != "0":
+        raise CollectorError(f"MCP server {name!r} is registered with trading enabled; refusing")
+
+    command, args = entry.get("command"), entry.get("args")
+    if not isinstance(command, str) or not isinstance(args, list):
+        raise CollectorError(f"MCP server {name!r} has no command or args")
+    uv_executable = Path(command)
+    if not uv_executable.is_absolute() or uv_executable.name != "uv":
+        raise CollectorError(f"MCP server {name!r} command must be an absolute path to uv")
+    if len(args) != 4 or args[0] != "--directory" or args[2:] != ["run", "mt5-mcp"]:
+        raise CollectorError(
+            f"MCP server {name!r} args must be exactly ['--directory', <repo>, 'run', 'mt5-mcp']"
+        )
+    bridge_repo = Path(args[1]) if isinstance(args[1], str) else None
+    if bridge_repo is None or not bridge_repo.is_absolute() or not bridge_repo.is_dir():
+        raise CollectorError(f"MCP server {name!r} repository must be an existing absolute path")
+    return RegisteredServer(uv_executable=uv_executable, bridge_repo=bridge_repo)
+
+
+def server_parameters(server: RegisteredServer) -> StdioServerParameters:
+    # Minimal default environment (no inherited MT5_* settings) with trading forced off.
     env = {**get_default_environment(), "MT5_ENABLE_TRADING": "0"}
     return StdioServerParameters(
-        command=uv_executable,
-        args=["--directory", str(bridge_repo), "run", "mt5-mcp"],
+        command=str(server.uv_executable),
+        args=["--directory", str(server.bridge_repo), "run", "mt5-mcp"],
         env=env,
     )
 
@@ -157,13 +223,12 @@ async def _collect_from_server(
 def collect_to_file(
     output: Path,
     *,
-    bridge_repo: Path,
     symbols: Sequence[str],
     timeframes: Sequence[str],
     bars: int,
-    uv_executable: str = "uv",
+    config_path: Path = CLAUDE_CONFIG_PATH,
 ) -> None:
-    params = server_parameters(bridge_repo, uv_executable)
+    params = server_parameters(registered_server(config_path))
     try:
         export = asyncio.run(_collect_from_server(params, symbols, timeframes, bars))
     except CollectorError:

@@ -465,11 +465,14 @@ def test_every_problem_is_reported_together():
     assert len(info.value.reasons) == 2
 
 
-def test_example_export_matches_format():
+def test_synthetic_example_export_is_valid():
     with open("data/example_mcp_export.json", encoding="utf-8") as handle:
         example = json.load(handle)
     assert example["format"] == EXPORT_FORMAT
-    assert example["account_info"]["login"] == "REDACTED"
+    assert example["_note"].startswith("SYNTHETIC EXAMPLE")
+    as_of = datetime.fromisoformat(example["exported_at_utc"])
+    snapshot = build_snapshot(example, now=as_of, settings=ExportSettings(min_completed_candles=2))
+    assert snapshot.account.login == "REDACTED"
 
 
 def test_tick_in_the_future_is_rejected():

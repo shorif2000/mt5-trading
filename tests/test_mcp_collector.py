@@ -1,7 +1,9 @@
 """The collector must only ever call allowlisted read-only tools and must fail closed."""
 
 import asyncio
+import json
 from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
@@ -12,12 +14,20 @@ from trading.market_data.mcp_collector import (
     CollectorError,
     call_read_only,
     collect,
+    redact_account,
+    registered_server,
     server_parameters,
 )
 
 
-def tool(name: str, read_only: bool | None = True) -> SimpleNamespace:
-    annotations = None if read_only is None else SimpleNamespace(read_only_hint=read_only)
+def tool(
+    name: str, read_only: bool | None = True, destructive: bool | None = None
+) -> SimpleNamespace:
+    annotations = (
+        None
+        if read_only is None
+        else SimpleNamespace(read_only_hint=read_only, destructive_hint=destructive)
+    )
     return SimpleNamespace(name=name, annotations=annotations)
 
 
@@ -108,7 +118,102 @@ def test_timeout_is_recorded_as_tool_error():
     assert result == {"tool_error": "get_tick timed out after 0s"}
 
 
-def test_server_is_started_with_trading_disabled(tmp_path):
-    params = server_parameters(tmp_path)
+@pytest.mark.parametrize(
+    "unapproved",
+    [
+        tool("export_history"),  # unknown but read-only: allowed to exist, never called
+    ],
+)
+def test_unknown_read_only_tool_is_listed_but_never_called(unapproved):
+    session = FakeSession([*read_only_tools(), unapproved])
+    run_collect(session)
+    assert unapproved.name not in {name for name, _ in session.calls}
+
+
+@pytest.mark.parametrize(
+    "bad_tool",
+    [
+        tool("get_ticks", read_only=None),  # annotation missing
+        tool("get_ticks", read_only=False),  # annotation false
+        tool("get_ticks", read_only=True, destructive=True),  # contradictory metadata
+        SimpleNamespace(name="get_ticks", annotations=SimpleNamespace()),  # no hint at all
+    ],
+    ids=["missing", "false", "destructive", "no-hint"],
+)
+def test_refuses_any_tool_without_trustworthy_read_only_annotation(bad_tool):
+    session = FakeSession([*read_only_tools(), bad_tool])
+    with pytest.raises(CollectorError, match="not annotated read-only"):
+        run_collect(session)
+    assert session.calls == []
+
+
+def test_account_identifiers_are_redacted_before_export():
+    info = {"login": 123, "name": "A", "server": "S", "company": "C", "balance": 5.0}
+    assert redact_account(info) == {
+        "login": "REDACTED",
+        "name": "REDACTED",
+        "server": "REDACTED",
+        "company": "REDACTED",
+        "balance": 5.0,
+    }
+    assert redact_account({"tool_error": "x"}) == {"tool_error": "x"}
+
+
+# --- registered server ------------------------------------------------------------------
+
+
+def write_config(tmp_path: Path, entry: dict[str, Any] | None) -> Path:
+    path = tmp_path / "claude.json"
+    servers = {} if entry is None else {"mt5": entry}
+    path.write_text(json.dumps({"mcpServers": servers, "unrelated": {"secret": "x"}}))
+    return path
+
+
+def registration(repo: Path, **overrides: Any) -> dict[str, Any]:
+    entry: dict[str, Any] = {
+        "type": "stdio",
+        "command": "/opt/tools/uv",
+        "args": ["--directory", str(repo), "run", "mt5-mcp"],
+        "env": {},
+    }
+    entry.update(overrides)
+    return entry
+
+
+def test_server_comes_from_registration_with_trading_forced_off(tmp_path):
+    server = registered_server(write_config(tmp_path, registration(tmp_path)))
+    params = server_parameters(server)
+
+    assert params.command == "/opt/tools/uv"
+    assert params.args == ["--directory", str(tmp_path), "run", "mt5-mcp"]
     assert params.env is not None and params.env["MT5_ENABLE_TRADING"] == "0"
-    assert params.args[-1] == "mt5-mcp"
+    assert not any(key.startswith("MT5_") and key != "MT5_ENABLE_TRADING" for key in params.env)
+
+
+@pytest.mark.parametrize(
+    ("overrides", "message"),
+    [
+        ({"type": "http"}, "not a stdio server"),
+        ({"env": {"MT5_ENABLE_TRADING": "1"}}, "trading enabled"),
+        ({"command": "uv"}, "absolute path to uv"),
+        ({"command": "/bin/sh"}, "absolute path to uv"),
+        ({"args": ["--directory", "relative/repo", "run", "mt5-mcp"]}, "existing absolute"),
+        ({"args": ["--directory", "/no/such/repo", "run", "mt5-mcp"]}, "existing absolute"),
+        ({"args": ["run", "--with", "evil", "mt5-mcp"]}, "args must be exactly"),
+        ({"args": ["--directory", "/tmp", "run", "mt5-mcp", "--http"]}, "args must be exactly"),
+    ],
+)
+def test_unexpected_registration_is_refused(tmp_path, overrides, message):
+    config = write_config(tmp_path, registration(tmp_path, **overrides))
+    with pytest.raises(CollectorError, match=message):
+        registered_server(config)
+
+
+def test_missing_registration_is_refused(tmp_path):
+    with pytest.raises(CollectorError, match="No user-scope MCP server"):
+        registered_server(write_config(tmp_path, None))
+
+
+def test_unreadable_registration_is_refused(tmp_path):
+    with pytest.raises(CollectorError, match="Cannot read MCP registration"):
+        registered_server(tmp_path / "missing.json")
