@@ -776,23 +776,39 @@ def test_unlisted_early_close_is_rejected_as_a_gap():
     assert "add it to the market calendar closures" in message
 
 
-def test_configured_early_close_explains_the_gap():
-    early_close = sessions_with_closure(
-        {
-            "profiles": ["gold"],
-            "start": "2026-11-09T13:30",
-            "end": "2026-11-09T18:00",
-            "reason": "test early close",
-        }
-    )
-    settings = dataclasses.replace(SETTINGS, calendar=early_close)
+def early_close_on_9_november(status: str) -> dict[str, Any]:
+    return {
+        "type": "early_close",
+        "profiles": ["gold"],
+        "start": "2026-11-09T13:30",
+        "end": "2026-11-09T18:00",
+        "reason": "test early close",
+        "source": "Broker trading notice",
+        "retrieved": "2026-11-01",
+        "status": status,
+    }
+
+
+def test_confirmed_early_close_explains_the_gap():
+    calendar = sessions_with_closure(early_close_on_9_november("confirmed"))
+    settings = dataclasses.replace(SETTINGS, calendar=calendar)
     build_snapshot(xauusd_h1_without_early_close_hours(), now=NOW, settings=settings)
+
+
+def test_unconfirmed_early_close_is_named_but_does_not_explain_the_gap():
+    calendar = sessions_with_closure(early_close_on_9_november("unconfirmed"))
+    settings = dataclasses.replace(SETTINGS, calendar=calendar)
+    with pytest.raises(ExportRejected) as info:
+        build_snapshot(xauusd_h1_without_early_close_hours(), now=NOW, settings=settings)
+    message = " | ".join(info.value.reasons)
+    assert "XAUUSD H1 rates: missing candles during scheduled market hours" in message
+    assert "unconfirmed broker early_close" in message
 
 
 def sessions_with_closure(closure: dict[str, Any]):
     config = yaml.safe_load(Path("config/market_sessions.yaml").read_text())
     config["closures"] = [closure]
-    return parse_market_calendar(config)
+    return parse_market_calendar(config, CALENDAR.exchange)
 
 
 def test_candles_are_not_stale_during_a_scheduled_closure():

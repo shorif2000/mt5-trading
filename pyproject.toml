@@ -13,10 +13,12 @@ dependencies = [
     "typer>=0.12,<1",
     "rich>=13.7,<15",
     "mcp>=2.3,<3",
+    "truststore>=0.10,<1",
 ]
 
 [project.scripts]
 mt5-trading = "trading.main:app"
+mt5-calendar-update = "trading.market_data.exchange_holidays:main"
 
 [dependency-groups]
 dev = [

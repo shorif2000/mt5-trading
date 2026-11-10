@@ -78,6 +78,24 @@ def ingest(
 
     output.write_text(data.model_dump_json(indent=2), encoding="utf-8")
     console.print(f"[green]Export accepted.[/green] Validated snapshot written to {output}")
+    for line in calendar.summary():
+        console.print(f"  Calendar: {line}")
+
+
+@app.command(name="calendar")
+def calendar_status(
+    sessions: Path = typer.Option(
+        Path("config/market_sessions.yaml"), exists=True, readable=True, help="Market calendar"
+    ),
+) -> None:
+    """Show the local market calendar's last update and coverage (no network access)."""
+    try:
+        calendar = load_market_calendar(sessions)
+    except ValueError as exc:
+        console.print(f"[red]Market calendar rejected:[/red] {exc}")
+        raise typer.Exit(code=2) from exc
+    for line in calendar.summary():
+        console.print(line)
 
 
 @app.command()
