@@ -1,6 +1,16 @@
 # XAUUSD M15 Intraday Trend Pullback Strategy
 
-**Status:** Proposed for approval (not approved; not implemented)
+**Status:** Version 1.0, approved by the account owner on 2026-11-10, with amendment 1 below.
+
+**Amendment 1 (owner decision, 2026-11-10):** strategy positions are force-closed at
+**16:45 America/New_York**, 15 minutes before gold's 17:00 daily break. This replaces "at least
+30 minutes before the scheduled daily break" in section 6 and the 16:30 time in Appendix A
+point I. No new entries within 60 minutes either side of the break (16:00 to 19:00 New York) is
+unchanged. No overnight or weekend positions. US daylight saving is handled by working in New
+York time.
+
+**Commission:** the owner reports a Vantage **Standard swap-free** account. Commission is
+verified against the account's own deal history before it is recorded as 0.
 **Instrument:** XAUUSD
 **Entry timeframe:** M15
 **Trend timeframe:** H1
@@ -130,6 +140,7 @@ Use broker server time and verified XAUUSD trading sessions.
 
 - Do not open positions close to the daily market break.
 - Close all strategy positions at least 30 minutes before the scheduled daily break.
+  *(Amended: 16:45 New York, see amendment 1.)*
 - Do not open new positions within 60 minutes of the scheduled daily break.
 - Do not hold positions over weekends.
 - Reject trades if the broker's session schedule or server time cannot be established
