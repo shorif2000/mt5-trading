@@ -69,6 +69,18 @@ each moment. The default is New York time + 7 h, overridable with
 `data/example_mcp_export.json` is an entirely synthetic example export.
 `data/sample_snapshot.json` is an empty illustrative template.
 
+## XAUUSD backtest (research only)
+
+The approved XAUUSD M15 trend pullback strategy, Version 1.0
+(`docs/strategy-xauusd-trend-pullback.md`), can be backtested offline on a GBP 100 paper
+ledger. History and broker margin come from MT5 read-only; nothing is sent to the market.
+
+```bash
+uv run mt5-trading collect-history                  # read-only bars, git-ignored local file
+uv run mt5-trading backtest                         # writes reports/xauusd_m15_backtest.local.md
+uv run mt5-trading backtest --slippage-points 64    # slippage sensitivity
+```
+
 ## Validate
 
 ```bash

@@ -12,7 +12,9 @@ validation happens afterwards in ``trading.market_data.mcp_export``.
 """
 
 import asyncio
+import concurrent.futures
 import json
+import threading
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -35,6 +37,9 @@ READ_ONLY_TOOLS = frozenset(
         "get_orders",
         # Broker margin calculation (MT5 order_calc_margin): computes only, sends nothing.
         "calc_margin",
+        # Account history (deals and orders), read for cost evidence only.
+        "get_history_deals",
+        "get_history_orders",
     }
 )
 TRADING_TOOLS = frozenset(
@@ -276,3 +281,75 @@ def margin_from_server(
         raise
     except Exception as exc:  # the server process failed to start or the stream broke
         raise CollectorError(f"Could not request margin from mt5-mcp: {exc}") from exc
+
+
+class MarginSession:
+    """One read-only server session reused for many margin requests (a backtest). A single
+    worker task on a background event loop owns the connection for its whole life, as the MCP
+    client requires, and serves requests from a queue. Identical requests are cached. Only
+    ``calc_margin`` is ever called, after the server passes ``verify_read_only``."""
+
+    def __init__(self, config_path: Path = CLAUDE_CONFIG_PATH) -> None:
+        self._params = server_parameters(registered_server(config_path))
+        self._loop = asyncio.new_event_loop()
+        self._thread = threading.Thread(target=self._loop.run_forever, daemon=True)
+        self._ready: concurrent.futures.Future[None] = concurrent.futures.Future()
+        self._queue: asyncio.Queue[Any] | None = None
+        self._worker: concurrent.futures.Future[None] | None = None
+        self._cache: dict[tuple[str, str, float, float | None], dict[str, Any]] = {}
+
+    async def _serve(self) -> None:
+        try:
+            async with (
+                stdio_client(self._params) as (read, write),
+                ClientSession(read, write) as session,
+            ):
+                await session.initialize()
+                await verify_read_only(session)
+                self._queue = asyncio.Queue()
+                self._ready.set_result(None)
+                while (item := await self._queue.get()) is not None:
+                    arguments, reply = item
+                    try:
+                        reply.set_result(await request_margin(session, **arguments))
+                    except Exception as exc:  # returned to the caller, which decides
+                        reply.set_exception(exc)
+        except Exception as exc:
+            if not self._ready.done():
+                self._ready.set_exception(exc)
+            raise
+
+    def __enter__(self) -> "MarginSession":
+        self._thread.start()
+        self._worker = asyncio.run_coroutine_threadsafe(self._serve(), self._loop)
+        try:
+            self._ready.result(timeout=120)
+        except Exception as exc:
+            self.__exit__()
+            raise CollectorError(f"Could not open a margin session: {exc}") from exc
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        try:
+            if self._queue is not None:
+                self._loop.call_soon_threadsafe(self._queue.put_nowait, None)
+            if self._worker is not None:
+                self._worker.result(timeout=30)
+        except Exception:
+            pass  # closing a read-only session; nothing to recover
+        finally:
+            self._loop.call_soon_threadsafe(self._loop.stop)
+            self._thread.join(timeout=10)
+
+    def margin(
+        self, *, symbol: str, side: str, volume: float, price: float | None = None
+    ) -> dict[str, Any]:
+        if self._queue is None:
+            raise CollectorError("margin session is not open")
+        key = (symbol, side, volume, price)
+        if key not in self._cache:
+            reply: concurrent.futures.Future[dict[str, Any]] = concurrent.futures.Future()
+            arguments = {"symbol": symbol, "side": side, "volume": volume, "price": price}
+            self._loop.call_soon_threadsafe(self._queue.put_nowait, (arguments, reply))
+            self._cache[key] = reply.result(timeout=120)
+        return self._cache[key]

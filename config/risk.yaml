@@ -29,16 +29,23 @@ position_sizing:
   # conversion is unreliable and sizing is rejected.
   tick_value_tolerance_percent: 2.0
   # Currency of the commission values below; must equal the account currency.
-  commission_currency: null
+  commission_currency: GBP
   # Round-turn commission per lot (open and close together).
+  # XAUUSD: 0, verified 2026-11-10. The owner reports a Vantage Standard swap-free account,
+  # and all 18,466 XAUUSD deals in the account history (Aug 2025 to Nov 2026, read-only)
+  # carry commission 0 and fee 0. Other symbols are not yet verified.
   commission_per_lot_round_turn:
     EURUSD: null
     GBPUSD: null
     USDJPY: null
-    XAUUSD: null
+    XAUUSD: 0
   # Total adverse slippage allowance per trade in points (entry and stop together).
+  # XAUUSD: 45 points (USD 0.45 per oz; 1 point = USD 0.01), about the 90th percentile of
+  # adverse stop-loss slippage in the account's own fills (6,583 stop exits, read-only history,
+  # 2026-11-10: median 7, p90 37-43, p95 55-64 points). Market-entry slippage is not
+  # measurable (MT5 records no requested price), so the allowance covers entry and stop.
   slippage_points:
     EURUSD: null
     GBPUSD: null
     USDJPY: null
-    XAUUSD: null
+    XAUUSD: 45
