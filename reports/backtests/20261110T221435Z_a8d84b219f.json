@@ -1,0 +1,3722 @@
+{
+  "code": {
+    "branch": "feat/backtest-provenance",
+    "commit": "a8d84b219f0c37c350235b3666c1930b2800b5ed",
+    "commit_date": "2026-11-10T22:14:34Z",
+    "dirty": false,
+    "short_commit": "a8d84b219f",
+    "uncommitted_diff_sha256": null,
+    "uncommitted_files": []
+  },
+  "command": "mt5-trading backtest --require-clean",
+  "environment": {
+    "packages": {
+      "mcp": "2.3.0",
+      "mt5-trading-research": "0.1.0",
+      "pydantic": "2.14.3",
+      "pyyaml": "6.0.3",
+      "truststore": "0.10.5",
+      "typer": "0.29.0"
+    },
+    "platform": "Darwin arm64",
+    "python": "3.12.13"
+  },
+  "inputs": {
+    "cost_config": {
+      "bytes": 1535,
+      "path": "config/backtest.yaml",
+      "sha256": "923285c8203a5bf0c1099732987786a9d7f0df3cb5121e96a966223dac4a6a41"
+    },
+    "exchange_calendar": {
+      "bytes": 15728,
+      "path": "config/exchange_holidays.yaml",
+      "sha256": "05f16cd8174d96b9c5b7958146b89b0b9ab42afcf24b3546578db05a598de7e8"
+    },
+    "history": {
+      "bytes": 39327471,
+      "path": "data/history/xauusd_backtest.local.json",
+      "sha256": "e3b35038566b61b599998500b56aac8d1de39927560fc85cc4a15745901d4be9"
+    },
+    "pyproject.toml": {
+      "bytes": 1141,
+      "path": "pyproject.toml",
+      "sha256": "a03ad201b19bf57e269dac9818e45be95eafa8d81bcb3ea6129b9cb110b2d561"
+    },
+    "risk_config": {
+      "bytes": 2293,
+      "path": "config/risk.yaml",
+      "sha256": "0a8733521d0127de39edf93b07fef91239bea8715050816a26439476fc747925"
+    },
+    "sessions": {
+      "bytes": 8477,
+      "path": "config/market_sessions.yaml",
+      "sha256": "ee9d5817742ae74c9e57482428a2be2c7b24fdba263a005f26a535b4ee77fbdd"
+    },
+    "specification_export": {
+      "bytes": 507823,
+      "path": "data/mcp_export.local.json",
+      "sha256": "738b5ecec71004f550075fce227440eb3cf6bb55e8c17335f254f7bb76caa5cf"
+    },
+    "uv.lock": {
+      "bytes": 276535,
+      "path": "uv.lock",
+      "sha256": "d970dcf6d6552672e013a66b998e44141e39cb427ec2be93ea1af4e1d532a398"
+    }
+  },
+  "manifest_path": "reports/backtests/20261110T221435Z_a8d84b219f.json",
+  "parameters": {
+    "account_terms": {
+      "currency": "GBP",
+      "leverage": 500,
+      "margin_call_level": 50.0,
+      "stop_out_level": 20.0,
+      "stop_out_mode": 0
+    },
+    "base_scenario": "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts",
+    "broker_clock": {
+      "shift_hours": 7,
+      "timezone": "America/New_York"
+    },
+    "cost_model": {
+      "base_entry": "stop-median-proxy",
+      "base_stop_percentile": "p90",
+      "entry_scenarios": {
+        "stop-median-proxy": "7",
+        "stop-p90-proxy": "40",
+        "zero": "0"
+      },
+      "sizing_stop_percentile": "p95",
+      "starting_balance": "1000",
+      "stop_percentiles": {
+        "p50": "7",
+        "p75": "20",
+        "p90": "40",
+        "p95": "60",
+        "p99": "140"
+      },
+      "take_profit_points": "0"
+    },
+    "history": {
+      "GBPUSD M15": {
+        "bars": 99640,
+        "first": "2022-10-30T23:00:00+00:00",
+        "last": "2026-10-30T20:45:00+00:00"
+      },
+      "XAUUSD H1": {
+        "bars": 23674,
+        "first": "2022-10-30T23:00:00+00:00",
+        "last": "2026-10-30T20:00:00+00:00"
+      },
+      "XAUUSD M15": {
+        "bars": 94634,
+        "first": "2022-10-30T23:00:00+00:00",
+        "last": "2026-10-30T20:45:00+00:00"
+      }
+    },
+    "instruments": {
+      "GBPUSD": {
+        "calc_mode": 0,
+        "contract_size": 100000.0,
+        "digits": 5,
+        "freeze_level_points": 0,
+        "margin_currency": "GBP",
+        "point": 1e-05,
+        "stops_level_points": 0,
+        "swap_long": -3.55,
+        "swap_mode": 1,
+        "swap_short": -3.74,
+        "symbol": "GBPUSD",
+        "tick_size": 1e-05,
+        "trade_allowed": true,
+        "volume_max": 100.0,
+        "volume_min": 0.01,
+        "volume_step": 0.01
+      },
+      "XAUUSD": {
+        "calc_mode": 4,
+        "contract_size": 100.0,
+        "digits": 2,
+        "freeze_level_points": 0,
+        "margin_currency": "USD",
+        "point": 0.01,
+        "stops_level_points": 20,
+        "swap_long": -69.21,
+        "swap_mode": 1,
+        "swap_short": 30.92,
+        "symbol": "XAUUSD",
+        "tick_size": 0.01,
+        "trade_allowed": true,
+        "volume_max": 100.0,
+        "volume_min": 0.01,
+        "volume_step": 0.01
+      }
+    },
+    "margin_source": "MT5 calc_margin, read-only",
+    "news_filter": "unavailable (Version 1.0)",
+    "periods": [
+      {
+        "from": "2023-01-01T00:00:00+00:00",
+        "name": "Training",
+        "until": "2025-01-01T00:00:00+00:00"
+      },
+      {
+        "from": "2025-01-01T00:00:00+00:00",
+        "name": "Validation",
+        "until": "2026-01-01T00:00:00+00:00"
+      },
+      {
+        "from": "2026-01-01T00:00:00+00:00",
+        "name": "Out of sample",
+        "until": "2026-11-01T00:00:00+00:00"
+      }
+    ],
+    "scenarios": [
+      {
+        "entry_points": "0",
+        "label": "entry zero (0 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 60 pts",
+        "market_exit_points": "0",
+        "sizing_stop_points": "60",
+        "stop_exit_points": "7",
+        "take_profit_points": "0"
+      },
+      {
+        "entry_points": "0",
+        "label": "entry zero (0 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 60 pts",
+        "market_exit_points": "0",
+        "sizing_stop_points": "60",
+        "stop_exit_points": "40",
+        "take_profit_points": "0"
+      },
+      {
+        "entry_points": "0",
+        "label": "entry zero (0 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 60 pts",
+        "market_exit_points": "0",
+        "sizing_stop_points": "60",
+        "stop_exit_points": "60",
+        "take_profit_points": "0"
+      },
+      {
+        "entry_points": "7",
+        "label": "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 67 pts",
+        "market_exit_points": "7",
+        "sizing_stop_points": "60",
+        "stop_exit_points": "7",
+        "take_profit_points": "0"
+      },
+      {
+        "entry_points": "7",
+        "label": "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts",
+        "market_exit_points": "7",
+        "sizing_stop_points": "60",
+        "stop_exit_points": "40",
+        "take_profit_points": "0"
+      },
+      {
+        "entry_points": "7",
+        "label": "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 67 pts",
+        "market_exit_points": "7",
+        "sizing_stop_points": "60",
+        "stop_exit_points": "60",
+        "take_profit_points": "0"
+      },
+      {
+        "entry_points": "40",
+        "label": "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 100 pts",
+        "market_exit_points": "40",
+        "sizing_stop_points": "60",
+        "stop_exit_points": "7",
+        "take_profit_points": "0"
+      },
+      {
+        "entry_points": "40",
+        "label": "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts",
+        "market_exit_points": "40",
+        "sizing_stop_points": "60",
+        "stop_exit_points": "40",
+        "take_profit_points": "0"
+      },
+      {
+        "entry_points": "40",
+        "label": "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 100 pts",
+        "market_exit_points": "40",
+        "sizing_stop_points": "60",
+        "stop_exit_points": "60",
+        "take_profit_points": "0"
+      }
+    ],
+    "sessions": {
+      "force_close": "16:45:00",
+      "no_entry_end": "19:00:00",
+      "no_entry_start": "16:00:00",
+      "zone": "America/New_York"
+    },
+    "sizing": {
+      "commission_currency": "GBP",
+      "commission_per_lot_xauusd": "0",
+      "maximum_data_age_seconds": 120,
+      "risk_fraction": "0.02",
+      "tick_value_tolerance": "0.02"
+    },
+    "specification_snapshot_utc": "2026-11-10T19:17:35.058055+00:00",
+    "starting_balance_gbp": "1000",
+    "strategy": {
+      "name": "XAUUSD M15 trend pullback",
+      "specification": "docs/strategy-xauusd-trend-pullback.md",
+      "values": {
+        "atr_period": 14,
+        "h1_fast_ema": 50,
+        "h1_slope_bars": 5,
+        "h1_slow_ema": 200,
+        "h1_warmup_bars": 250,
+        "m15_ema": 20,
+        "m15_warmup_bars": 50,
+        "max_spread_points": 35,
+        "max_stop_atr": 3.0,
+        "pullback_max_bars": 8,
+        "stop_buffer_atr": 0.2,
+        "target_r": 2.0,
+        "touch_atr_fraction": 0.25
+      },
+      "version": "1.0"
+    }
+  },
+  "results": {
+    "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 67 pts": {
+      "Out of sample": {
+        "average_holding": 11751.968504,
+        "average_loss": "-12.84606225232995189516129032",
+        "average_planned_rr": "1.985871534512658326191608658",
+        "average_realised_r": "-0.02086412294843364529936717540",
+        "average_win": "22.40728003673636443609022556",
+        "by_month": {
+          "2026-01": [
+            33,
+            "114.73479437735616000"
+          ],
+          "2026-02": [
+            34,
+            "-41.40331893546324000"
+          ],
+          "2026-03": [
+            26,
+            "-55.30556610360343000"
+          ],
+          "2026-04": [
+            43,
+            "-1.49227587449950000"
+          ],
+          "2026-05": [
+            34,
+            "41.91342703385710000"
+          ],
+          "2026-06": [
+            39,
+            "61.20645598047398000"
+          ],
+          "2026-07": [
+            36,
+            "-225.38343380216384000"
+          ],
+          "2026-08": [
+            45,
+            "-52.20016721314149000"
+          ],
+          "2026-09": [
+            42,
+            "-19.33676819587804000"
+          ],
+          "2026-10": [
+            49,
+            "-28.38834095882930000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            176,
+            "-90.72600602982216000"
+          ],
+          "London (03:00-08:00 NY)": [
+            83,
+            "-357.29723183218917000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            122,
+            "242.36804417011973000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 546,
+        "entry_slippage_cost": "25.08054098642659000",
+        "executable": 381,
+        "executable_at_minimum_volume": 295,
+        "executable_pullback_events": 321,
+        "exit_reasons": {
+          "H1 trend invalidated": 17,
+          "forced close 16:45 New York": 60,
+          "stop": 206,
+          "target": 98
+        },
+        "exit_slippage_cost": "18.76953453277847000",
+        "expected_value": "-0.5397774112648073490813648294",
+        "filter_reasons": {
+          "missing candles in the decision window": 4,
+          "stop wider than 3 x ATR(14)": 439,
+          "within 60 minutes of the daily break": 122
+        },
+        "final_balance": "794.34480630810840000",
+        "gross_gbp": "-82.59781013428343000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "485.50252522307433000",
+        "max_drawdown_percent": 40.27350767633881,
+        "minimum_volume_rejections": 160,
+        "net_gbp": "-205.65519369189160000",
+        "outcomes": {
+          "executable": 381,
+          "filtered": 565,
+          "rejected_by_risk": 160
+        },
+        "profit_factor": 0.9354467698361535,
+        "risk_rejections": 160,
+        "signals": 1106,
+        "spread_cost": "79.20730803840311000",
+        "starting_balance": "1000",
+        "trades": 381,
+        "win_rate": 0.34908136482939633,
+        "wins": 133
+      },
+      "Training": {
+        "average_holding": 10322.246696,
+        "average_loss": "-5.722631837248006069078947368",
+        "average_planned_rr": "1.934372467293426282637370887",
+        "average_realised_r": "-0.08848523885782579261013023805",
+        "average_win": "8.941692737567951566666666667",
+        "by_month": {
+          "2023-01": [
+            40,
+            "-127.98482562200504000"
+          ],
+          "2023-02": [
+            45,
+            "-165.18124713085949000"
+          ],
+          "2023-03": [
+            48,
+            "-76.66761298167255000"
+          ],
+          "2023-04": [
+            32,
+            "6.24825150897561000"
+          ],
+          "2023-05": [
+            51,
+            "13.49007977603331000"
+          ],
+          "2023-06": [
+            48,
+            "-135.81454882335500000"
+          ],
+          "2023-07": [
+            49,
+            "-93.70901938428065000"
+          ],
+          "2023-08": [
+            65,
+            "-33.97952894580558000"
+          ],
+          "2023-09": [
+            43,
+            "0.44827161848650000"
+          ],
+          "2023-10": [
+            48,
+            "26.84751896798097000"
+          ],
+          "2023-11": [
+            43,
+            "-35.63149195790598000"
+          ],
+          "2023-12": [
+            34,
+            "19.10734523782791000"
+          ],
+          "2024-01": [
+            47,
+            "-53.11550813453290000"
+          ],
+          "2024-02": [
+            30,
+            "-30.06214981635775000"
+          ],
+          "2024-03": [
+            36,
+            "-11.31547411589822000"
+          ],
+          "2024-04": [
+            37,
+            "-7.19392889556745000"
+          ],
+          "2024-05": [
+            35,
+            "-41.36031040010163000"
+          ],
+          "2024-06": [
+            29,
+            "-28.72565585425866000"
+          ],
+          "2024-07": [
+            25,
+            "2.61052666450153000"
+          ],
+          "2024-08": [
+            24,
+            "-17.86867199822779000"
+          ],
+          "2024-09": [
+            28,
+            "2.58079125744064000"
+          ],
+          "2024-10": [
+            37,
+            "-15.15362144231063000"
+          ],
+          "2024-11": [
+            12,
+            "14.63632201494293000"
+          ],
+          "2024-12": [
+            22,
+            "-9.05784731945230000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            452,
+            "-306.58429870682191000"
+          ],
+          "London (03:00-08:00 NY)": [
+            200,
+            "-412.17980777354143000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            256,
+            "-78.08822929603888000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 1388,
+        "entry_slippage_cost": "118.08824332195646000",
+        "executable": 908,
+        "executable_at_minimum_volume": 364,
+        "executable_pullback_events": 772,
+        "exit_reasons": {
+          "H1 trend invalidated": 23,
+          "forced close 16:45 New York": 152,
+          "stop": 514,
+          "stop (gap)": 1,
+          "target": 218
+        },
+        "exit_slippage_cost": "88.74954606202706000",
+        "expected_value": "-0.8775906781678438546255506608",
+        "filter_reasons": {
+          "entry spread 44 points above maximum": 1,
+          "missing candles in the decision window": 9,
+          "stop wider than 3 x ATR(14)": 1243,
+          "within 60 minutes of the daily break": 245
+        },
+        "final_balance": "203.14766422359778000",
+        "gross_gbp": "-288.98776329055284000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "816.34007860316945000",
+        "max_drawdown_percent": 81.28091653841796,
+        "minimum_volume_rejections": 573,
+        "net_gbp": "-796.85233577640222000",
+        "outcomes": {
+          "executable": 908,
+          "filtered": 1498,
+          "rejected_by_risk": 573
+        },
+        "profit_factor": 0.770977334967026,
+        "risk_rejections": 573,
+        "signals": 2979,
+        "spread_cost": "301.02678310186586000",
+        "starting_balance": "1000",
+        "trades": 908,
+        "win_rate": 0.3303964757709251,
+        "wins": 300
+      },
+      "Validation": {
+        "average_holding": 13399.2,
+        "average_loss": "-15.87686429536108666666666667",
+        "average_planned_rr": "1.973433905744191930210657292",
+        "average_realised_r": "0.03625061071033692440589618162",
+        "average_win": "25.34155070930787461928934010",
+        "by_month": {
+          "2025-01": [
+            50,
+            "-41.39830272061248000"
+          ],
+          "2025-02": [
+            43,
+            "257.92818217275758000"
+          ],
+          "2025-03": [
+            47,
+            "35.84418317955505000"
+          ],
+          "2025-04": [
+            35,
+            "-49.67476096444714000"
+          ],
+          "2025-05": [
+            31,
+            "112.24663258553109000"
+          ],
+          "2025-06": [
+            37,
+            "-8.99081221303728000"
+          ],
+          "2025-07": [
+            36,
+            "-151.35323067782624000"
+          ],
+          "2025-08": [
+            44,
+            "-237.08325720151463000"
+          ],
+          "2025-09": [
+            54,
+            "107.52573105844645000"
+          ],
+          "2025-10": [
+            49,
+            "179.37527757173945000"
+          ],
+          "2025-11": [
+            32,
+            "3.89275885422721000"
+          ],
+          "2025-12": [
+            42,
+            "-26.71679340557702000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            259,
+            "68.66883504424286000"
+          ],
+          "London (03:00-08:00 NY)": [
+            99,
+            "7.71839595282941000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            142,
+            "105.20837724216977000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 613,
+        "entry_slippage_cost": "76.14548291211687000",
+        "executable": 500,
+        "executable_at_minimum_volume": 107,
+        "executable_pullback_events": 423,
+        "exit_reasons": {
+          "H1 trend invalidated": 21,
+          "forced close 16:45 New York": 106,
+          "stop": 246,
+          "target": 127
+        },
+        "exit_slippage_cost": "54.38111218254428000",
+        "expected_value": "0.36319121647848408",
+        "filter_reasons": {
+          "missing candles in the decision window": 9,
+          "signal spread 50 points above maximum": 3,
+          "stop wider than 3 x ATR(14)": 435,
+          "within 60 minutes of the daily break": 133
+        },
+        "final_balance": "1181.59560823924204000",
+        "gross_gbp": "479.42378102895200000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "545.37889883908623000",
+        "max_drawdown_percent": 38.196211384808585,
+        "minimum_volume_rejections": 15,
+        "net_gbp": "181.59560823924204000",
+        "outcomes": {
+          "executable": 500,
+          "filtered": 580,
+          "rejected_by_risk": 15
+        },
+        "profit_factor": 1.0377483505926661,
+        "risk_rejections": 15,
+        "signals": 1095,
+        "spread_cost": "167.30157769504881000",
+        "starting_balance": "1000",
+        "trades": 500,
+        "win_rate": 0.394,
+        "wins": 197
+      }
+    },
+    "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts": {
+      "Out of sample": {
+        "average_holding": 11716.666667,
+        "average_loss": "-12.92754530827877951020408163",
+        "average_planned_rr": "1.985783889174962267096652001",
+        "average_realised_r": "-0.02708303814883493104633236386",
+        "average_win": "22.12704302963760646616541353",
+        "by_month": {
+          "2026-01": [
+            33,
+            "110.82576811484721000"
+          ],
+          "2026-02": [
+            34,
+            "-46.52289792019125000"
+          ],
+          "2026-03": [
+            26,
+            "-60.24796171277335000"
+          ],
+          "2026-04": [
+            42,
+            "5.52869933596000000"
+          ],
+          "2026-05": [
+            34,
+            "22.67546267776645000"
+          ],
+          "2026-06": [
+            39,
+            "54.28942331435249000"
+          ],
+          "2026-07": [
+            36,
+            "-239.06943651769836000"
+          ],
+          "2026-08": [
+            45,
+            "-46.46324835869114000"
+          ],
+          "2026-09": [
+            41,
+            "-4.35272776875682000"
+          ],
+          "2026-10": [
+            48,
+            "-21.01495875131455000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            176,
+            "-108.57949376988378000"
+          ],
+          "London (03:00-08:00 NY)": [
+            82,
+            "-356.51694825977590000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            120,
+            "240.74456444316036000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 547,
+        "entry_slippage_cost": "24.55909126477744000",
+        "executable": 378,
+        "executable_at_minimum_volume": 299,
+        "executable_pullback_events": 320,
+        "exit_reasons": {
+          "H1 trend invalidated": 16,
+          "forced close 16:45 New York": 59,
+          "stop": 205,
+          "target": 98
+        },
+        "exit_slippage_cost": "82.94392061572748000",
+        "expected_value": "-0.5935234856785696296296296296",
+        "filter_reasons": {
+          "missing candles in the decision window": 4,
+          "stop wider than 3 x ATR(14)": 441,
+          "within 60 minutes of the daily break": 122
+        },
+        "final_balance": "775.64812241350068000",
+        "gross_gbp": "-39.37004988767198000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "504.61259206283854000",
+        "max_drawdown_percent": 42.00334771193687,
+        "minimum_volume_rejections": 165,
+        "net_gbp": "-224.35187758649932000",
+        "outcomes": {
+          "executable": 378,
+          "filtered": 567,
+          "rejected_by_risk": 165
+        },
+        "profit_factor": 0.9291650558945461,
+        "risk_rejections": 165,
+        "signals": 1110,
+        "spread_cost": "77.47881581832242000",
+        "starting_balance": "1000",
+        "trades": 378,
+        "win_rate": 0.35185185185185186,
+        "wins": 133
+      },
+      "Training": {
+        "average_holding": 10319.927096,
+        "average_loss": "-5.452557136943591930147058824",
+        "average_planned_rr": "1.931048943869463860624161651",
+        "average_realised_r": "-0.1151785699653154663528656246",
+        "average_win": "7.764828157449525412186379928",
+        "by_month": {
+          "2023-01": [
+            40,
+            "-145.32115820813867000"
+          ],
+          "2023-02": [
+            45,
+            "-172.05005540814977000"
+          ],
+          "2023-03": [
+            48,
+            "-96.50843771453763000"
+          ],
+          "2023-04": [
+            32,
+            "-7.77224407576984000"
+          ],
+          "2023-05": [
+            49,
+            "-8.74712524814985000"
+          ],
+          "2023-06": [
+            48,
+            "-115.46145016066777000"
+          ],
+          "2023-07": [
+            49,
+            "-104.00169516303253000"
+          ],
+          "2023-08": [
+            64,
+            "-52.49760397363771000"
+          ],
+          "2023-09": [
+            41,
+            "-13.87918715927956000"
+          ],
+          "2023-10": [
+            47,
+            "15.99166837472928000"
+          ],
+          "2023-11": [
+            41,
+            "-33.98492972486984000"
+          ],
+          "2023-12": [
+            31,
+            "23.41409365735229000"
+          ],
+          "2024-01": [
+            44,
+            "-44.03844349340043000"
+          ],
+          "2024-02": [
+            29,
+            "-19.15706640145262000"
+          ],
+          "2024-03": [
+            33,
+            "-29.11416628251826000"
+          ],
+          "2024-04": [
+            18,
+            "5.36473613674950000"
+          ],
+          "2024-05": [
+            19,
+            "-22.59951020540048000"
+          ],
+          "2024-06": [
+            18,
+            "0.38660611741075000"
+          ],
+          "2024-07": [
+            21,
+            "15.80133515186752000"
+          ],
+          "2024-08": [
+            16,
+            "4.18673347992547000"
+          ],
+          "2024-09": [
+            25,
+            "-2.01758854815648000"
+          ],
+          "2024-10": [
+            33,
+            "-5.78362754574502000"
+          ],
+          "2024-11": [
+            11,
+            "16.88809322789183000"
+          ],
+          "2024-12": [
+            21,
+            "-8.90300340191660000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            417,
+            "-362.91280707376338000"
+          ],
+          "London (03:00-08:00 NY)": [
+            183,
+            "-406.22670350631952000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            223,
+            "-30.66451598881352000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 1415,
+        "entry_slippage_cost": "94.36945350653170000",
+        "executable": 823,
+        "executable_at_minimum_volume": 406,
+        "executable_pullback_events": 701,
+        "exit_reasons": {
+          "H1 trend invalidated": 20,
+          "forced close 16:45 New York": 135,
+          "stop": 460,
+          "stop (gap)": 1,
+          "target": 207
+        },
+        "exit_slippage_cost": "337.69310808224228000",
+        "expected_value": "-0.9718153421250260267314702309",
+        "filter_reasons": {
+          "entry spread 44 points above maximum": 1,
+          "missing candles in the decision window": 9,
+          "stop wider than 3 x ATR(14)": 1304,
+          "within 60 minutes of the daily break": 265
+        },
+        "final_balance": "200.19597343110358000",
+        "gross_gbp": "-127.21828118556356000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "829.19114188773168000",
+        "max_drawdown_percent": 82.67391791844327,
+        "minimum_volume_rejections": 774,
+        "net_gbp": "-799.80402656889642000",
+        "outcomes": {
+          "executable": 823,
+          "filtered": 1579,
+          "rejected_by_risk": 774
+        },
+        "profit_factor": 0.7303599113056733,
+        "risk_rejections": 774,
+        "signals": 3176,
+        "spread_cost": "240.52318379455888000",
+        "starting_balance": "1000",
+        "trades": 823,
+        "win_rate": 0.33900364520048604,
+        "wins": 279
+      },
+      "Validation": {
+        "average_holding": 13207.228916,
+        "average_loss": "-15.01850022850227776666666667",
+        "average_planned_rr": "1.973261071035300472551946779",
+        "average_realised_r": "0.01941515463050970027013017591",
+        "average_win": "23.11535291804220828282828283",
+        "by_month": {
+          "2025-01": [
+            50,
+            "-60.57849182442168000"
+          ],
+          "2025-02": [
+            43,
+            "221.10053089761220000"
+          ],
+          "2025-03": [
+            47,
+            "9.45081303963536000"
+          ],
+          "2025-04": [
+            35,
+            "-18.49241835534925000"
+          ],
+          "2025-05": [
+            31,
+            "109.26322936745354000"
+          ],
+          "2025-06": [
+            37,
+            "-22.51994203023192000"
+          ],
+          "2025-07": [
+            36,
+            "-186.47803774669672000"
+          ],
+          "2025-08": [
+            44,
+            "-245.90571606527510000"
+          ],
+          "2025-09": [
+            53,
+            "93.26801361450172000"
+          ],
+          "2025-10": [
+            49,
+            "132.18503576968117000"
+          ],
+          "2025-11": [
+            31,
+            "39.12415221669335000"
+          ],
+          "2025-12": [
+            42,
+            "0.87264033807124000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            258,
+            "-67.63751145262916000"
+          ],
+          "London (03:00-08:00 NY)": [
+            100,
+            "35.61061503914255000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            140,
+            "103.31670563516052000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 622,
+        "entry_slippage_cost": "70.14854442346814000",
+        "executable": 498,
+        "executable_at_minimum_volume": 144,
+        "executable_pullback_events": 421,
+        "exit_reasons": {
+          "H1 trend invalidated": 19,
+          "forced close 16:45 New York": 104,
+          "stop": 247,
+          "target": 128
+        },
+        "exit_slippage_cost": "228.55700122277119000",
+        "expected_value": "0.1431522273527588554216867470",
+        "filter_reasons": {
+          "missing candles in the decision window": 9,
+          "signal spread 50 points above maximum": 3,
+          "stop wider than 3 x ATR(14)": 446,
+          "within 60 minutes of the daily break": 135
+        },
+        "final_balance": "1071.28980922167391000",
+        "gross_gbp": "523.62262121868905000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "583.87139898498625000",
+        "max_drawdown_percent": 42.59641683517935,
+        "minimum_volume_rejections": 28,
+        "net_gbp": "71.28980922167391000",
+        "outcomes": {
+          "executable": 498,
+          "filtered": 593,
+          "rejected_by_risk": 28
+        },
+        "profit_factor": 1.0158226649658797,
+        "risk_rejections": 28,
+        "signals": 1119,
+        "spread_cost": "153.62726635077581000",
+        "starting_balance": "1000",
+        "trades": 498,
+        "win_rate": 0.39759036144578314,
+        "wins": 198
+      }
+    },
+    "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 67 pts": {
+      "Out of sample": {
+        "average_holding": 11569.736842,
+        "average_loss": "-12.90408407445645821138211382",
+        "average_planned_rr": "1.985772884781102685462769051",
+        "average_realised_r": "-0.03255160793964130394703084937",
+        "average_win": "21.99626511375063529850746269",
+        "by_month": {
+          "2026-01": [
+            33,
+            "108.45666128908421000"
+          ],
+          "2026-02": [
+            34,
+            "-49.62567306245065000"
+          ],
+          "2026-03": [
+            27,
+            "-76.21394668396442000"
+          ],
+          "2026-04": [
+            42,
+            "8.16866686695952000"
+          ],
+          "2026-05": [
+            34,
+            "29.09823080370316000"
+          ],
+          "2026-06": [
+            40,
+            "73.99364023241242000"
+          ],
+          "2026-07": [
+            36,
+            "-243.84825748951896000"
+          ],
+          "2026-08": [
+            45,
+            "-50.74944470343274000"
+          ],
+          "2026-09": [
+            41,
+            "-0.20822703616738000"
+          ],
+          "2026-10": [
+            48,
+            "-25.97680729032875000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            176,
+            "-122.10267200694569000"
+          ],
+          "London (03:00-08:00 NY)": [
+            82,
+            "-347.98359692996953000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            122,
+            "243.18111186321163000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 552,
+        "entry_slippage_cost": "24.40389557217430000",
+        "executable": 380,
+        "executable_at_minimum_volume": 305,
+        "executable_pullback_events": 322,
+        "exit_reasons": {
+          "H1 trend invalidated": 16,
+          "forced close 16:45 New York": 59,
+          "stop": 206,
+          "target": 99
+        },
+        "exit_slippage_cost": "120.34368836092128000",
+        "expected_value": "-0.5971188344044831315789473684",
+        "filter_reasons": {
+          "missing candles in the decision window": 4,
+          "stop wider than 3 x ATR(14)": 441,
+          "within 60 minutes of the daily break": 122
+        },
+        "final_balance": "773.09484292629641000",
+        "gross_gbp": "-5.20312081673291000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "502.85339335764181000",
+        "max_drawdown_percent": 41.94474133652059,
+        "minimum_volume_rejections": 170,
+        "net_gbp": "-226.90515707370359000",
+        "outcomes": {
+          "executable": 380,
+          "filtered": 567,
+          "rejected_by_risk": 170
+        },
+        "profit_factor": 0.9285204062551545,
+        "risk_rejections": 170,
+        "signals": 1117,
+        "spread_cost": "76.95445232387510000",
+        "starting_balance": "1000",
+        "trades": 380,
+        "win_rate": 0.3526315789473684,
+        "wins": 134
+      },
+      "Training": {
+        "average_holding": 10200.0,
+        "average_loss": "-5.559642605182959313304721030",
+        "average_planned_rr": "1.926343833890555414889204810",
+        "average_realised_r": "-0.1693552546510529366457437835",
+        "average_win": "7.430549693644127296137339056",
+        "by_month": {
+          "2023-01": [
+            40,
+            "-160.40450263187539000"
+          ],
+          "2023-02": [
+            45,
+            "-169.48411258740206000"
+          ],
+          "2023-03": [
+            48,
+            "-109.25518189546867000"
+          ],
+          "2023-04": [
+            32,
+            "-8.01234860560247000"
+          ],
+          "2023-05": [
+            49,
+            "-27.03395426160923000"
+          ],
+          "2023-06": [
+            48,
+            "-136.37764106452509000"
+          ],
+          "2023-07": [
+            50,
+            "-107.35802706490408000"
+          ],
+          "2023-08": [
+            63,
+            "-45.90915427810571000"
+          ],
+          "2023-09": [
+            40,
+            "-15.56782450068882000"
+          ],
+          "2023-10": [
+            44,
+            "28.63613798817260000"
+          ],
+          "2023-11": [
+            39,
+            "-29.23693005451779000"
+          ],
+          "2023-12": [
+            30,
+            "3.61144951990994000"
+          ],
+          "2024-01": [
+            37,
+            "-26.27543826556945000"
+          ],
+          "2024-02": [
+            28,
+            "-25.55718074763550000"
+          ],
+          "2024-03": [
+            23,
+            "-23.03465962459398000"
+          ],
+          "2024-04": [
+            6,
+            "10.14513169094002000"
+          ],
+          "2024-05": [
+            13,
+            "-11.03383447262958000"
+          ],
+          "2024-06": [
+            16,
+            "-1.47129768479054000"
+          ],
+          "2024-07": [
+            10,
+            "8.37305844985517000"
+          ],
+          "2024-08": [
+            4,
+            "-10.71383856861585000"
+          ],
+          "2024-09": [
+            10,
+            "-2.11244247459734000"
+          ],
+          "2024-10": [
+            13,
+            "4.94675788069648000"
+          ],
+          "2024-11": [
+            3,
+            "-1.85952730076865000"
+          ],
+          "2024-12": [
+            8,
+            "-4.49001484185139000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            360,
+            "-442.89210696950924000"
+          ],
+          "London (03:00-08:00 NY)": [
+            151,
+            "-363.04770225485218000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            188,
+            "-53.53556617181596000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 1476,
+        "entry_slippage_cost": "78.68514698733276000",
+        "executable": 699,
+        "executable_at_minimum_volume": 358,
+        "executable_pullback_events": 593,
+        "exit_reasons": {
+          "H1 trend invalidated": 17,
+          "forced close 16:45 New York": 116,
+          "stop": 394,
+          "stop (gap)": 1,
+          "target": 171
+        },
+        "exit_slippage_cost": "418.60472487103932000",
+        "expected_value": "-1.229578505573930443490701001",
+        "filter_reasons": {
+          "entry spread 44 points above maximum": 1,
+          "missing candles in the decision window": 9,
+          "stop wider than 3 x ATR(14)": 1401,
+          "within 60 minutes of the daily break": 282
+        },
+        "final_balance": "140.52462460382262000",
+        "gross_gbp": "-159.79385872081414000",
+        "losses_above_risk_limit": 2,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 13,
+        "max_drawdown_gbp": "861.60588848635180000",
+        "max_drawdown_percent": 85.97741284510934,
+        "minimum_volume_rejections": 1150,
+        "net_gbp": "-859.47537539617738000",
+        "outcomes": {
+          "executable": 699,
+          "filtered": 1693,
+          "rejected_by_risk": 1150
+        },
+        "profit_factor": 0.6682578558842093,
+        "risk_rejections": 1150,
+        "signals": 3542,
+        "spread_cost": "202.39164481699116000",
+        "starting_balance": "1000",
+        "trades": 699,
+        "win_rate": 0.3333333333333333,
+        "wins": 233
+      },
+      "Validation": {
+        "average_holding": 13249.090909,
+        "average_loss": "-14.46283991305519590604026846",
+        "average_planned_rr": "1.973147052403387393558620736",
+        "average_realised_r": "0.007224306614770774795058935131",
+        "average_win": "21.80257980160633456852791878",
+        "by_month": {
+          "2025-01": [
+            50,
+            "-88.44564535061861000"
+          ],
+          "2025-02": [
+            43,
+            "201.52518099463874000"
+          ],
+          "2025-03": [
+            47,
+            "1.47446782291176000"
+          ],
+          "2025-04": [
+            35,
+            "-21.20148387761376000"
+          ],
+          "2025-05": [
+            31,
+            "132.62048239977586000"
+          ],
+          "2025-06": [
+            37,
+            "-41.07906769649135000"
+          ],
+          "2025-07": [
+            36,
+            "-182.73066563605523000"
+          ],
+          "2025-08": [
+            44,
+            "-231.03571171148641000"
+          ],
+          "2025-09": [
+            53,
+            "56.34577644361321000"
+          ],
+          "2025-10": [
+            47,
+            "153.07853698413529000"
+          ],
+          "2025-11": [
+            31,
+            "47.74414442596259000"
+          ],
+          "2025-12": [
+            41,
+            "-43.11408797277256000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            255,
+            "-163.81613625397237000"
+          ],
+          "London (03:00-08:00 NY)": [
+            100,
+            "39.22680014000165000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            140,
+            "109.77126293997025000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 622,
+        "entry_slippage_cost": "66.29072158787344000",
+        "executable": 495,
+        "executable_at_minimum_volume": 159,
+        "executable_pullback_events": 418,
+        "exit_reasons": {
+          "H1 trend invalidated": 19,
+          "forced close 16:45 New York": 104,
+          "stop": 245,
+          "target": 127
+        },
+        "exit_slippage_cost": "318.35883396863000000",
+        "expected_value": "-0.02993550136161711111111111111",
+        "filter_reasons": {
+          "missing candles in the decision window": 9,
+          "signal spread 50 points above maximum": 3,
+          "stop wider than 3 x ATR(14)": 447,
+          "within 60 minutes of the daily break": 135
+        },
+        "final_balance": "985.18192682599953000",
+        "gross_gbp": "514.84455858820007000",
+        "losses_above_risk_limit": 1,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "590.59913492109870000",
+        "max_drawdown_percent": 44.5301670173942,
+        "minimum_volume_rejections": 32,
+        "net_gbp": "-14.81807317400047000",
+        "outcomes": {
+          "executable": 495,
+          "filtered": 594,
+          "rejected_by_risk": 32
+        },
+        "profit_factor": 0.9965618731823052,
+        "risk_rejections": 32,
+        "signals": 1121,
+        "spread_cost": "145.01307620569710000",
+        "starting_balance": "1000",
+        "trades": 495,
+        "win_rate": 0.397979797979798,
+        "wins": 197
+      }
+    },
+    "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 100 pts": {
+      "Out of sample": {
+        "average_holding": 11557.519789,
+        "average_loss": "-12.61290177763401692307692308",
+        "average_planned_rr": "1.920446515671331464352104455",
+        "average_realised_r": "-0.03697892839406762095653304029",
+        "average_win": "21.69188447464742909090909091",
+        "by_month": {
+          "2026-01": [
+            32,
+            "107.77566263729902000"
+          ],
+          "2026-02": [
+            34,
+            "-53.32773758853753000"
+          ],
+          "2026-03": [
+            27,
+            "-75.79533173212168000"
+          ],
+          "2026-04": [
+            41,
+            "24.58035604145806000"
+          ],
+          "2026-05": [
+            34,
+            "26.33348098425546000"
+          ],
+          "2026-06": [
+            40,
+            "43.62837268698199000"
+          ],
+          "2026-07": [
+            36,
+            "-236.47481230057103000"
+          ],
+          "2026-08": [
+            45,
+            "-47.49686194235285000"
+          ],
+          "2026-09": [
+            41,
+            "5.89423000955788000"
+          ],
+          "2026-10": [
+            49,
+            "-47.17534721811086000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            175,
+            "-123.86112251422846000"
+          ],
+          "London (03:00-08:00 NY)": [
+            84,
+            "-365.44775508501683000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            120,
+            "237.25088917710375000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 553,
+        "entry_slippage_cost": "137.06316937573120000",
+        "executable": 379,
+        "executable_at_minimum_volume": 308,
+        "executable_pullback_events": 322,
+        "exit_reasons": {
+          "H1 trend invalidated": 15,
+          "forced close 16:45 New York": 59,
+          "stop": 206,
+          "target": 99
+        },
+        "exit_slippage_cost": "38.97225004503094000",
+        "expected_value": "-0.6650606554673919261213720317",
+        "filter_reasons": {
+          "missing candles in the decision window": 4,
+          "stop wider than 3 x ATR(14)": 441,
+          "within 60 minutes of the daily break": 122
+        },
+        "final_balance": "747.94201157785846000",
+        "gross_gbp": "-0.36692162549206000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "502.02801520297060000",
+        "max_drawdown_percent": 41.93682940836413,
+        "minimum_volume_rejections": 174,
+        "net_gbp": "-252.05798842214154000",
+        "outcomes": {
+          "executable": 379,
+          "filtered": 567,
+          "rejected_by_risk": 174
+        },
+        "profit_factor": 0.9190925526963846,
+        "risk_rejections": 174,
+        "signals": 1120,
+        "spread_cost": "75.65564737588734000",
+        "starting_balance": "1000",
+        "trades": 379,
+        "win_rate": 0.3482849604221636,
+        "wins": 132
+      },
+      "Training": {
+        "average_holding": 10247.460087,
+        "average_loss": "-4.878468159801027616033755274",
+        "average_planned_rr": "1.629183073035320868976333042",
+        "average_realised_r": "-0.1715486420537068714630178865",
+        "average_win": "6.774017207508636558139534884",
+        "by_month": {
+          "2023-01": [
+            40,
+            "-159.06376562991219000"
+          ],
+          "2023-02": [
+            45,
+            "-173.76769848620396000"
+          ],
+          "2023-03": [
+            48,
+            "-105.79082002994955000"
+          ],
+          "2023-04": [
+            32,
+            "-19.91094787986769000"
+          ],
+          "2023-05": [
+            49,
+            "-34.16931997476805000"
+          ],
+          "2023-06": [
+            48,
+            "-111.95858542322942000"
+          ],
+          "2023-07": [
+            50,
+            "-101.23733635253267000"
+          ],
+          "2023-08": [
+            63,
+            "-45.62850596308339000"
+          ],
+          "2023-09": [
+            40,
+            "-19.72647809818216000"
+          ],
+          "2023-10": [
+            43,
+            "22.86570673602140000"
+          ],
+          "2023-11": [
+            39,
+            "-31.20794646961589000"
+          ],
+          "2023-12": [
+            30,
+            "9.90609225373953000"
+          ],
+          "2024-01": [
+            36,
+            "-24.22915958123897000"
+          ],
+          "2024-02": [
+            28,
+            "-26.36430451396473000"
+          ],
+          "2024-03": [
+            22,
+            "-19.13997385143604000"
+          ],
+          "2024-04": [
+            6,
+            "9.41171910008970000"
+          ],
+          "2024-05": [
+            13,
+            "-11.58929341951357000"
+          ],
+          "2024-06": [
+            16,
+            "-0.92064783011245000"
+          ],
+          "2024-07": [
+            10,
+            "7.86620942262224000"
+          ],
+          "2024-08": [
+            4,
+            "-10.09789422972885000"
+          ],
+          "2024-09": [
+            10,
+            "-3.36225270922739000"
+          ],
+          "2024-10": [
+            11,
+            "-0.88479035462730000"
+          ],
+          "2024-11": [
+            2,
+            "-3.74723092071137000"
+          ],
+          "2024-12": [
+            4,
+            "-3.23298392589746000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            358,
+            "-348.69235804255700000"
+          ],
+          "London (03:00-08:00 NY)": [
+            148,
+            "-388.22982504167104000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            183,
+            "-119.05802504710219000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 1477,
+        "entry_slippage_cost": "406.28191926714640000",
+        "executable": 689,
+        "executable_at_minimum_volume": 385,
+        "executable_pullback_events": 586,
+        "exit_reasons": {
+          "H1 trend invalidated": 16,
+          "forced close 16:45 New York": 112,
+          "stop": 391,
+          "stop (gap)": 1,
+          "target": 169
+        },
+        "exit_slippage_cost": "104.37461625973362000",
+        "expected_value": "-1.242351535749390754716981132",
+        "filter_reasons": {
+          "entry spread 44 points above maximum": 1,
+          "missing candle before entry": 1,
+          "missing candles in the decision window": 9,
+          "stop wider than 3 x ATR(14)": 1406,
+          "within 60 minutes of the daily break": 284
+        },
+        "final_balance": "144.01979186866977000",
+        "gross_gbp": "-162.54422577707824000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "857.70148909773163000",
+        "max_drawdown_percent": 85.62276806880573,
+        "minimum_volume_rejections": 1169,
+        "net_gbp": "-855.98020813133023000",
+        "outcomes": {
+          "executable": 689,
+          "filtered": 1701,
+          "rejected_by_risk": 1169
+        },
+        "profit_factor": 0.6298294138969556,
+        "risk_rejections": 1169,
+        "signals": 3559,
+        "spread_cost": "182.77944682737197000",
+        "starting_balance": "1000",
+        "trades": 689,
+        "win_rate": 0.31204644412191584,
+        "wins": 215
+      },
+      "Validation": {
+        "average_holding": 12788.798371,
+        "average_loss": "-12.25279032484491166666666667",
+        "average_planned_rr": "1.853830052864638066788466363",
+        "average_realised_r": "-0.003306620440335858975999658574",
+        "average_win": "18.46029207997831612565445026",
+        "by_month": {
+          "2025-01": [
+            50,
+            "-94.65659382285118000"
+          ],
+          "2025-02": [
+            43,
+            "127.27944587830407000"
+          ],
+          "2025-03": [
+            47,
+            "-27.12814309356840000"
+          ],
+          "2025-04": [
+            35,
+            "-17.87451220866752000"
+          ],
+          "2025-05": [
+            31,
+            "81.01543998409967000"
+          ],
+          "2025-06": [
+            37,
+            "-29.24892041961189000"
+          ],
+          "2025-07": [
+            36,
+            "-147.84158565538148000"
+          ],
+          "2025-08": [
+            44,
+            "-202.34979369527512000"
+          ],
+          "2025-09": [
+            52,
+            "68.56624964950111000"
+          ],
+          "2025-10": [
+            45,
+            "179.81744436296025000"
+          ],
+          "2025-11": [
+            30,
+            "-12.77602406347727000"
+          ],
+          "2025-12": [
+            41,
+            "-74.72431709364736000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            253,
+            "-84.61256154715886000"
+          ],
+          "London (03:00-08:00 NY)": [
+            100,
+            "-48.56766735369944000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            138,
+            "-16.74108127675682000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 624,
+        "entry_slippage_cost": "324.08518596141240000",
+        "executable": 491,
+        "executable_at_minimum_volume": 195,
+        "executable_pullback_events": 414,
+        "exit_reasons": {
+          "H1 trend invalidated": 18,
+          "forced close 16:45 New York": 102,
+          "stop": 244,
+          "target": 127
+        },
+        "exit_slippage_cost": "86.61786936455890000",
+        "expected_value": "-0.3053387172660185743380855397",
+        "filter_reasons": {
+          "missing candles in the decision window": 9,
+          "signal spread 50 points above maximum": 3,
+          "stop wider than 3 x ATR(14)": 452,
+          "within 60 minutes of the daily break": 135
+        },
+        "final_balance": "850.07868982238488000",
+        "gross_gbp": "383.45310897806848000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "461.68278907341629000",
+        "max_drawdown_percent": 40.806876021964634,
+        "minimum_volume_rejections": 45,
+        "net_gbp": "-149.92131017761512000",
+        "outcomes": {
+          "executable": 491,
+          "filtered": 599,
+          "rejected_by_risk": 45
+        },
+        "profit_factor": 0.9592143758814892,
+        "risk_rejections": 45,
+        "signals": 1135,
+        "spread_cost": "122.67136382971230000",
+        "starting_balance": "1000",
+        "trades": 491,
+        "win_rate": 0.3890020366598778,
+        "wins": 191
+      }
+    },
+    "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts": {
+      "Out of sample": {
+        "average_holding": 11563.925729,
+        "average_loss": "-12.71867704444096353658536585",
+        "average_planned_rr": "1.920296080909061696119929727",
+        "average_realised_r": "-0.05131127154669722442773107915",
+        "average_win": "21.60349765747363236641221374",
+        "by_month": {
+          "2026-01": [
+            32,
+            "103.86663637479007000"
+          ],
+          "2026-02": [
+            34,
+            "-58.44731657326554000"
+          ],
+          "2026-03": [
+            27,
+            "-71.41513374678943000"
+          ],
+          "2026-04": [
+            41,
+            "11.15652037907037000"
+          ],
+          "2026-05": [
+            34,
+            "31.06343628730610000"
+          ],
+          "2026-06": [
+            40,
+            "47.37870635081964000"
+          ],
+          "2026-07": [
+            35,
+            "-224.71069217633916000"
+          ],
+          "2026-08": [
+            45,
+            "-54.56908591117649000"
+          ],
+          "2026-09": [
+            41,
+            "-0.76512612017480000"
+          ],
+          "2026-10": [
+            48,
+            "-82.29430466767195000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            174,
+            "-119.55098910231700000"
+          ],
+          "London (03:00-08:00 NY)": [
+            82,
+            "-437.79410661968902000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            121,
+            "258.60873591857483000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 553,
+        "entry_slippage_cost": "135.57029576024400000",
+        "executable": 377,
+        "executable_at_minimum_volume": 309,
+        "executable_pullback_events": 320,
+        "exit_reasons": {
+          "H1 trend invalidated": 15,
+          "forced close 16:45 New York": 59,
+          "stop": 205,
+          "target": 98
+        },
+        "exit_slippage_cost": "100.70647744284800000",
+        "expected_value": "-0.7924041374096318037135278515",
+        "filter_reasons": {
+          "missing candles in the decision window": 4,
+          "stop wider than 3 x ATR(14)": 444,
+          "within 60 minutes of the daily break": 122
+        },
+        "final_balance": "701.26364019656881000",
+        "gross_gbp": "12.36766352138191000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 13,
+        "max_drawdown_gbp": "517.62394045163627000",
+        "max_drawdown_percent": 43.3900740479185,
+        "minimum_volume_rejections": 181,
+        "net_gbp": "-298.73635980343119000",
+        "outcomes": {
+          "executable": 377,
+          "filtered": 570,
+          "rejected_by_risk": 181
+        },
+        "profit_factor": 0.9045203017489789,
+        "risk_rejections": 181,
+        "signals": 1128,
+        "spread_cost": "74.82725012172110000",
+        "starting_balance": "1000",
+        "trades": 377,
+        "win_rate": 0.34748010610079577,
+        "wins": 131
+      },
+      "Training": {
+        "average_holding": 9975.409836,
+        "average_loss": "-5.207340151877770284237726098",
+        "average_planned_rr": "1.612855145683211050270178143",
+        "average_realised_r": "-0.2483157954285257864243327040",
+        "average_win": "6.937543879871624320987654321",
+        "by_month": {
+          "2023-01": [
+            40,
+            "-177.58165160841291000"
+          ],
+          "2023-02": [
+            45,
+            "-201.18700126552092000"
+          ],
+          "2023-03": [
+            47,
+            "-108.78539103838936000"
+          ],
+          "2023-04": [
+            32,
+            "-27.99848851835486000"
+          ],
+          "2023-05": [
+            49,
+            "-27.75070731473594000"
+          ],
+          "2023-06": [
+            48,
+            "-114.61879440773578000"
+          ],
+          "2023-07": [
+            50,
+            "-101.76017701656185000"
+          ],
+          "2023-08": [
+            60,
+            "-44.87608375324165000"
+          ],
+          "2023-09": [
+            36,
+            "-13.47756336092312000"
+          ],
+          "2023-10": [
+            30,
+            "0.67447373492111000"
+          ],
+          "2023-11": [
+            31,
+            "-9.19240198166726000"
+          ],
+          "2023-12": [
+            23,
+            "-4.45406224630536000"
+          ],
+          "2024-01": [
+            17,
+            "-23.82969882055592000"
+          ],
+          "2024-02": [
+            20,
+            "-14.38619668207385000"
+          ],
+          "2024-03": [
+            7,
+            "-5.99274003563117000"
+          ],
+          "2024-05": [
+            4,
+            "-4.41927224330635000"
+          ],
+          "2024-06": [
+            2,
+            "-3.54031138427602000"
+          ],
+          "2024-07": [
+            1,
+            "-2.08120662504341000"
+          ],
+          "2024-08": [
+            1,
+            "-2.07917018007930000"
+          ],
+          "2024-09": [
+            1,
+            "-1.86001679286319000"
+          ],
+          "2024-10": [
+            4,
+            "-0.18133098709971000"
+          ],
+          "2024-11": [
+            1,
+            "-1.98073770963714000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            292,
+            "-391.23447568155117000"
+          ],
+          "London (03:00-08:00 NY)": [
+            121,
+            "-393.39612629324989000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            136,
+            "-106.72792826269290000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 1534,
+        "entry_slippage_cost": "322.46506896334720000",
+        "executable": 549,
+        "executable_at_minimum_volume": 304,
+        "executable_pullback_events": 467,
+        "exit_reasons": {
+          "H1 trend invalidated": 13,
+          "forced close 16:45 New York": 84,
+          "stop": 318,
+          "stop (gap)": 1,
+          "target": 133
+        },
+        "exit_slippage_cost": "244.12600897148480000",
+        "expected_value": "-1.623603880214014499089253188",
+        "filter_reasons": {
+          "entry spread 44 points above maximum": 1,
+          "missing candle before entry": 3,
+          "missing candles in the decision window": 9,
+          "stop wider than 3 x ATR(14)": 1519,
+          "within 60 minutes of the daily break": 296
+        },
+        "final_balance": "108.64146976250604000",
+        "gross_gbp": "-179.19360573239441000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "891.97633677809920000",
+        "max_drawdown_percent": 89.1425608206886,
+        "minimum_volume_rejections": 1515,
+        "net_gbp": "-891.35853023749396000",
+        "outcomes": {
+          "executable": 549,
+          "filtered": 1828,
+          "rejected_by_risk": 1515
+        },
+        "profit_factor": 0.5576912686821502,
+        "risk_rejections": 1515,
+        "signals": 3892,
+        "spread_cost": "145.57384657026755000",
+        "starting_balance": "1000",
+        "trades": 549,
+        "win_rate": 0.29508196721311475,
+        "wins": 162
+      },
+      "Validation": {
+        "average_holding": 12327.096774,
+        "average_loss": "-11.84162251305702360139860140",
+        "average_planned_rr": "1.847553752685663671291011423",
+        "average_realised_r": "-0.03775977173629637062803490697",
+        "average_win": "16.67426594732330106145251397",
+        "by_month": {
+          "2025-01": [
+            50,
+            "-124.61813581666543000"
+          ],
+          "2025-02": [
+            43,
+            "122.99108027247339000"
+          ],
+          "2025-03": [
+            47,
+            "-52.39175430340980000"
+          ],
+          "2025-04": [
+            35,
+            "-4.15500035112138000"
+          ],
+          "2025-05": [
+            31,
+            "49.53243373653010000"
+          ],
+          "2025-06": [
+            37,
+            "-39.51940767160069000"
+          ],
+          "2025-07": [
+            36,
+            "-148.65863307848246000"
+          ],
+          "2025-08": [
+            44,
+            "-209.06701954688182000"
+          ],
+          "2025-09": [
+            48,
+            "11.39627639505833000"
+          ],
+          "2025-10": [
+            30,
+            "66.74588360806328000"
+          ],
+          "2025-11": [
+            26,
+            "-8.83649890885014000"
+          ],
+          "2025-12": [
+            38,
+            "-65.42965849855124000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            240,
+            "-301.97389422164878000"
+          ],
+          "London (03:00-08:00 NY)": [
+            101,
+            "37.78964004580016000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            124,
+            "-137.82617998758924000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 654,
+        "entry_slippage_cost": "293.73224029118360000",
+        "executable": 465,
+        "executable_at_minimum_volume": 200,
+        "executable_pullback_events": 392,
+        "exit_reasons": {
+          "H1 trend invalidated": 16,
+          "forced close 16:45 New York": 94,
+          "stop": 235,
+          "target": 120
+        },
+        "exit_slippage_cost": "211.12502962394040000",
+        "expected_value": "-0.8645385680934147526881720430",
+        "filter_reasons": {
+          "missing candles in the decision window": 9,
+          "signal spread 50 points above maximum": 3,
+          "stop wider than 3 x ATR(14)": 508,
+          "within 60 minutes of the daily break": 138
+        },
+        "final_balance": "597.98956583656214000",
+        "gross_gbp": "212.54543727357629000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "480.20253467710004000",
+        "max_drawdown_percent": 45.693363929212545,
+        "minimum_volume_rejections": 152,
+        "net_gbp": "-402.01043416343786000",
+        "outcomes": {
+          "executable": 465,
+          "filtered": 658,
+          "rejected_by_risk": 152
+        },
+        "profit_factor": 0.881297441534431,
+        "risk_rejections": 152,
+        "signals": 1275,
+        "spread_cost": "109.69860152189015000",
+        "starting_balance": "1000",
+        "trades": 465,
+        "win_rate": 0.3849462365591398,
+        "wins": 179
+      }
+    },
+    "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 100 pts": {
+      "Out of sample": {
+        "average_holding": 11479.2,
+        "average_loss": "-12.73241558032044191836734694",
+        "average_planned_rr": "1.920195035317787451671288954",
+        "average_realised_r": "-0.06065899356193183786091869171",
+        "average_win": "21.54293874945119676923076923",
+        "by_month": {
+          "2026-01": [
+            32,
+            "101.49752954902707000"
+          ],
+          "2026-02": [
+            34,
+            "-61.55009171552494000"
+          ],
+          "2026-03": [
+            27,
+            "-74.41025360586203000"
+          ],
+          "2026-04": [
+            41,
+            "13.57140139982023000"
+          ],
+          "2026-05": [
+            34,
+            "28.09091429322790000"
+          ],
+          "2026-06": [
+            40,
+            "36.92922385270720000"
+          ],
+          "2026-07": [
+            35,
+            "-210.57514306868106000"
+          ],
+          "2026-08": [
+            44,
+            "-51.25807375935065000"
+          ],
+          "2026-09": [
+            41,
+            "-2.55258596559842000"
+          ],
+          "2026-10": [
+            47,
+            "-98.60270072961799000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            173,
+            "-196.15677420882252000"
+          ],
+          "London (03:00-08:00 NY)": [
+            82,
+            "-404.92024156685138000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            120,
+            "282.21723602582121000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 554,
+        "entry_slippage_cost": "133.47960161959680000",
+        "executable": 375,
+        "executable_at_minimum_volume": 311,
+        "executable_pullback_events": 318,
+        "exit_reasons": {
+          "H1 trend invalidated": 15,
+          "forced close 16:45 New York": 58,
+          "stop": 205,
+          "target": 97
+        },
+        "exit_slippage_cost": "135.70837528193880000",
+        "expected_value": "-0.8502927459996071733333333333",
+        "filter_reasons": {
+          "missing candles in the decision window": 4,
+          "stop wider than 3 x ATR(14)": 448,
+          "within 60 minutes of the daily break": 122
+        },
+        "final_balance": "681.14022025014731000",
+        "gross_gbp": "24.00566943713881000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 13,
+        "max_drawdown_gbp": "535.23185194138057000",
+        "max_drawdown_percent": 44.960871795720635,
+        "minimum_volume_rejections": 190,
+        "net_gbp": "-318.85977974985269000",
+        "outcomes": {
+          "executable": 375,
+          "filtered": 574,
+          "rejected_by_risk": 190
+        },
+        "profit_factor": 0.8977830655491255,
+        "risk_rejections": 190,
+        "signals": 1139,
+        "spread_cost": "73.67747228545590000",
+        "starting_balance": "1000",
+        "trades": 375,
+        "win_rate": 0.3466666666666667,
+        "wins": 130
+      },
+      "Training": {
+        "average_holding": 10013.924051,
+        "average_loss": "-5.567579890071289044776119403",
+        "average_planned_rr": "1.606378669274184743489165456",
+        "average_realised_r": "-0.2896863376685148960010312262",
+        "average_win": "6.991125265980220071942446043",
+        "by_month": {
+          "2023-01": [
+            40,
+            "-186.47580571775995000"
+          ],
+          "2023-02": [
+            45,
+            "-208.83327944589928000"
+          ],
+          "2023-03": [
+            47,
+            "-108.12383207394160000"
+          ],
+          "2023-04": [
+            32,
+            "-26.84419312395630000"
+          ],
+          "2023-05": [
+            49,
+            "-39.22145053014342000"
+          ],
+          "2023-06": [
+            47,
+            "-128.22827476012945000"
+          ],
+          "2023-07": [
+            48,
+            "-89.02016211014280000"
+          ],
+          "2023-08": [
+            56,
+            "-50.44003451781828000"
+          ],
+          "2023-09": [
+            30,
+            "-13.74992992439259000"
+          ],
+          "2023-10": [
+            17,
+            "0.43742419204887000"
+          ],
+          "2023-11": [
+            20,
+            "-8.09207741507810000"
+          ],
+          "2023-12": [
+            13,
+            "-16.55361265684603000"
+          ],
+          "2024-01": [
+            6,
+            "-8.59319755464610000"
+          ],
+          "2024-02": [
+            12,
+            "-1.22453485532467000"
+          ],
+          "2024-03": [
+            1,
+            "2.57411435858242000"
+          ],
+          "2024-05": [
+            3,
+            "-2.49344499788550000"
+          ],
+          "2024-06": [
+            2,
+            "-3.85713056312742000"
+          ],
+          "2024-09": [
+            1,
+            "-2.01062544005859000"
+          ],
+          "2024-10": [
+            4,
+            "-0.48852079758871000"
+          ],
+          "2024-11": [
+            1,
+            "-2.13428326852374000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            254,
+            "-422.86910223913025000"
+          ],
+          "London (03:00-08:00 NY)": [
+            107,
+            "-365.75399215123737000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            113,
+            "-104.74975681226362000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 1558,
+        "entry_slippage_cost": "282.49022949474280000",
+        "executable": 474,
+        "executable_at_minimum_volume": 257,
+        "executable_pullback_events": 399,
+        "exit_reasons": {
+          "H1 trend invalidated": 12,
+          "forced close 16:45 New York": 74,
+          "stop": 274,
+          "stop (gap)": 1,
+          "target": 113
+        },
+        "exit_slippage_cost": "299.74658906239600000",
+        "expected_value": "-1.884752850638462531645569620",
+        "filter_reasons": {
+          "entry spread 44 points above maximum": 1,
+          "missing candle before entry": 3,
+          "missing candles in the decision window": 9,
+          "stop wider than 3 x ATR(14)": 1579,
+          "within 60 minutes of the daily break": 306
+        },
+        "final_balance": "106.62714879736876000",
+        "gross_gbp": "-183.90467445243178000",
+        "losses_above_risk_limit": 1,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "893.37285120263124000",
+        "max_drawdown_percent": 89.33728512026312,
+        "minimum_volume_rejections": 1688,
+        "net_gbp": "-893.37285120263124000",
+        "outcomes": {
+          "executable": 474,
+          "filtered": 1898,
+          "rejected_by_risk": 1688
+        },
+        "profit_factor": 0.5210154711544751,
+        "risk_rejections": 1688,
+        "signals": 4060,
+        "spread_cost": "127.23135819306066000",
+        "starting_balance": "1000",
+        "trades": 474,
+        "win_rate": 0.29324894514767935,
+        "wins": 139
+      },
+      "Validation": {
+        "average_holding": 12412.581345,
+        "average_loss": "-11.80738532166943371024734982",
+        "average_planned_rr": "1.846873699483672493594818943",
+        "average_realised_r": "-0.04468357327550061453958795514",
+        "average_win": "16.53350581775978702247191011",
+        "by_month": {
+          "2025-01": [
+            50,
+            "-139.59602292775143000"
+          ],
+          "2025-02": [
+            43,
+            "118.24189270368004000"
+          ],
+          "2025-03": [
+            47,
+            "-65.20081165026508000"
+          ],
+          "2025-04": [
+            35,
+            "-3.01062611253529000"
+          ],
+          "2025-05": [
+            31,
+            "51.01645737863330000"
+          ],
+          "2025-06": [
+            37,
+            "-38.99697684872729000"
+          ],
+          "2025-07": [
+            36,
+            "-156.32757110384211000"
+          ],
+          "2025-08": [
+            44,
+            "-198.51052131487597000"
+          ],
+          "2025-09": [
+            48,
+            "2.13758101755947000"
+          ],
+          "2025-10": [
+            27,
+            "92.41168533391562000"
+          ],
+          "2025-11": [
+            26,
+            "-4.22196119852002000"
+          ],
+          "2025-12": [
+            37,
+            "-56.46913574847889000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            240,
+            "-323.14315496137899000"
+          ],
+          "London (03:00-08:00 NY)": [
+            101,
+            "24.30802127860319000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            120,
+            "-99.69087678843185000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 654,
+        "entry_slippage_cost": "284.67882390128680000",
+        "executable": 461,
+        "executable_at_minimum_volume": 202,
+        "executable_pullback_events": 390,
+        "exit_reasons": {
+          "H1 trend invalidated": 16,
+          "forced close 16:45 New York": 93,
+          "stop": 232,
+          "target": 120
+        },
+        "exit_slippage_cost": "281.66138031439580000",
+        "expected_value": "-0.8644815845362421908893709328",
+        "filter_reasons": {
+          "missing candles in the decision window": 9,
+          "signal spread 50 points above maximum": 3,
+          "stop wider than 3 x ATR(14)": 508,
+          "within 60 minutes of the daily break": 140
+        },
+        "final_balance": "601.47398952879235000",
+        "gross_gbp": "273.78951592127214000",
+        "losses_above_risk_limit": 1,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "490.99839460417970000",
+        "max_drawdown_percent": 47.857299518691924,
+        "minimum_volume_rejections": 157,
+        "net_gbp": "-398.52601047120765000",
+        "outcomes": {
+          "executable": 461,
+          "filtered": 660,
+          "rejected_by_risk": 157
+        },
+        "profit_factor": 0.8807340423041508,
+        "risk_rejections": 157,
+        "signals": 1278,
+        "spread_cost": "105.97532217679719000",
+        "starting_balance": "1000",
+        "trades": 461,
+        "win_rate": 0.38611713665943603,
+        "wins": 178
+      }
+    },
+    "entry zero (0 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 60 pts": {
+      "Out of sample": {
+        "average_holding": 11772.65625,
+        "average_loss": "-12.77188196819963644",
+        "average_planned_rr": "2",
+        "average_realised_r": "-0.02026911955266484988349274488",
+        "average_win": "22.34124921006701037313432836",
+        "by_month": {
+          "2026-01": [
+            33,
+            "117.53848899606597000"
+          ],
+          "2026-02": [
+            35,
+            "-36.21856350810015000"
+          ],
+          "2026-03": [
+            27,
+            "-73.01295833455020000"
+          ],
+          "2026-04": [
+            43,
+            "12.25793891359712000"
+          ],
+          "2026-05": [
+            34,
+            "44.40903313560411000"
+          ],
+          "2026-06": [
+            40,
+            "35.61730962440624000"
+          ],
+          "2026-07": [
+            36,
+            "-219.14162097365645000"
+          ],
+          "2026-08": [
+            45,
+            "-48.99312412898504000"
+          ],
+          "2026-09": [
+            42,
+            "-7.46548792379292000"
+          ],
+          "2026-10": [
+            49,
+            "-24.23411370151840000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            176,
+            "-69.26323712669405000"
+          ],
+          "London (03:00-08:00 NY)": [
+            84,
+            "-370.18026180032496000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            124,
+            "240.20040102608929000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 546,
+        "entry_slippage_cost": "0E-17",
+        "executable": 384,
+        "executable_at_minimum_volume": 300,
+        "executable_pullback_events": 323,
+        "exit_reasons": {
+          "H1 trend invalidated": 17,
+          "forced close 16:45 New York": 61,
+          "stop": 208,
+          "target": 98
+        },
+        "exit_slippage_cost": "13.97473122191608000",
+        "expected_value": "-0.5188622341170044791666666667",
+        "filter_reasons": {
+          "missing candles in the decision window": 4,
+          "stop wider than 3 x ATR(14)": 432,
+          "within 60 minutes of the daily break": 122
+        },
+        "final_balance": "800.75690209907028000",
+        "gross_gbp": "-105.92358620194513000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "483.66711348026622000",
+        "max_drawdown_percent": 40.01798260967421,
+        "minimum_volume_rejections": 155,
+        "net_gbp": "-199.24309790092972000",
+        "outcomes": {
+          "executable": 384,
+          "filtered": 558,
+          "rejected_by_risk": 155
+        },
+        "profit_factor": 0.9375994553043883,
+        "risk_rejections": 155,
+        "signals": 1097,
+        "spread_cost": "79.34478047706851000",
+        "starting_balance": "1000",
+        "trades": 384,
+        "win_rate": 0.3489583333333333,
+        "wins": 134
+      },
+      "Training": {
+        "average_holding": 10675.675676,
+        "average_loss": "-6.170894075819537809667673716",
+        "average_planned_rr": "2",
+        "average_realised_r": "-0.06893054782832797445557366424",
+        "average_win": "10.00290478349980311572700297",
+        "by_month": {
+          "2023-01": [
+            40,
+            "-113.21837236582252000"
+          ],
+          "2023-02": [
+            45,
+            "-153.32937869840807000"
+          ],
+          "2023-03": [
+            48,
+            "-82.90014614737369000"
+          ],
+          "2023-04": [
+            32,
+            "7.69602928335169000"
+          ],
+          "2023-05": [
+            51,
+            "26.50506910802692000"
+          ],
+          "2023-06": [
+            48,
+            "-130.68354550586882000"
+          ],
+          "2023-07": [
+            49,
+            "-97.22309155718163000"
+          ],
+          "2023-08": [
+            65,
+            "-30.43715875432195000"
+          ],
+          "2023-09": [
+            43,
+            "12.11829338388903000"
+          ],
+          "2023-10": [
+            47,
+            "62.47384947028726000"
+          ],
+          "2023-11": [
+            43,
+            "-21.10921746133209000"
+          ],
+          "2023-12": [
+            35,
+            "27.17643238538370000"
+          ],
+          "2024-01": [
+            47,
+            "-54.60798383506751000"
+          ],
+          "2024-02": [
+            30,
+            "-32.76323545228852000"
+          ],
+          "2024-03": [
+            37,
+            "-24.55676686219352000"
+          ],
+          "2024-04": [
+            47,
+            "-7.67139401917013000"
+          ],
+          "2024-05": [
+            42,
+            "-64.17959406490780000"
+          ],
+          "2024-06": [
+            37,
+            "-44.49026886554329000"
+          ],
+          "2024-07": [
+            34,
+            "-19.19323993261349000"
+          ],
+          "2024-08": [
+            30,
+            "-9.96440319576844000"
+          ],
+          "2024-09": [
+            34,
+            "7.44404199398593000"
+          ],
+          "2024-10": [
+            49,
+            "29.83889831771190000"
+          ],
+          "2024-11": [
+            28,
+            "3.46188904118236000"
+          ],
+          "2024-12": [
+            38,
+            "-4.53967241905770000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            493,
+            "-227.89994067823620000"
+          ],
+          "London (03:00-08:00 NY)": [
+            211,
+            "-428.24691233312414000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            295,
+            "-58.00611314174004000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 1322,
+        "entry_slippage_cost": "0E-17",
+        "executable": 999,
+        "executable_at_minimum_volume": 373,
+        "executable_pullback_events": 844,
+        "exit_reasons": {
+          "H1 trend invalidated": 27,
+          "forced close 16:45 New York": 174,
+          "stop": 559,
+          "stop (gap)": 1,
+          "target": 238
+        },
+        "exit_slippage_cost": "84.76417942418986000",
+        "expected_value": "-0.7148678339870874674674674675",
+        "filter_reasons": {
+          "missing candles in the decision window": 9,
+          "stop wider than 3 x ATR(14)": 1101,
+          "within 60 minutes of the daily break": 226
+        },
+        "final_balance": "285.84703384689962000",
+        "gross_gbp": "-276.27768533543299000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "773.09692578654772000",
+        "max_drawdown_percent": 76.25305750807729,
+        "minimum_volume_rejections": 282,
+        "net_gbp": "-714.15296615310038000",
+        "outcomes": {
+          "executable": 999,
+          "filtered": 1336,
+          "rejected_by_risk": 282
+        },
+        "profit_factor": 0.8251823961998805,
+        "risk_rejections": 282,
+        "signals": 2617,
+        "spread_cost": "353.11110139347753000",
+        "starting_balance": "1000",
+        "trades": 999,
+        "win_rate": 0.33733733733733734,
+        "wins": 337
+      },
+      "Validation": {
+        "average_holding": 13638.047809,
+        "average_loss": "-16.86864430106569419141914191",
+        "average_planned_rr": "2",
+        "average_realised_r": "0.04748800235069114264226717751",
+        "average_win": "27.27898958372827206030150754",
+        "by_month": {
+          "2025-01": [
+            50,
+            "-37.26998120164636000"
+          ],
+          "2025-02": [
+            43,
+            "277.85852092348770000"
+          ],
+          "2025-03": [
+            47,
+            "45.81932088657280000"
+          ],
+          "2025-04": [
+            35,
+            "-30.50715764828983000"
+          ],
+          "2025-05": [
+            31,
+            "128.65150592803737000"
+          ],
+          "2025-06": [
+            37,
+            "19.67663168374592000"
+          ],
+          "2025-07": [
+            36,
+            "-162.04496943058235000"
+          ],
+          "2025-08": [
+            44,
+            "-239.69705741903343000"
+          ],
+          "2025-09": [
+            54,
+            "116.51531856448255000"
+          ],
+          "2025-10": [
+            49,
+            "193.89061347823353000"
+          ],
+          "2025-11": [
+            33,
+            "-6.96242500566164000"
+          ],
+          "2025-12": [
+            43,
+            "11.38938317967454000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            259,
+            "91.81981681276985000"
+          ],
+          "London (03:00-08:00 NY)": [
+            99,
+            "93.91237773544744000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            144,
+            "131.58750939080351000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 610,
+        "entry_slippage_cost": "0E-17",
+        "executable": 502,
+        "executable_at_minimum_volume": 95,
+        "executable_pullback_events": 423,
+        "exit_reasons": {
+          "H1 trend invalidated": 21,
+          "forced close 16:45 New York": 108,
+          "stop": 246,
+          "target": 127
+        },
+        "exit_slippage_cost": "44.25872644657394000",
+        "expected_value": "0.6321109640219537848605577689",
+        "filter_reasons": {
+          "missing candles in the decision window": 9,
+          "signal spread 50 points above maximum": 3,
+          "stop wider than 3 x ATR(14)": 431,
+          "within 60 minutes of the daily break": 133
+        },
+        "final_balance": "1317.31970393902080000",
+        "gross_gbp": "542.30109513680744000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "575.15716009504452000",
+        "max_drawdown_percent": 37.73876237892323,
+        "minimum_volume_rejections": 10,
+        "net_gbp": "317.31970393902080000",
+        "outcomes": {
+          "executable": 502,
+          "filtered": 576,
+          "rejected_by_risk": 10
+        },
+        "profit_factor": 1.0620832196282368,
+        "risk_rejections": 10,
+        "signals": 1088,
+        "spread_cost": "180.72266475121270000",
+        "starting_balance": "1000",
+        "trades": 502,
+        "win_rate": 0.39641434262948205,
+        "wins": 199
+      }
+    },
+    "entry zero (0 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 60 pts": {
+      "Out of sample": {
+        "average_holding": 11780.526316,
+        "average_loss": "-12.95302539641695433198380567",
+        "average_planned_rr": "2",
+        "average_realised_r": "-0.02494192202522392687668108916",
+        "average_win": "22.48926361548982864661654135",
+        "by_month": {
+          "2026-01": [
+            33,
+            "113.62946273355702000"
+          ],
+          "2026-02": [
+            34,
+            "-43.99347578166034000"
+          ],
+          "2026-03": [
+            26,
+            "-58.62104625545053000"
+          ],
+          "2026-04": [
+            43,
+            "4.43742300040868000"
+          ],
+          "2026-05": [
+            34,
+            "39.01413659144754000"
+          ],
+          "2026-06": [
+            39,
+            "57.70521843928405000"
+          ],
+          "2026-07": [
+            36,
+            "-227.27379532165349000"
+          ],
+          "2026-08": [
+            45,
+            "-56.06478550908275000"
+          ],
+          "2026-09": [
+            41,
+            "2.81427032314984000"
+          ],
+          "2026-10": [
+            49,
+            "-39.97262027484053000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            176,
+            "-113.68634610674865000"
+          ],
+          "London (03:00-08:00 NY)": [
+            82,
+            "-340.37610721239351000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            122,
+            "245.73724126430165000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 546,
+        "entry_slippage_cost": "0E-17",
+        "executable": 380,
+        "executable_at_minimum_volume": 296,
+        "executable_pullback_events": 321,
+        "exit_reasons": {
+          "H1 trend invalidated": 17,
+          "forced close 16:45 New York": 60,
+          "stop": 205,
+          "target": 98
+        },
+        "exit_slippage_cost": "78.95799014085680000",
+        "expected_value": "-0.5482242422495802894736842105",
+        "filter_reasons": {
+          "missing candles in the decision window": 4,
+          "stop wider than 3 x ATR(14)": 439,
+          "within 60 minutes of the daily break": 122
+        },
+        "final_balance": "791.67478794515949000",
+        "gross_gbp": "-50.67186875497812000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "485.38690964475270000",
+        "max_drawdown_percent": 40.29866767065577,
+        "minimum_volume_rejections": 161,
+        "net_gbp": "-208.32521205484051000",
+        "outcomes": {
+          "executable": 380,
+          "filtered": 565,
+          "rejected_by_risk": 161
+        },
+        "profit_factor": 0.934886106886928,
+        "risk_rejections": 161,
+        "signals": 1106,
+        "spread_cost": "78.69535315900559000",
+        "starting_balance": "1000",
+        "trades": 380,
+        "win_rate": 0.35,
+        "wins": 133
+      },
+      "Training": {
+        "average_holding": 10274.560375,
+        "average_loss": "-5.61845297572686650",
+        "average_planned_rr": "2",
+        "average_realised_r": "-0.1018832309283424875540761462",
+        "average_win": "7.989738727650861808873720137",
+        "by_month": {
+          "2023-01": [
+            40,
+            "-146.20756273440998000"
+          ],
+          "2023-02": [
+            45,
+            "-164.51320318612077000"
+          ],
+          "2023-03": [
+            48,
+            "-88.08670906546051000"
+          ],
+          "2023-04": [
+            32,
+            "-7.58171377563911000"
+          ],
+          "2023-05": [
+            49,
+            "-7.65753766518143000"
+          ],
+          "2023-06": [
+            48,
+            "-122.83338749006159000"
+          ],
+          "2023-07": [
+            49,
+            "-105.22283973130558000"
+          ],
+          "2023-08": [
+            64,
+            "-48.99341123399764000"
+          ],
+          "2023-09": [
+            41,
+            "-15.62559223446200000"
+          ],
+          "2023-10": [
+            47,
+            "19.47099585822458000"
+          ],
+          "2023-11": [
+            41,
+            "-29.44910527300754000"
+          ],
+          "2023-12": [
+            32,
+            "32.28819682646848000"
+          ],
+          "2024-01": [
+            46,
+            "-39.01406583942788000"
+          ],
+          "2024-02": [
+            29,
+            "-28.79784493055734000"
+          ],
+          "2024-03": [
+            35,
+            "-23.68568125922378000"
+          ],
+          "2024-04": [
+            23,
+            "-0.57509947827588000"
+          ],
+          "2024-05": [
+            26,
+            "-25.71916686833817000"
+          ],
+          "2024-06": [
+            26,
+            "-13.23929192456889000"
+          ],
+          "2024-07": [
+            21,
+            "18.06983564656688000"
+          ],
+          "2024-08": [
+            19,
+            "-3.45514739648293000"
+          ],
+          "2024-09": [
+            26,
+            "-4.27651154032358000"
+          ],
+          "2024-10": [
+            33,
+            "-5.11960922144922000"
+          ],
+          "2024-11": [
+            11,
+            "17.71136952268362000"
+          ],
+          "2024-12": [
+            22,
+            "-12.82713621099247000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            436,
+            "-390.31807956900841000"
+          ],
+          "London (03:00-08:00 NY)": [
+            187,
+            "-384.77593651114955000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            230,
+            "-30.24620312518477000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 1406,
+        "entry_slippage_cost": "0E-17",
+        "executable": 853,
+        "executable_at_minimum_volume": 396,
+        "executable_pullback_events": 724,
+        "exit_reasons": {
+          "H1 trend invalidated": 20,
+          "forced close 16:45 New York": 139,
+          "stop": 480,
+          "stop (gap)": 1,
+          "target": 212,
+          "target (gap)": 1
+        },
+        "exit_slippage_cost": "354.09405577596720000",
+        "expected_value": "-0.9441268689394404806565064478",
+        "filter_reasons": {
+          "entry spread 44 points above maximum": 1,
+          "missing candles in the decision window": 9,
+          "stop wider than 3 x ATR(14)": 1281,
+          "within 60 minutes of the daily break": 258
+        },
+        "final_balance": "194.65978079465727000",
+        "gross_gbp": "-191.84465529401596000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "826.15253297177613000",
+        "max_drawdown_percent": 82.29903085561608,
+        "minimum_volume_rejections": 707,
+        "net_gbp": "-805.34021920534273000",
+        "outcomes": {
+          "executable": 853,
+          "filtered": 1549,
+          "rejected_by_risk": 707
+        },
+        "profit_factor": 0.7440385208333608,
+        "risk_rejections": 707,
+        "signals": 3109,
+        "spread_cost": "259.40150813535957000",
+        "starting_balance": "1000",
+        "trades": 853,
+        "win_rate": 0.34349355216881594,
+        "wins": 293
+      },
+      "Validation": {
+        "average_holding": 13345.2,
+        "average_loss": "-16.01995532312901794701986755",
+        "average_planned_rr": "2",
+        "average_realised_r": "0.03043079054894762135380930468",
+        "average_win": "25.25440209804170146464646465",
+        "by_month": {
+          "2025-01": [
+            50,
+            "-50.32146403646770000"
+          ],
+          "2025-02": [
+            43,
+            "265.17534130922286000"
+          ],
+          "2025-03": [
+            47,
+            "20.44503636722353000"
+          ],
+          "2025-04": [
+            35,
+            "-41.95029776747493000"
+          ],
+          "2025-05": [
+            31,
+            "108.47234143623856000"
+          ],
+          "2025-06": [
+            37,
+            "-7.25267579211877000"
+          ],
+          "2025-07": [
+            36,
+            "-167.24688400318215000"
+          ],
+          "2025-08": [
+            44,
+            "-269.14117580426816000"
+          ],
+          "2025-09": [
+            54,
+            "111.62290444862670000"
+          ],
+          "2025-10": [
+            49,
+            "190.83299552775468000"
+          ],
+          "2025-11": [
+            32,
+            "34.56052752406530000"
+          ],
+          "2025-12": [
+            42,
+            "-32.85154138232645000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            258,
+            "25.26664263487292000"
+          ],
+          "London (03:00-08:00 NY)": [
+            100,
+            "21.71323179771590000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            142,
+            "115.36523339470465000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 615,
+        "entry_slippage_cost": "0E-17",
+        "executable": 500,
+        "executable_at_minimum_volume": 118,
+        "executable_pullback_events": 423,
+        "exit_reasons": {
+          "H1 trend invalidated": 20,
+          "forced close 16:45 New York": 106,
+          "stop": 246,
+          "target": 128
+        },
+        "exit_slippage_cost": "232.83115259934520000",
+        "expected_value": "0.32469021565458694",
+        "filter_reasons": {
+          "missing candles in the decision window": 9,
+          "signal spread 50 points above maximum": 3,
+          "stop wider than 3 x ATR(14)": 440,
+          "within 60 minutes of the daily break": 133
+        },
+        "final_balance": "1162.34510782729347000",
+        "gross_gbp": "560.46815175486859000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "580.44323500917154000",
+        "max_drawdown_percent": 41.03154660008714,
+        "minimum_volume_rejections": 16,
+        "net_gbp": "162.34510782729347000",
+        "outcomes": {
+          "executable": 500,
+          "filtered": 585,
+          "rejected_by_risk": 16
+        },
+        "profit_factor": 1.0335560600118192,
+        "risk_rejections": 16,
+        "signals": 1101,
+        "spread_cost": "165.29189132822992000",
+        "starting_balance": "1000",
+        "trades": 500,
+        "win_rate": 0.396,
+        "wins": 198
+      }
+    },
+    "entry zero (0 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 60 pts": {
+      "Out of sample": {
+        "average_holding": 11716.666667,
+        "average_loss": "-12.97754139028319848979591837",
+        "average_planned_rr": "2",
+        "average_realised_r": "-0.02914283239825289081192198868",
+        "average_win": "22.20707493710444383458646617",
+        "by_month": {
+          "2026-01": [
+            33,
+            "111.26035590779402000"
+          ],
+          "2026-02": [
+            34,
+            "-47.09625092391974000"
+          ],
+          "2026-03": [
+            26,
+            "-61.61643753373533000"
+          ],
+          "2026-04": [
+            42,
+            "4.06745402962753000"
+          ],
+          "2026-05": [
+            34,
+            "21.79856670280798000"
+          ],
+          "2026-06": [
+            39,
+            "53.51307742951345000"
+          ],
+          "2026-07": [
+            36,
+            "-240.97246232089818000"
+          ],
+          "2026-08": [
+            45,
+            "-47.54228228227382000"
+          ],
+          "2026-09": [
+            41,
+            "2.61209761314136000"
+          ],
+          "2026-10": [
+            48,
+            "-21.98079260654987000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            176,
+            "-109.92981899509096000"
+          ],
+          "London (03:00-08:00 NY)": [
+            82,
+            "-360.96451751722289000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            120,
+            "244.93766252782125000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 547,
+        "entry_slippage_cost": "0E-17",
+        "executable": 378,
+        "executable_at_minimum_volume": 300,
+        "executable_pullback_events": 320,
+        "exit_reasons": {
+          "H1 trend invalidated": 16,
+          "forced close 16:45 New York": 59,
+          "stop": 205,
+          "target": 98
+        },
+        "exit_slippage_cost": "117.08084354878980000",
+        "expected_value": "-0.5977689787949539682539682540",
+        "filter_reasons": {
+          "missing candles in the decision window": 4,
+          "stop wider than 3 x ATR(14)": 441,
+          "within 60 minutes of the daily break": 122
+        },
+        "final_balance": "774.04332601550740000",
+        "gross_gbp": "-31.55571958484590000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "506.42925786798645000",
+        "max_drawdown_percent": 42.1336784236928,
+        "minimum_volume_rejections": 165,
+        "net_gbp": "-225.95667398449260000",
+        "outcomes": {
+          "executable": 378,
+          "filtered": 567,
+          "rejected_by_risk": 165
+        },
+        "profit_factor": 0.928933215392959,
+        "risk_rejections": 165,
+        "signals": 1110,
+        "spread_cost": "77.32011085085690000",
+        "starting_balance": "1000",
+        "trades": 378,
+        "win_rate": 0.35185185185185186,
+        "wins": 133
+      },
+      "Training": {
+        "average_holding": 10113.916256,
+        "average_loss": "-5.573350051786462226415094340",
+        "average_planned_rr": "2",
+        "average_realised_r": "-0.1210976642220661579255993011",
+        "average_win": "7.613380621466596843971631206",
+        "by_month": {
+          "2023-01": [
+            40,
+            "-164.54451816536558000"
+          ],
+          "2023-02": [
+            45,
+            "-161.70580808660888000"
+          ],
+          "2023-03": [
+            48,
+            "-97.06692107950942000"
+          ],
+          "2023-04": [
+            32,
+            "-12.34847350158431000"
+          ],
+          "2023-05": [
+            49,
+            "-7.17866616309367000"
+          ],
+          "2023-06": [
+            48,
+            "-131.69957139445157000"
+          ],
+          "2023-07": [
+            49,
+            "-96.26406035333147000"
+          ],
+          "2023-08": [
+            64,
+            "-56.15311537691007000"
+          ],
+          "2023-09": [
+            41,
+            "-21.61155093903785000"
+          ],
+          "2023-10": [
+            47,
+            "10.92002212368441000"
+          ],
+          "2023-11": [
+            38,
+            "-18.72019069018410000"
+          ],
+          "2023-12": [
+            31,
+            "8.95216262283114000"
+          ],
+          "2024-01": [
+            43,
+            "-28.64770798932478000"
+          ],
+          "2024-02": [
+            29,
+            "-16.04076404188753000"
+          ],
+          "2024-03": [
+            31,
+            "-22.15507639039881000"
+          ],
+          "2024-04": [
+            14,
+            "10.42027717791073000"
+          ],
+          "2024-05": [
+            19,
+            "-21.49862306965684000"
+          ],
+          "2024-06": [
+            18,
+            "-0.18864908893722000"
+          ],
+          "2024-07": [
+            21,
+            "15.50010554041088000"
+          ],
+          "2024-08": [
+            16,
+            "3.71117226138151000"
+          ],
+          "2024-09": [
+            25,
+            "-3.51888625088300000"
+          ],
+          "2024-10": [
+            32,
+            "-2.70282440080731000"
+          ],
+          "2024-11": [
+            11,
+            "16.93103877735402000"
+          ],
+          "2024-12": [
+            21,
+            "-11.29156371484495000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            413,
+            "-383.24270435038913000"
+          ],
+          "London (03:00-08:00 NY)": [
+            180,
+            "-418.17709538311137000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            219,
+            "-5.48239245974417000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 1429,
+        "entry_slippage_cost": "0E-17",
+        "executable": 812,
+        "executable_at_minimum_volume": 416,
+        "executable_pullback_events": 691,
+        "exit_reasons": {
+          "H1 trend invalidated": 20,
+          "forced close 16:45 New York": 130,
+          "stop": 453,
+          "stop (gap)": 1,
+          "target": 208
+        },
+        "exit_slippage_cost": "473.52826393873080000",
+        "expected_value": "-0.9937219115680353078817733990",
+        "filter_reasons": {
+          "entry spread 44 points above maximum": 1,
+          "missing candles in the decision window": 9,
+          "stop wider than 3 x ATR(14)": 1320,
+          "within 60 minutes of the daily break": 268
+        },
+        "final_balance": "193.09780780675533000",
+        "gross_gbp": "-99.41478494342945000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 14,
+        "max_drawdown_gbp": "834.54293884097573000",
+        "max_drawdown_percent": 83.20409512913403,
+        "minimum_volume_rejections": 822,
+        "net_gbp": "-806.90219219324467000",
+        "outcomes": {
+          "executable": 812,
+          "filtered": 1598,
+          "rejected_by_risk": 822
+        },
+        "profit_factor": 0.7268327034447898,
+        "risk_rejections": 822,
+        "signals": 3232,
+        "spread_cost": "233.95914331108442000",
+        "starting_balance": "1000",
+        "trades": 812,
+        "win_rate": 0.3472906403940887,
+        "wins": 282
+      },
+      "Validation": {
+        "average_holding": 13207.228916,
+        "average_loss": "-15.29673343100529343333333333",
+        "average_planned_rr": "2",
+        "average_realised_r": "0.01666602383863844955418334176",
+        "average_win": "23.49823242384519323232323232",
+        "by_month": {
+          "2025-01": [
+            50,
+            "-61.71694113250660000"
+          ],
+          "2025-02": [
+            43,
+            "233.06289420897744000"
+          ],
+          "2025-03": [
+            47,
+            "0.34282972666625000"
+          ],
+          "2025-04": [
+            35,
+            "-18.35774761306640000"
+          ],
+          "2025-05": [
+            31,
+            "108.67715204433747000"
+          ],
+          "2025-06": [
+            37,
+            "-15.66607324013077000"
+          ],
+          "2025-07": [
+            36,
+            "-201.96779004069280000"
+          ],
+          "2025-08": [
+            44,
+            "-251.48304651043090000"
+          ],
+          "2025-09": [
+            53,
+            "100.25170979579930000"
+          ],
+          "2025-10": [
+            49,
+            "131.38088199687510000"
+          ],
+          "2025-11": [
+            31,
+            "39.16129810022119000"
+          ],
+          "2025-12": [
+            42,
+            "-0.05517671628905000"
+          ]
+        },
+        "by_session": {
+          "Asia (19:00-03:00 NY)": [
+            258,
+            "-98.60219052781919000"
+          ],
+          "London (03:00-08:00 NY)": [
+            100,
+            "34.65700048982827000"
+          ],
+          "New York (08:00-17:00 NY)": [
+            140,
+            "127.57518065775115000"
+          ]
+        },
+        "commission_cost": "0.00",
+        "costs_reconcile": true,
+        "distinct_pullback_events": 622,
+        "entry_slippage_cost": "0E-17",
+        "executable": 498,
+        "executable_at_minimum_volume": 142,
+        "executable_pullback_events": 421,
+        "exit_reasons": {
+          "H1 trend invalidated": 19,
+          "forced close 16:45 New York": 104,
+          "stop": 247,
+          "target": 128
+        },
+        "exit_slippage_cost": "328.80872896983720000",
+        "expected_value": "0.1277710655015265662650602410",
+        "filter_reasons": {
+          "missing candles in the decision window": 9,
+          "signal spread 50 points above maximum": 3,
+          "stop wider than 3 x ATR(14)": 446,
+          "within 60 minutes of the daily break": 135
+        },
+        "final_balance": "1063.62999061976023000",
+        "gross_gbp": "547.56435249350498000",
+        "losses_above_risk_limit": 0,
+        "margin_rejections": 0,
+        "max_consecutive_losses": 15,
+        "max_drawdown_gbp": "599.33940594475213000",
+        "max_drawdown_percent": 43.650547890526795,
+        "minimum_volume_rejections": 28,
+        "net_gbp": "63.62999061976023000",
+        "outcomes": {
+          "executable": 498,
+          "filtered": 593,
+          "rejected_by_risk": 28
+        },
+        "profit_factor": 1.0138657033993037,
+        "risk_rejections": 28,
+        "signals": 1119,
+        "spread_cost": "155.12563290390755000",
+        "starting_balance": "1000",
+        "trades": 498,
+        "win_rate": 0.39759036144578314,
+        "wins": 198
+      }
+    }
+  },
+  "run_id": "20261110T221435Z_a8d84b219f",
+  "started_utc": "2026-11-10T22:14:35.388182+00:00"
+}
