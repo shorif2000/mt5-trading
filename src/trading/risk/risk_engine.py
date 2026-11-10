@@ -22,7 +22,7 @@ class RiskPolicy:
 
 
 def validate_policy(policy: RiskPolicy) -> RiskDecision:
-    missing = []
+    missing: list[str] = []
     required = {
         "account_currency": policy.account_currency,
         "maximum_risk_per_trade_percent": policy.maximum_risk_per_trade_percent,

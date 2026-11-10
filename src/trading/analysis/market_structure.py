@@ -16,11 +16,11 @@ def higher_closes(candles: list[Candle], count: int = 3) -> bool:
     if count <= 0 or len(candles) < count + 1:
         return False
     closes = [c.close for c in candles[-(count + 1):]]
-    return all(a < b for a, b in zip(closes, closes[1:]))
+    return all(a < b for a, b in zip(closes, closes[1:], strict=False))
 
 
 def lower_closes(candles: list[Candle], count: int = 3) -> bool:
     if count <= 0 or len(candles) < count + 1:
         return False
     closes = [c.close for c in candles[-(count + 1):]]
-    return all(a > b for a, b in zip(closes, closes[1:]))
+    return all(a > b for a, b in zip(closes, closes[1:], strict=False))
