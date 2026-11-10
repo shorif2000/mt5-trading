@@ -2,6 +2,7 @@
 
 import dataclasses
 import json
+import sys
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -12,9 +13,18 @@ from rich.console import Console
 from rich.table import Table
 
 from trading.backtest.cost_model import evidence_from_history, load_cost_model
-from trading.backtest.engine import BacktestConfig, MarginProvider
+from trading.backtest.engine import BacktestConfig, MarginProvider, SessionRules
 from trading.backtest.history_bars import load_history
-from trading.backtest.runner import run_scenarios
+from trading.backtest.provenance import (
+    account_terms,
+    build_manifest,
+    code_state,
+    instrument_terms,
+    render_markdown,
+    run_id,
+    unique_paths,
+)
+from trading.backtest.runner import PERIODS, run_scenarios
 from trading.market_data.history import download_history_to_file
 from trading.market_data.market_snapshot import load_snapshot
 from trading.market_data.mcp_collector import (
@@ -34,6 +44,7 @@ from trading.risk.margin import (
     parse_margin_response,
 )
 from trading.risk.sizing_config import load_sizing_config
+from trading.strategies.xauusd_m15_pullback import PullbackParameters
 
 app = typer.Typer(help="Read-only MT5 trading research diagnostics.")
 console = Console()
@@ -203,10 +214,24 @@ def backtest(
     risk_config: Path = typer.Option(Path("config/risk.yaml"), exists=True),
     cost_config: Path = typer.Option(Path("config/backtest.yaml"), exists=True),
     no_margin: bool = typer.Option(False, help="Do not request broker margin (all fail margin)"),
-    report: Path = typer.Option(Path("reports/xauusd_m15_backtest.local.md")),
+    reports_dir: Path = typer.Option(
+        Path("reports/backtests"), help="Each run writes a new report and manifest here"
+    ),
+    require_clean: bool = typer.Option(
+        False, help="Refuse to run with uncommitted changes, so the commit reproduces it"
+    ),
 ) -> None:
     """Offline backtest of the approved XAUUSD M15 strategy on a paper ledger, for every
-    configured cost scenario. Read-only: margin comes from MT5 calc_margin; nothing is sent."""
+    configured cost scenario. Read-only: margin comes from MT5 calc_margin; nothing is sent.
+    Every run writes a new report plus a JSON manifest of the code, inputs and parameters."""
+    started = datetime.now(UTC)
+    code = code_state()
+    if require_clean and code["dirty"]:
+        console.print("[red]Uncommitted changes; refusing to run (--require-clean):[/red]")
+        for name in code["uncommitted_files"]:
+            console.print(f"  - {name}")
+        raise typer.Exit(code=2)
+    report, manifest_path = unique_paths(reports_dir, run_id(started, code))
     calendar = load_market_calendar(sessions)
     raw = json.loads(export.read_text(encoding="utf-8"))
     snapshot = load_mcp_export(
@@ -241,7 +266,7 @@ def backtest(
     ]
     bars = load_history(history)
 
-    def run(provider: MarginProvider | None) -> str:
+    def run(provider: MarginProvider | None) -> tuple[str, dict[str, Any]]:
         return run_scenarios(
             scenarios=scenarios,
             base=model.base().label,
@@ -257,7 +282,7 @@ def backtest(
 
     if no_margin:
         notes.append("Margin: NOT requested (--no-margin); every sized signal fails margin.")
-        text = run(None)
+        text, results = run(None)
     else:
         notes.append("Margin: MT5 calc_margin over one read-only session.")
         with MarginSession() as session:
@@ -267,10 +292,78 @@ def backtest(
                     symbol="XAUUSD", side=side, volume=float(volume), price=float(price)
                 )
 
-            text = run(provider)
-    report.parent.mkdir(parents=True, exist_ok=True)
-    report.write_text(text, encoding="utf-8")
-    console.print(f"Backtest report written to {report}")
+            text, results = run(provider)
+    exchange_calendar = sessions.parent / "exchange_holidays.yaml"
+    parameters = {
+        "strategy": {
+            "name": "XAUUSD M15 trend pullback",
+            "version": "1.0",
+            "specification": "docs/strategy-xauusd-trend-pullback.md",
+            "values": PullbackParameters(),
+        },
+        "sessions": SessionRules(),
+        "periods": [{"name": n, "from": a, "until": b} for n, a, b in PERIODS],
+        "starting_balance_gbp": model.starting_balance,
+        "sizing": {
+            "risk_fraction": base_config.sizing.risk_fraction,
+            "tick_value_tolerance": base_config.sizing.tick_value_tolerance,
+            "maximum_data_age_seconds": base_config.sizing.maximum_data_age_seconds,
+            "commission_currency": base_config.sizing.commission_currency,
+            "commission_per_lot_xauusd": base_config.sizing.commission_per_lot.get("XAUUSD"),
+        },
+        "cost_model": model,
+        "scenarios": [config.costs for _, config in scenarios],
+        "base_scenario": model.base().label,
+        "margin_source": "none (--no-margin)" if no_margin else "MT5 calc_margin, read-only",
+        "news_filter": "unavailable (Version 1.0)",
+        "broker_clock": {"timezone": "America/New_York", "shift_hours": 7},
+        "instruments": {
+            "XAUUSD": instrument_terms(spec),
+            "GBPUSD": instrument_terms(conversion_spec),
+        },
+        "account_terms": account_terms(account),
+        "specification_snapshot_utc": raw.get("exported_at_utc"),
+        "history": {
+            f"{s} {tf}": {"bars": len(b), "first": b[0].open_time, "last": b[-1].open_time}
+            for (s, tf), b in bars.items()
+        },
+    }
+    inputs = {
+        "history": history,
+        "specification_export": export,
+        "risk_config": risk_config,
+        "cost_config": cost_config,
+        "sessions": sessions,
+        "exchange_calendar": exchange_calendar,
+        "uv.lock": Path("uv.lock"),
+        "pyproject.toml": Path("pyproject.toml"),
+    }
+    manifest = build_manifest(
+        code=code,
+        started=started,
+        command=sys.argv,
+        input_paths=inputs,
+        parameters=parameters,
+        manifest_path=manifest_path,
+        results=results,
+    )
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
+    report.write_text(
+        f"<!-- run {manifest['run_id']} -->\n"
+        + text.replace(
+            "## Status and assumptions",
+            render_markdown(manifest) + "\n## Status and assumptions",
+            1,
+        ),
+        encoding="utf-8",
+    )
+    if code["dirty"]:
+        console.print(
+            "[yellow]Uncommitted changes recorded in the manifest; this result is "
+            "not reproducible from the commit alone.[/yellow]"
+        )
+    console.print(f"Backtest report: {report}")
+    console.print(f"Run manifest:    {manifest_path}")
 
 
 @app.command(name="calendar")

@@ -81,6 +81,16 @@ uv run mt5-trading slippage-evidence                # stop-loss slippage from lo
 uv run mt5-trading backtest                         # every cost scenario in config/backtest.yaml
 ```
 
+Each run writes a new report and JSON manifest to `reports/backtests/<UTC time>_<commit>.md`
+and `.json`, which are meant to be committed. They record:
+- **Code:** the commit, branch and any uncommitted changes.
+- **Inputs:** a sha256 for every input (history, specification export, configs, `uv.lock`).
+- **Parameters:** every strategy, session, sizing and cost parameter.
+- **Terms:** instrument terms, and the account's margin terms (no account identifiers).
+- **Run:** the command and the environment.
+
+Use `--require-clean` to refuse a run with uncommitted changes.
+
 Costs are set in `config/backtest.yaml`. Stop-exit slippage comes from the account's observed
 stop-loss fills. Entry slippage is unknown, so the backtest runs labelled scenarios rather than
 assuming a value; take profits fill at the target.

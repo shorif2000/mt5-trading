@@ -4,6 +4,7 @@ import dataclasses
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from decimal import Decimal
+from typing import Any
 
 from trading.backtest.bars import Bar
 from trading.backtest.engine import Backtest, BacktestConfig, BacktestResult, MarginProvider
@@ -109,8 +110,10 @@ def run_scenarios(
     calendar: MarketCalendar,
     margin_provider: MarginProvider | None,
     cost_notes: Sequence[str],
-) -> str:
-    """The base scenario in full, preceded by a summary of every scenario and period."""
+) -> tuple[str, dict[str, dict[str, Any]]]:
+    """The base scenario in full, preceded by a summary of every scenario and period. Also
+    returns every scenario's per-period metrics for the run manifest."""
+    collected: dict[str, dict[str, Any]] = {}
     summary = [
         "## Cost scenarios",
         "",
@@ -134,8 +137,10 @@ def run_scenarios(
             cost_notes=cost_notes,
         )
         cells = []
-        for _, result in results:
+        collected[name] = {}
+        for period, result in results:
             m = metrics(result)
+            collected[name][period] = dataclasses.asdict(m)
             pf = "n/a" if m.profit_factor is None else f"{m.profit_factor:.2f}"
             cells.append(f"{m.trades} / £{m.net_gbp:,.2f} / {pf}")
         marker = " **(base)**" if name == base else ""
@@ -143,4 +148,4 @@ def run_scenarios(
         if name == base:
             base_text = text
     head, _, rest = base_text.partition("## Data coverage")
-    return head + "\n".join(summary) + "\n\n## Data coverage" + rest
+    return head + "\n".join(summary) + "\n\n## Data coverage" + rest, collected
