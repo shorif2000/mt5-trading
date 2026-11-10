@@ -22,4 +22,4 @@ dist/
 .vscode/
 
 # Local MT5 exports and snapshots contain real account data
-data/*.local.json
+*.local.json

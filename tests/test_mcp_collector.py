@@ -79,6 +79,13 @@ def test_refuses_tool_not_annotated_read_only():
         run_collect(session)
 
 
+def test_refuses_unknown_tool_not_annotated_read_only():
+    session = FakeSession([*read_only_tools(), tool("send_market_order", read_only=False)])
+    with pytest.raises(CollectorError, match="send_market_order"):
+        run_collect(session)
+    assert session.calls == []
+
+
 def test_refuses_to_call_tool_outside_allowlist():
     session = FakeSession(read_only_tools())
     with pytest.raises(CollectorError, match="allowlist"):
