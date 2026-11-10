@@ -54,7 +54,9 @@ def test_a_weekday_fred_holiday_delays_publication_to_the_following_business_day
 def test_falling_real_yields_allow_longs_only():
     f = RealYieldFilter(FALLING, PARAMS)
     assert f.check(Direction.BUY, ny(10, 10)) is None
-    assert f.check(Direction.SELL, ny(10, 10)) == "real-yield filter: -0.20 pp over 2 days"
+    assert f.check(Direction.SELL, ny(10, 10)) == (
+        "real-yield filter: entry against the real-yield direction"
+    )
 
 
 def test_rising_real_yields_allow_shorts_only():

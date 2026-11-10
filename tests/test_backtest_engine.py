@@ -394,5 +394,5 @@ def test_version_1_1_filters_a_long_signal_while_real_yields_are_rising():
 
     [signal] = result.signals
     assert signal.outcome is Outcome.FILTERED
-    assert signal.reasons == ("real-yield filter: +0.20 pp over 2 days",)
+    assert signal.reasons == ("real-yield filter: entry against the real-yield direction",)
     assert result.trades == []

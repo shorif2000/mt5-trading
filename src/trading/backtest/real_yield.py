@@ -116,4 +116,4 @@ class RealYieldFilter:
             allowed = (Direction.BUY, Direction.SELL) if self.params.neutral_allows_both else ()
         if direction in allowed:
             return None
-        return f"real-yield filter: {delta:+.2f} pp over {self.params.lookback} days"
+        return "real-yield filter: entry against the real-yield direction"
