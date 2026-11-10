@@ -20,7 +20,7 @@ mt5-trading = "trading.main:app"
 
 [dependency-groups]
 dev = [
-    "pytest>=8.0,<9",
+    "pytest>=8.0,<10",
     "pytest-cov>=5.0,<7",
     "ruff>=0.5,<1",
     "mypy>=1.10,<2",
