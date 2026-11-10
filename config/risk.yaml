@@ -2,7 +2,9 @@
 # The risk engine rejects proposals until all required values are explicitly reviewed.
 enabled: false
 account_currency: null
-maximum_risk_per_trade_percent: null
+# Approved by the account owner on 2026-11-10: at most 2 % of the current MT5 account balance
+# per trade. The sizing code refuses any value above 2.
+maximum_risk_per_trade_percent: 2.0
 maximum_daily_loss_percent: null
 maximum_open_positions: null
 maximum_total_open_risk_percent: null
@@ -15,3 +17,28 @@ minimum_reward_to_risk: null
 require_stop_loss: true
 require_take_profit: true
 allow_trading: false
+
+# Position sizing inputs that MT5 does not report. `null` means "not yet known": sizing for
+# that symbol is rejected rather than assuming zero. Set each value from the broker's account
+# terms; do not guess.
+position_sizing:
+  # Snapshot, account and quote data older than this is rejected.
+  maximum_data_age_seconds: 120
+  # Allowed relative difference between MT5's trade_tick_value_loss and contract size x tick
+  # size converted with the snapshot's own quotes (mid prices). Larger differences mean the
+  # conversion is unreliable and sizing is rejected.
+  tick_value_tolerance_percent: 2.0
+  # Currency of the commission values below; must equal the account currency.
+  commission_currency: null
+  # Round-turn commission per lot (open and close together).
+  commission_per_lot_round_turn:
+    EURUSD: null
+    GBPUSD: null
+    USDJPY: null
+    XAUUSD: null
+  # Total adverse slippage allowance per trade in points (entry and stop together).
+  slippage_points:
+    EURUSD: null
+    GBPUSD: null
+    USDJPY: null
+    XAUUSD: null
