@@ -480,3 +480,248 @@ def test_tick_in_the_future_is_rejected():
     # A tick an hour ahead is what treating broker time as UTC on a UTC+1 server looks like.
     export["symbols"]["EURUSD"]["tick"]["time"] = broker_epoch(NOW + timedelta(hours=1))
     assert "is in the future" in rejection(export)
+
+
+# --- broker daylight saving time --------------------------------------------------------
+# The broker runs on New York time + 7h: UTC+3 while the US observes DST, UTC+2 otherwise.
+# The live offset at NOW (10 Nov 2026) is +2; US DST ended on Sunday 1 Nov 2026 and began on
+# Sunday 8 Mar 2026.
+
+
+def wall(year: int, month: int, day: int, hour: int, minute: int = 0) -> int:
+    """MT5 broker epoch for a broker wall-clock time."""
+    return int(datetime(year, month, day, hour, minute, tzinfo=UTC).timestamp())
+
+
+def bridge_utc(epoch: int) -> str:
+    """What the bridge writes as ``time_utc``: always the live offset, whatever the date."""
+    return datetime.fromtimestamp(epoch - OFFSET, tz=UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def h4_across_dst_end() -> dict[str, Any]:
+    """EURUSD H4 bars in broker wall time from Thu 29 Oct to the forming bar on Tue 10 Nov."""
+    times = []
+    day = datetime(2026, 10, 29, tzinfo=UTC)
+    while day <= datetime(2026, 11, 10, tzinfo=UTC):
+        if day.weekday() < 5:  # the broker has no Saturday or Sunday bars
+            for hour in range(0, 24, 4):
+                epoch = wall(day.year, day.month, day.day, hour)
+                if epoch <= wall(2026, 11, 10, 12):  # 12:00 broker is forming at NOW
+                    times.append(epoch)
+        day += timedelta(days=1)
+    rows = [
+        {
+            "time": t,
+            "time_utc": bridge_utc(t),
+            "open": 1.1,
+            "high": 1.11,
+            "low": 1.09,
+            "close": 1.1,
+            "tick_volume": 100,
+            "spread": 10,
+            "real_volume": 0,
+        }
+        for t in times
+    ]
+    return {
+        "symbol": "EURUSD",
+        "timeframe": "H4",
+        "count": len(rows),
+        "truncated": False,
+        **offset_info(),
+        "rates": rows,
+    }
+
+
+def eurusd_h4(snapshot) -> list:
+    return next(s for s in snapshot.candles if s.symbol == "EURUSD" and s.timeframe == "H4").candles
+
+
+def test_candles_before_dst_change_use_the_offset_in_force_then():
+    export = valid_export()
+    export["symbols"]["EURUSD"]["rates"]["H4"] = h4_across_dst_end()
+
+    candles = {
+        c.broker_time.replace(tzinfo=None): c
+        for c in eurusd_h4(build_snapshot(export, now=NOW, settings=SETTINGS))
+    }
+
+    friday = candles[datetime(2026, 10, 30, 20)]  # before the change: UTC+3
+    assert friday.timestamp == datetime(2026, 10, 30, 17, tzinfo=UTC)
+    assert friday.broker_time.utcoffset() == timedelta(hours=3)
+    monday = candles[datetime(2026, 11, 2, 0)]  # after the change: UTC+2
+    assert monday.timestamp == datetime(2026, 11, 1, 22, tzinfo=UTC)
+    assert monday.broker_time.utcoffset() == timedelta(hours=2)
+
+
+def test_weekend_across_dst_change_is_not_reported_as_a_gap():
+    export = valid_export()
+    export["symbols"]["EURUSD"]["rates"]["H4"] = h4_across_dst_end()
+    build_snapshot(export, now=NOW, settings=SETTINGS)  # does not raise
+
+
+def test_bridge_utc_annotation_using_live_offset_is_accepted_for_old_bars():
+    # The bridge's time_utc is one hour off for bars before the change; it is checked for
+    # consistency with the live offset and not used as the timestamp.
+    export = valid_export()
+    series = h4_across_dst_end()
+    export["symbols"]["EURUSD"]["rates"]["H4"] = series
+    old = series["rates"][0]
+    assert old["time_utc"] == "2026-10-28T22:00:00Z"  # bridge value (+2)
+
+    candle = eurusd_h4(build_snapshot(export, now=NOW, settings=SETTINGS))[0]
+    assert candle.timestamp == datetime(2026, 10, 28, 21, tzinfo=UTC)  # correct value (+3)
+
+
+def test_position_and_order_times_across_dst_changes():
+    export = valid_export()
+    export["positions"] = {
+        "count": 2,
+        **offset_info(),
+        "positions": [
+            {  # opened Fri 30 Oct 10:00 broker, before the November change (UTC+3)
+                "ticket": 1,
+                "symbol": "EURUSD",
+                "type": 0,
+                "volume": 0.1,
+                "price_open": 1.1,
+                "sl": 0.0,
+                "tp": 0.0,
+                "profit": 0.0,
+                "time": wall(2026, 10, 30, 10),
+            },
+            {  # opened Mon 2 Nov 10:00 broker, after the change (UTC+2)
+                "ticket": 2,
+                "symbol": "EURUSD",
+                "type": 1,
+                "volume": 0.1,
+                "price_open": 1.1,
+                "sl": 0.0,
+                "tp": 0.0,
+                "profit": 0.0,
+                "time": wall(2026, 11, 2, 10),
+            },
+        ],
+    }
+    export["orders"] = {
+        "count": 2,
+        **offset_info(),
+        "orders": [
+            {  # placed Fri 6 Mar, before US DST began (UTC+2); expires after it (UTC+3)
+                "ticket": 3,
+                "symbol": "GBPUSD",
+                "type": 2,
+                "volume_current": 0.1,
+                "price_open": 1.2,
+                "price_stoplimit": 0.0,
+                "sl": 0.0,
+                "tp": 0.0,
+                "time_setup": wall(2026, 3, 6, 10),
+                "time_expiration": wall(2026, 3, 9, 10),
+            },
+            {  # placed Mon 9 Mar, after US DST began (UTC+3)
+                "ticket": 4,
+                "symbol": "GBPUSD",
+                "type": 3,
+                "volume_current": 0.1,
+                "price_open": 1.3,
+                "price_stoplimit": 0.0,
+                "sl": 0.0,
+                "tp": 0.0,
+                "time_setup": wall(2026, 3, 9, 10),
+                "time_expiration": 0,
+            },
+        ],
+    }
+
+    snapshot = build_snapshot(export, now=NOW, settings=SETTINGS)
+
+    before, after = snapshot.positions
+    assert before.timestamp == datetime(2026, 10, 30, 7, tzinfo=UTC)
+    assert before.broker_time is not None and before.broker_time.utcoffset() == timedelta(hours=3)
+    assert after.timestamp == datetime(2026, 11, 2, 8, tzinfo=UTC)
+    assert after.broker_time is not None and after.broker_time.utcoffset() == timedelta(hours=2)
+    winter, summer = snapshot.pending_orders
+    assert winter.timestamp == datetime(2026, 3, 6, 8, tzinfo=UTC)
+    assert winter.expiration == datetime(2026, 3, 9, 7, tzinfo=UTC)
+    assert summer.timestamp == datetime(2026, 3, 9, 7, tzinfo=UTC)
+
+
+@pytest.mark.parametrize(
+    "broker_wall",
+    [
+        wall(2026, 11, 1, 8, 30),  # New York 01:30 on 1 Nov 2026 happened twice
+        wall(2026, 3, 8, 9, 30),  # New York 02:30 on 8 Mar 2026 never happened
+    ],
+    ids=["repeated", "skipped"],
+)
+def test_broker_time_at_a_dst_change_is_rejected(broker_wall):
+    export = valid_export()
+    export["positions"] = {
+        "count": 1,
+        **offset_info(),
+        "positions": [
+            {
+                "ticket": 1,
+                "symbol": "EURUSD",
+                "type": 0,
+                "volume": 0.1,
+                "price_open": 1.1,
+                "sl": 0.0,
+                "tp": 0.0,
+                "profit": 0.0,
+                "time": broker_wall,
+            }
+        ],
+    }
+    assert "skipped or repeated by a daylight saving change" in rejection(export)
+
+
+def test_rule_that_disagrees_with_live_offset_is_rejected():
+    settings = ExportSettings(min_completed_candles=10, broker_timezone="UTC", broker_shift_hours=3)
+    with pytest.raises(ExportRejected, match="does not match the configured broker time-zone rule"):
+        build_snapshot(valid_export(), now=NOW, settings=settings)
+
+
+def test_unknown_broker_timezone_is_rejected():
+    settings = ExportSettings(min_completed_candles=10, broker_timezone="Mars/Olympus")
+    with pytest.raises(ExportRejected, match="invalid broker timezone"):
+        build_snapshot(valid_export(), now=NOW, settings=settings)
+
+
+# --- clock skew and offset metadata -----------------------------------------------------
+
+
+def test_bar_closing_within_clock_skew_is_treated_as_forming():
+    export = valid_export()
+    just_after_close = datetime(2026, 11, 10, 10, 0, 3, tzinfo=UTC)
+    export["exported_at_utc"] = just_after_close.isoformat()
+
+    cautious = build_snapshot(export, now=NOW, settings=SETTINGS)
+    m15 = next(s for s in cautious.candles if s.symbol == "EURUSD" and s.timeframe == "M15")
+    # The 09:45 bar closed 3 s before the export, inside the 5 s skew allowance.
+    assert m15.candles[-1].timestamp == datetime(2026, 11, 10, 9, 30, tzinfo=UTC)
+
+    trusting = ExportSettings(min_completed_candles=10, clock_skew_seconds=0)
+    snapshot = build_snapshot(export, now=NOW, settings=trusting)
+    m15 = next(s for s in snapshot.candles if s.symbol == "EURUSD" and s.timeframe == "M15")
+    assert m15.candles[-1].timestamp == datetime(2026, 11, 10, 9, 45, tzinfo=UTC)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ("symbols", "EURUSD", "tick"),
+        ("symbols", "EURUSD", "rates", "H1"),
+        ("positions",),
+        ("orders",),
+    ],
+    ids=["tick", "rates", "positions", "orders"],
+)
+def test_missing_offset_metadata_is_rejected(path):
+    export = valid_export()
+    target = export
+    for key in path:
+        target = target[key]
+    del target["broker_offset_seconds"]
+    assert "missing broker offset metadata" in rejection(export)

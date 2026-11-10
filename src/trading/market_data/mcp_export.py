@@ -4,9 +4,12 @@ Claude calls the read-only ``mt5`` MCP tools and writes their responses verbatim
 JSON file (format described in docs/mt5-integration-assessment.md). This module performs
 every conversion and validation deterministically. It never connects to MT5.
 
-MT5 reports broker server time as a "fake UTC" epoch. Real UTC is ``epoch - offset``, where
-the offset comes from ``terminal_status`` and must be confident. Every converted timestamp
-is kept twice: ``timestamp`` in UTC and ``broker_time`` in the broker's fixed offset.
+MT5 reports broker server time as a "fake UTC" epoch: the broker's wall-clock time. The
+broker's offset changes with daylight saving time, so one current offset cannot convert
+history. Each epoch is converted with the offset the broker's time-zone rule gives *at that
+moment* (``BrokerClock``). The rule is checked against the live offset from
+``terminal_status``. Every converted timestamp is kept twice: ``timestamp`` in UTC and
+``broker_time`` in the broker offset that applied at that moment.
 """
 
 import json
@@ -15,6 +18,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, TypeVar
+from zoneinfo import ZoneInfo
 
 from pydantic import ValidationError
 
@@ -60,7 +64,14 @@ class ExportSettings:
     # Short session breaks (gold's daily break, rollover) are tolerated; longer gaps are
     # rejected unless they span the weekend close.
     max_session_break_minutes: int = 75
+    # Allowed difference between this machine's clock and the broker's. Also held back when
+    # deciding whether a candle has closed, so a fast local clock cannot accept a forming bar.
     clock_skew_seconds: int = 5
+    # Broker wall time = wall time in this IANA zone + shift. The default is the "New York
+    # close" convention (UTC+2 in winter, UTC+3 during US daylight saving time), verified for
+    # the current broker from its weekly open; see docs/mt5-integration-assessment.md.
+    broker_timezone: str = "America/New_York"
+    broker_shift_hours: int = 7
 
 
 class ExportRejected(Exception):
@@ -71,16 +82,46 @@ class ExportRejected(Exception):
         self.reasons = reasons
 
 
-class _BrokerClock:
-    def __init__(self, offset_seconds: int) -> None:
-        self.offset = offset_seconds
-        self.zone = timezone(timedelta(seconds=offset_seconds))
+class BrokerClock:
+    """Converts MT5 broker epochs with the offset in force at each moment.
+
+    ``live_offset`` is the offset ``terminal_status`` reports now; the bridge used it for every
+    ``*_utc`` annotation regardless of date.
+    """
+
+    def __init__(self, zone_name: str, shift_hours: int, live_offset: int) -> None:
+        self.zone = ZoneInfo(zone_name)
+        self.shift = timedelta(hours=shift_hours)
+        self.live_offset = live_offset
+
+    def offset_at(self, moment: datetime) -> int:
+        zone_offset = moment.astimezone(self.zone).utcoffset()
+        if zone_offset is None:
+            raise ValueError(f"no UTC offset for {moment.isoformat()} in {self.zone}")
+        return int((zone_offset + self.shift).total_seconds())
 
     def utc(self, epoch: int) -> datetime:
-        return datetime.fromtimestamp(epoch - self.offset, tz=UTC)
+        broker_wall = datetime.fromtimestamp(epoch, tz=UTC).replace(tzinfo=None)
+        zone_wall = broker_wall - self.shift
+        # A wall time skipped or repeated by a DST change has no single UTC instant.
+        candidates = {
+            zone_wall.replace(tzinfo=self.zone, fold=fold).astimezone(UTC) for fold in (0, 1)
+        }
+        valid = [
+            moment
+            for moment in candidates
+            if moment.astimezone(self.zone).replace(tzinfo=None) == zone_wall
+        ]
+        if len(valid) != 1:
+            raise ValueError(
+                f"broker time {broker_wall.isoformat()} is skipped or repeated by a daylight "
+                "saving change and cannot be converted to UTC unambiguously"
+            )
+        return valid[0]
 
     def broker(self, epoch: int) -> datetime:
-        return self.utc(epoch).astimezone(self.zone)
+        moment = self.utc(epoch)
+        return moment.astimezone(timezone(timedelta(seconds=self.offset_at(moment))))
 
 
 # --- primitive field access -------------------------------------------------------------
@@ -176,17 +217,26 @@ def _attempt(reasons: list[str], where: str, build: Callable[[], T]) -> T | None
 
 
 def _check_utc_annotation(
-    record: Mapping[str, Any], key: str, expected: datetime, where: str
+    record: Mapping[str, Any], key: str, epoch: int, clock: BrokerClock, where: str
 ) -> None:
-    """The bridge's own ``<key>_utc`` string, when present, must agree with our conversion."""
+    """The bridge's ``<key>_utc`` string, when present, must equal ``epoch - live offset``.
+
+    The bridge applies the current offset to every epoch, so its annotation is wrong for
+    times before a DST change. It is therefore checked for consistency with the live offset
+    and never used as the UTC value.
+    """
     annotated = record.get(f"{key}_utc")
-    if annotated is not None and _parse_utc(annotated, f"{where}.{key}_utc") != expected:
+    if annotated is None:
+        return
+    expected = datetime.fromtimestamp(epoch - clock.live_offset, tz=UTC)
+    if _parse_utc(annotated, f"{where}.{key}_utc") != expected:
         raise ValueError(f"{where}: '{key}_utc' disagrees with the broker offset")
 
 
 def _check_response_offset(response: Mapping[str, Any], offset: int, where: str) -> None:
+    """Every tool response carrying broker times must state the offset it was produced with."""
     if "broker_offset_seconds" not in response:
-        return
+        raise ValueError(f"{where}: missing broker offset metadata")
     if response.get("broker_offset_seconds") != offset:
         raise ValueError(f"{where}: broker offset differs from terminal_status")
     if response.get("broker_offset_confident") is not True:
@@ -276,16 +326,16 @@ def _quote(
     symbol: str,
     tick: Mapping[str, Any],
     info: Mapping[str, Any],
-    clock: _BrokerClock,
+    clock: BrokerClock,
     as_of: datetime,
     now: datetime,
     settings: ExportSettings,
 ) -> Quote:
     where = f"{symbol} tick"
-    _check_response_offset(tick, clock.offset, where)
+    _check_response_offset(tick, clock.live_offset, where)
     epoch = _epoch(tick, "time", where)
     timestamp = clock.utc(epoch)
-    _check_utc_annotation(tick, "time", timestamp, where)
+    _check_utc_annotation(tick, "time", epoch, clock, where)
     # The export time is taken before collection starts, so a tick may be slightly newer than
     # it. Only a tick newer than the real current time indicates a timezone error.
     if (timestamp - now).total_seconds() > settings.clock_skew_seconds:
@@ -330,7 +380,7 @@ def _candle_series(
     symbol: str,
     timeframe: Timeframe,
     response: Mapping[str, Any],
-    clock: _BrokerClock,
+    clock: BrokerClock,
     as_of: datetime,
     settings: ExportSettings,
 ) -> CandleSeries:
@@ -339,7 +389,7 @@ def _candle_series(
         raise ValueError(f"{where}: response is for a different symbol or timeframe")
     if response.get("truncated") is not False:
         raise ValueError(f"{where}: response was truncated or did not report truncation")
-    _check_response_offset(response, clock.offset, where)
+    _check_response_offset(response, clock.live_offset, where)
     rows = response.get("rates")
     if not isinstance(rows, list) or not rows:
         raise ValueError(f"{where}: missing candle data")
@@ -355,7 +405,7 @@ def _candle_series(
         if epoch % seconds:
             raise ValueError(f"{row_where}: bar time is not aligned to {timeframe}")
         timestamp = clock.utc(epoch)
-        _check_utc_annotation(row, "time", timestamp, row_where)
+        _check_utc_annotation(row, "time", epoch, clock, row_where)
         candles.append(
             Candle(
                 timestamp=timestamp,
@@ -372,16 +422,19 @@ def _candle_series(
         if current.timestamp <= previous.timestamp:
             raise ValueError(f"{where}: candles are not strictly ascending")
 
-    completed = [c for c in candles if c.timestamp + duration <= as_of]
-    if len(candles) - len(completed) > 1:
+    # Hold back the clock-skew allowance: a bar only counts as closed once it has closed even
+    # if this machine's clock is ahead of the broker's by up to that allowance.
+    cutoff = as_of - timedelta(seconds=settings.clock_skew_seconds)
+    if sum(1 for c in candles if c.timestamp + duration > as_of) > 1:
         raise ValueError(f"{where}: more than one incomplete candle; bar times are in the future")
+    completed = [c for c in candles if c.timestamp + duration <= cutoff]
     if len(completed) < settings.min_completed_candles:
         raise ValueError(
             f"{where}: missing candle data, {len(completed)} completed candles "
             f"(need {settings.min_completed_candles})"
         )
     last_close = completed[-1].timestamp + duration
-    if as_of - last_close > duration:
+    if cutoff - last_close > duration:
         raise ValueError(
             f"{where}: stale, latest completed candle closed at {last_close.isoformat()}"
         )
@@ -402,8 +455,8 @@ def _rows(response: Mapping[str, Any], key: str, where: str) -> list[dict[str, A
     return rows
 
 
-def _positions(response: Mapping[str, Any], clock: _BrokerClock) -> list[Position]:
-    _check_response_offset(response, clock.offset, "positions")
+def _positions(response: Mapping[str, Any], clock: BrokerClock) -> list[Position]:
+    _check_response_offset(response, clock.live_offset, "positions")
     positions = []
     for index, row in enumerate(_rows(response, "positions", "positions")):
         where = f"positions[{index}]"
@@ -412,7 +465,7 @@ def _positions(response: Mapping[str, Any], clock: _BrokerClock) -> list[Positio
             raise ValueError(f"{where}: unknown position type {position_type}")
         epoch = _epoch(row, "time", where)
         timestamp = clock.utc(epoch)
-        _check_utc_annotation(row, "time", timestamp, where)
+        _check_utc_annotation(row, "time", epoch, clock, where)
         positions.append(
             Position(
                 ticket=str(_integer(row, "ticket", where)),
@@ -430,8 +483,8 @@ def _positions(response: Mapping[str, Any], clock: _BrokerClock) -> list[Positio
     return positions
 
 
-def _pending_orders(response: Mapping[str, Any], clock: _BrokerClock) -> list[PendingOrder]:
-    _check_response_offset(response, clock.offset, "orders")
+def _pending_orders(response: Mapping[str, Any], clock: BrokerClock) -> list[PendingOrder]:
+    _check_response_offset(response, clock.live_offset, "orders")
     orders = []
     for index, row in enumerate(_rows(response, "orders", "orders")):
         where = f"orders[{index}]"
@@ -440,7 +493,7 @@ def _pending_orders(response: Mapping[str, Any], clock: _BrokerClock) -> list[Pe
             raise ValueError(f"{where}: type {order_type} is not a pending order type")
         epoch = _epoch(row, "time_setup", where)
         timestamp = clock.utc(epoch)
-        _check_utc_annotation(row, "time_setup", timestamp, where)
+        _check_utc_annotation(row, "time_setup", epoch, clock, where)
         expiration_epoch = _integer(row, "time_expiration", where)
         orders.append(
             PendingOrder(
@@ -463,7 +516,7 @@ def _pending_orders(response: Mapping[str, Any], clock: _BrokerClock) -> list[Pe
 def _convert_symbol(
     symbol: str,
     data: Mapping[str, Any],
-    clock: _BrokerClock,
+    clock: BrokerClock,
     as_of: datetime,
     now: datetime,
     settings: ExportSettings,
@@ -531,7 +584,18 @@ def build_snapshot(
         offset = _attempt(reasons, "terminal_status", lambda: _broker_offset(status))
     if as_of is None or offset is None:
         raise ExportRejected(reasons)
-    clock = _BrokerClock(offset)
+    try:
+        clock = BrokerClock(settings.broker_timezone, settings.broker_shift_hours, offset)
+    except (KeyError, ValueError) as exc:  # unknown IANA zone name
+        raise ExportRejected([*reasons, f"settings: invalid broker timezone: {exc}"]) from exc
+    rule_offset = clock.offset_at(as_of)
+    if rule_offset != offset:
+        reasons.append(
+            f"terminal_status: broker offset {offset}s does not match the configured broker "
+            f"time-zone rule ({settings.broker_timezone} {settings.broker_shift_hours:+d}h gives "
+            f"{rule_offset}s); historical timestamps cannot be converted safely"
+        )
+        raise ExportRejected(reasons)
 
     account = _attempt(
         reasons, "account_info", lambda: _account(_section(export, "account_info", "export"), as_of)
