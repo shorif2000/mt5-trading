@@ -94,6 +94,10 @@ def valid_export() -> dict[str, Any]:
                 "margin_initial": 0.0,
                 "margin_maintenance": 0.0,
                 "margin_hedged": 50000.0,
+                "swap_mode": 1,
+                "swap_long": -5.0,
+                "swap_short": 1.0,
+                "swap_rollover3days": 3,
                 "currency_base": name[:3],
                 "currency_profit": name[3:],
             },
@@ -861,6 +865,10 @@ def test_instrument_and_margin_specifications_are_captured():
         "currency_margin",
         "trade_calc_mode",
         "margin_hedged",
+        "swap_mode",
+        "swap_long",
+        "swap_short",
+        "swap_rollover3days",
     ],
 )
 def test_missing_instrument_specification_is_rejected(field):

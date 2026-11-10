@@ -65,6 +65,7 @@ def snapshot(
             "tick_value_profit": tick_value, "tick_value_loss": tick_value,
             "volume_min": 0.01, "volume_max": 50.0, "volume_step": 0.01, "trade_allowed": True,
             "digits": digits, "point": tick, "stops_level_points": 10, "freeze_level_points": 0,
+            "swap_mode": 1, "swap_long": -6.0, "swap_short": 2.0, "swap_rollover3days": 3,
         }  # fmt: skip
         fields.update(spec_overrides.get(symbol, {}))
         specs.append(InstrumentSpec(**fields))
@@ -91,7 +92,8 @@ def config(currency: str = "USD", **overrides: Any) -> SizingConfig:
 def buy_eurusd(**overrides: Any) -> SizingRequest:
     # Entry at the ask; stop 500 points (50 pips) below.
     values: dict[str, Any] = {"symbol": "EURUSD", "direction": "buy", "entry": D("1.10010"),
-                              "stop_loss": D("1.09510"), "entry_basis": "executable"}  # fmt: skip
+                              "stop_loss": D("1.09510"), "entry_basis": "executable",
+                              "holding_nights": 0}  # fmt: skip
     values.update(overrides)
     return SizingRequest(**values)
 
@@ -209,7 +211,7 @@ def test_gbp_account_uses_gbp_tick_values_and_limit():
 
 def test_cross_currency_conversion_through_usd_is_verified():
     # USDJPY in a GBP account: JPY -> USD -> GBP from the USDJPY and GBPUSD quotes.
-    request = SizingRequest("USDJPY", "sell", D("150.000"), D("150.500"), "executable")
+    request = SizingRequest("USDJPY", "sell", D("150.000"), D("150.500"), "executable", 0)
     assert size_position(snapshot("GBP"), request, config("GBP"), now=NOW).accepted
 
 
@@ -288,6 +290,19 @@ def test_unknown_costs_are_rejected_not_assumed_zero(overrides, message):
 def test_invalid_stop_loss_is_rejected(request_overrides, message):
     result = size_position(snapshot(), buy_eurusd(**request_overrides), config(), now=NOW)
     assert message in rejection(result)
+
+
+def test_executable_entry_must_match_the_current_fill_price():
+    # An "executable" buy below the ask would leave the spread out of the loss.
+    result = size_position(snapshot(), buy_eurusd(entry=D("1.10000")), config(), now=NOW)
+    assert "does not match the current ask 1.10010" in rejection(result)
+
+
+def test_market_stop_level_is_measured_from_the_closing_price():
+    # 15 points below the ask entry, but only 5 points below the bid that closes a buy:
+    # inside the broker's 10-point stops level.
+    result = size_position(snapshot(), buy_eurusd(stop_loss=D("1.09995")), config(), now=NOW)
+    assert "from 1.10000 is below the broker stops level" in rejection(result)
 
 
 # --- data quality -----------------------------------------------------------------------
@@ -381,4 +396,102 @@ def test_repository_config_is_two_percent_and_rejects_until_costs_are_set():
     repo = dataclasses.replace(repo, commission_currency="USD")
     assert "commission per lot is not configured" in rejection(
         size_position(snapshot(), buy_eurusd(), repo, now=NOW)
+    )
+
+
+# --- stops level boundaries -------------------------------------------------------------
+# Broker stops level: 10 points (0.00010). Bid 1.10000, ask 1.10010.
+
+
+@pytest.mark.parametrize(
+    ("direction", "entry", "stop", "accepted"),
+    [
+        ("buy", "1.10010", "1.09990", True),  # exactly 10 points below the bid
+        ("buy", "1.10010", "1.09991", False),  # one point inside
+        ("sell", "1.10000", "1.10020", True),  # exactly 10 points above the ask
+        ("sell", "1.10000", "1.10019", False),  # one point inside
+    ],
+)
+def test_market_stops_level_boundary(direction, entry, stop, accepted):
+    request = buy_eurusd(direction=direction, entry=D(entry), stop_loss=D(stop))
+    result = size_position(snapshot(), request, config(), now=NOW)
+    assert result.accepted is accepted
+    if not accepted:
+        assert "below the broker stops level" in " ".join(result.reasons)
+
+
+@pytest.mark.parametrize(("direction", "entry"), [("buy", "1.10011"), ("sell", "1.09999")])
+def test_executable_entry_one_point_off_the_fill_price_is_rejected(direction, entry):
+    stop = "1.09000" if direction == "buy" else "1.11000"
+    request = buy_eurusd(direction=direction, entry=D(entry), stop_loss=D(stop))
+    assert "does not match the current" in rejection(
+        size_position(snapshot(), request, config(), now=NOW)
+    )
+
+
+# --- overnight swap ---------------------------------------------------------------------
+# Synthetic EURUSD swap: long -6 points, short +2 points per lot per night; 1 USD per point.
+
+
+def swap_cost(**request: Any) -> D:
+    result = size_position(snapshot(), buy_eurusd(**request), config(), now=NOW)
+    assert result.loss_model is not None, result.reasons
+    return result.loss_model.swap_per_lot
+
+
+def test_intraday_trade_has_no_swap():
+    assert swap_cost(holding_nights=0) == 0
+
+
+@pytest.mark.parametrize(("nights", "charged"), [(1, 3), (5, 7), (6, 10)])
+def test_swap_assumes_the_triple_swap_night_is_included(nights, charged):
+    # Worst case: every run of five trading nights contains the triple-swap night.
+    assert swap_cost(holding_nights=nights) == D("6") * charged
+
+
+def test_swap_credit_never_reduces_the_loss():
+    sell = dict(direction="sell", entry=D("1.10000"), stop_loss=D("1.10500"), holding_nights=3)
+    assert swap_cost(**sell) == 0
+
+
+def test_swap_reduces_the_permitted_volume():
+    intraday = size_position(snapshot(), buy_eurusd(holding_nights=0), config(), now=NOW)
+    overnight = size_position(snapshot(), buy_eurusd(holding_nights=5), config(), now=NOW)
+    # 517 USD per lot plus 42 USD swap (6 points x 7 nights): 200 / 559 = 0.357 -> 0.35.
+    assert (intraday.volume, overnight.volume) == (D("0.38"), D("0.35"))
+    assert overnight.estimated_loss is not None and overnight.estimated_loss <= D("200")
+
+
+def test_swap_in_points_uses_the_loss_tick_value_in_account_currency():
+    result = size_position(snapshot("GBP"), buy_eurusd(holding_nights=1), config("GBP"), now=NOW)
+    assert result.loss_model is not None
+    # 6 points x about 0.79996 GBP per point x 3 charged nights.
+    assert abs(result.loss_model.swap_per_lot - D("14.399")) < D("0.001")
+
+
+@pytest.mark.parametrize(
+    ("spec", "message"),
+    [
+        ({"swap_mode": 5}, "swap mode 5 is not supported"),
+        ({"swap_mode": None}, "swap specification missing"),
+        ({"swap_long": None}, "swap specification missing"),
+    ],
+)
+def test_overnight_trade_without_usable_swap_data_is_rejected(spec, message):
+    data = snapshot(EURUSD=spec)
+    result = size_position(data, buy_eurusd(holding_nights=1), config(), now=NOW)
+    assert message in rejection(result)
+    # The same data is fine for an intraday trade, which incurs no swap.
+    assert size_position(data, buy_eurusd(holding_nights=0), config(), now=NOW).accepted
+
+
+def test_swap_mode_in_account_currency_is_used_directly():
+    data = snapshot(EURUSD={"swap_mode": 4, "swap_long": -4.5})
+    result = size_position(data, buy_eurusd(holding_nights=1), config(), now=NOW)
+    assert result.loss_model is not None and result.loss_model.swap_per_lot == D("13.5")
+
+
+def test_negative_holding_period_is_rejected():
+    assert "holding_nights" in rejection(
+        size_position(snapshot(), buy_eurusd(holding_nights=-1), config(), now=NOW)
     )
