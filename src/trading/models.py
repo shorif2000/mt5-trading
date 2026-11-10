@@ -133,6 +133,14 @@ class InstrumentSpec(BaseModel):
     margin_initial: float | None = Field(default=None, ge=0)
     margin_maintenance: float | None = Field(default=None, ge=0)
     margin_hedged: float | None = Field(default=None, ge=0)
+    swap_mode: int | None = Field(
+        default=None, ge=0, description="Raw MT5 SYMBOL_SWAP_MODE: 1 points, 4 account currency"
+    )
+    swap_long: float | None = None  # per lot per night; negative is a charge
+    swap_short: float | None = None
+    swap_rollover3days: int | None = Field(
+        default=None, ge=0, le=6, description="Weekday of the triple swap (0 Sunday)"
+    )
 
     @model_validator(mode="after")
     def maximum_volume_must_cover_minimum(self) -> "InstrumentSpec":

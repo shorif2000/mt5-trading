@@ -343,6 +343,10 @@ def _instrument(symbol: str, info: Mapping[str, Any]) -> InstrumentSpec:
         margin_initial=_number(info, "margin_initial", where),
         margin_maintenance=_number(info, "margin_maintenance", where),
         margin_hedged=_number(info, "margin_hedged", where),
+        swap_mode=_integer(info, "swap_mode", where),
+        swap_long=_number(info, "swap_long", where),
+        swap_short=_number(info, "swap_short", where),
+        swap_rollover3days=_integer(info, "swap_rollover3days", where),
     )
 
 
