@@ -1,6 +1,7 @@
 """CLI for read-only market snapshot diagnostics."""
 
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 import typer
@@ -8,10 +9,17 @@ from rich.console import Console
 from rich.table import Table
 
 from trading.market_data.market_snapshot import load_snapshot
-from trading.market_data.mcp_collector import CollectorError, collect_to_file
+from trading.market_data.mcp_collector import CollectorError, collect_to_file, margin_from_server
 from trading.market_data.mcp_export import ExportRejected, ExportSettings, load_mcp_export
 from trading.market_data.sessions import load_market_calendar
 from trading.risk.exposure import floating_pnl, open_volume_by_symbol
+from trading.risk.margin import (
+    MarginUnavailable,
+    Side,
+    check_margin,
+    margin_account_from_snapshot,
+    parse_margin_response,
+)
 
 app = typer.Typer(help="Read-only MT5 trading research diagnostics.")
 console = Console()
@@ -80,6 +88,52 @@ def ingest(
     console.print(f"[green]Export accepted.[/green] Validated snapshot written to {output}")
     for line in calendar.summary():
         console.print(f"  Calendar: {line}")
+
+
+@app.command()
+def margin(
+    snapshot: Path = typer.Option(
+        Path("data/snapshot.local.json"), exists=True, readable=True, help="Validated snapshot"
+    ),
+    symbol: str = typer.Option(..., help="Broker symbol, e.g. XAUUSD"),
+    side: str = typer.Option(..., help="BUY or SELL"),
+    volume: str = typer.Option(..., help="Lots, e.g. 0.01"),
+    price: float | None = typer.Option(None, help="Default: MT5's current ask (buy) or bid"),
+    maximum_age_seconds: int = typer.Option(120, min=1),
+) -> None:
+    """Broker-calculated margin for one proposed position (read-only calc_margin call).
+    Nothing is sent to the market; account figures come from the validated snapshot."""
+    side = side.upper()
+    if side not in ("BUY", "SELL"):
+        console.print("[red]Side must be BUY or SELL.[/red]")
+        raise typer.Exit(code=2)
+    order_side: Side = "BUY" if side == "BUY" else "SELL"
+    try:
+        lots = Decimal(volume)
+        data = load_snapshot(snapshot)
+        account = margin_account_from_snapshot(
+            data.account, now=datetime.now(UTC), maximum_age_seconds=maximum_age_seconds
+        )
+        response = margin_from_server(symbol=symbol, side=side, volume=float(lots), price=price)
+        estimate = parse_margin_response(response, symbol=symbol, side=order_side, volume=lots)
+    except (InvalidOperation, ValueError, MarginUnavailable, CollectorError) as exc:
+        console.print(f"[red]Margin unavailable; proposal rejected:[/red] {exc}")
+        raise typer.Exit(code=2) from exc
+    result = check_margin(account, estimate)
+    table = Table(title=f"Margin: {side} {lots} {symbol} at {estimate.price}")
+    table.add_column("Check")
+    table.add_column("Result")
+    table.add_row("Required margin", f"{result.required} {result.currency}")
+    table.add_row("Free margin before", f"{result.free_margin_before} {result.currency}")
+    table.add_row("Free margin after", f"{result.free_margin_after} {result.currency}")
+    level = result.projected_margin_level
+    table.add_row("Projected margin level", "n/a" if level is None else f"{level:.1f}%")
+    table.add_row("Decision", "ACCEPTED" if result.accepted else "REJECTED")
+    console.print(table)
+    for reason in result.reasons:
+        console.print(f"  - {reason}")
+    if not result.accepted:
+        raise typer.Exit(code=3)
 
 
 @app.command(name="calendar")

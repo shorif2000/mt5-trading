@@ -33,6 +33,8 @@ READ_ONLY_TOOLS = frozenset(
         "get_rates",
         "get_positions",
         "get_orders",
+        # Broker margin calculation (MT5 order_calc_margin): computes only, sends nothing.
+        "calc_margin",
     }
 )
 TRADING_TOOLS = frozenset(
@@ -236,3 +238,41 @@ def collect_to_file(
     except Exception as exc:  # the server process failed to start or the stream broke
         raise CollectorError(f"Could not collect from mt5-mcp: {exc}") from exc
     output.write_text(json.dumps(export, indent=2), encoding="utf-8")
+
+
+async def request_margin(
+    session: ToolSession, *, symbol: str, side: str, volume: float, price: float | None = None
+) -> dict[str, Any]:
+    """Ask MT5 for the margin of one proposed position. Read-only: calc_margin only."""
+    if side not in ("BUY", "SELL"):
+        raise CollectorError(f"side must be BUY or SELL, got {side!r}")
+    await verify_read_only(session)
+    arguments: dict[str, Any] = {"symbol": symbol, "side": side, "volume": volume}
+    if price is not None:
+        arguments["price"] = price
+    return await call_read_only(session, "calc_margin", arguments)
+
+
+async def _margin_from_server(
+    params: StdioServerParameters, symbol: str, side: str, volume: float, price: float | None
+) -> dict[str, Any]:
+    async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
+        await session.initialize()
+        return await request_margin(session, symbol=symbol, side=side, volume=volume, price=price)
+
+
+def margin_from_server(
+    *,
+    symbol: str,
+    side: str,
+    volume: float,
+    price: float | None = None,
+    config_path: Path = CLAUDE_CONFIG_PATH,
+) -> dict[str, Any]:
+    params = server_parameters(registered_server(config_path))
+    try:
+        return asyncio.run(_margin_from_server(params, symbol, side, volume, price))
+    except CollectorError:
+        raise
+    except Exception as exc:  # the server process failed to start or the stream broke
+        raise CollectorError(f"Could not request margin from mt5-mcp: {exc}") from exc

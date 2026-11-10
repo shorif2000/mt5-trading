@@ -137,7 +137,8 @@ Safety in the collector:
 - It refuses to run if the server advertises any tool without `read_only_hint=True`. That
   includes a missing annotation, `false`, or a tool also marked `destructive_hint=True`.
   Every trading tool is covered (`tools_trade.py` annotates them `read_only_hint=False`).
-- Only 7 allowlisted tools are ever called. `check_order` and `calc_*` are excluded.
+- Only 8 allowlisted tools are ever called, including `calc_margin` (MT5 `order_calc_margin`,
+  a calculation that sends nothing). `check_order` and `calc_profit` are excluded.
 - `login`, `name`, `server` and `company` are replaced with `REDACTED` before the raw export
   is written.
 
@@ -371,9 +372,16 @@ code 3 when the snapshot is older than `--maximum-age-seconds`. If collection fa
   verifies it against the snapshot's own quotes. It never falls back to `tick_value`.
   Commission and slippage are not reported by MT5 and must be set in `config/risk.yaml`;
   until they are, sizing is rejected.
-- Margin estimates still need MT5's `order_calc_margin` (the `calc_margin` tool), which the
-  collector does not call. The captured fields (`leverage`, `calc_mode`, `margin_currency`,
-  `margin_initial`, `margin_hedged`) are not enough to reproduce every broker formula.
+- Margin comes only from MT5's `order_calc_margin`, through the read-only `calc_margin` tool
+  (`mt5-trading margin`, `src/trading/risk/margin.py`). It is requested for the exact symbol,
+  side, volume and price and is never estimated locally. The check is separate from the 2 %
+  loss rule.
+  - **Reported:** required margin, free margin before and after opening, and the projected
+    margin level.
+  - **Rejected:** an unavailable or mismatched response, a non-positive margin, insufficient
+    free margin, or a projected level at or below the account's margin-call level.
+  - **Not covered:** hedged margin for opposite positions and margin changes after opening
+    (price moves, leverage changes).
 - `InstrumentSpec.calculation_currency` is unused; the margin currency is in `margin_currency`.
 - Correlated exposure and currency conversion are not computed.
 - The terminal may be logged into a live account. Read-only access is enforced by this app, by the
