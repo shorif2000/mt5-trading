@@ -277,7 +277,11 @@ def describe_series(history: Mapping[str, Any], coverage: Mapping[str, Any]) -> 
 def bar_sample(bars: Sequence[Any], count: int = 3) -> list[dict[str, Any]]:
     """The first and last ``count`` bars exactly as the backtest used them."""
     chosen = [*bars[:count], *bars[-count:]] if len(bars) > 2 * count else list(bars)
-    return [plain(bar) for bar in chosen]
+    # Round away binary floating-point noise (1.3388200000000001) without losing precision.
+    return [
+        {k: round(v, 8) if isinstance(v, float) else v for k, v in plain(bar).items()}
+        for bar in chosen
+    ]
 
 
 def _render_ai(info: Mapping[str, Any] | None) -> list[str]:
@@ -291,7 +295,7 @@ def _render_ai(info: Mapping[str, Any] | None) -> list[str]:
     authors = ", ".join(
         f"{k} ({v} commits)" for k, v in evidence.get("git_co_author_commits", {}).items()
     )
-    agents = [f"{a['name']} ({a['use']})" for a in declared.get("agents_used") or []]
+    agents = [f"{a['name']}: {a['use']}" for a in declared.get("agents_used") or []]
     servers = [
         f"{m['name']} ({m['project']}): {str(m['use']).strip()}"
         for m in addons.get("mcp_servers") or []

@@ -178,3 +178,11 @@ def test_input_data_description_has_no_account_details():
     described = describe_series(history, {"XAUUSD M15": {"bars": 1}})
     assert described["broker_offset_seconds_at_download"] == 7200
     assert "Program Files" not in json.dumps(described)
+
+
+def test_data_sample_prices_have_no_float_noise():
+    from trading.backtest.bars import Bar
+    from trading.backtest.provenance import bar_sample
+
+    [sample] = bar_sample([Bar(STARTED, 1.33882, 1.33882000000001, 1.33882, 1.33882, 14)])
+    assert sample["high"] == 1.33882 and repr(sample["high"]) == "1.33882"
