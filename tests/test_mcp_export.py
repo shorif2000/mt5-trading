@@ -1,19 +1,25 @@
 """Business rules for turning mocked read-only MT5 MCP responses into a validated snapshot."""
 
 import copy
+import dataclasses
 import json
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 
 from trading.market_data.mcp_export import (
     EXPORT_FORMAT,
+    BrokerClock,
     ExportRejected,
     ExportSettings,
+    _candle_series,
     build_snapshot,
     load_mcp_export,
 )
+from trading.market_data.sessions import load_market_calendar, parse_market_calendar
 
 OFFSET = 7200  # broker server is UTC+2
 # Tuesday, mid-session. Export taken 30 s into a new M15 bar.
@@ -25,7 +31,8 @@ SYMBOLS = {
     "XAUUSD": (4726.77, 4726.98, 0.01, 2),
 }
 SECONDS = {"M15": 900, "H1": 3600, "H4": 14400}
-SETTINGS = ExportSettings(min_completed_candles=10)
+CALENDAR = load_market_calendar(Path("config/market_sessions.yaml"))
+SETTINGS = ExportSettings(min_completed_candles=10, calendar=CALENDAR)
 
 
 def broker_epoch(moment: datetime) -> int:
@@ -78,6 +85,15 @@ def valid_export() -> dict[str, Any]:
                 "volume_max": 100,
                 "volume_step": 0.01,
                 "trade_mode": 4,
+                "trade_tick_value_profit": 0.75,
+                "trade_tick_value_loss": 0.76,
+                "trade_stops_level": 10,
+                "trade_freeze_level": 0,
+                "trade_calc_mode": 0,
+                "currency_margin": name[:3],
+                "margin_initial": 0.0,
+                "margin_maintenance": 0.0,
+                "margin_hedged": 50000.0,
                 "currency_base": name[:3],
                 "currency_profit": name[3:],
             },
@@ -110,6 +126,11 @@ def valid_export() -> dict[str, Any]:
             "margin": 0.0,
             "margin_free": 1000.0,
             "margin_level": 0.0,
+            "leverage": 100,
+            "margin_mode": 2,
+            "margin_so_mode": 0,
+            "margin_so_call": 50.0,
+            "margin_so_so": 20.0,
         },
         "positions": {"count": 0, **offset_info(), "positions": []},
         "orders": {"count": 0, **offset_info(), "orders": []},
@@ -213,12 +234,12 @@ def test_intraday_gap_in_candles_is_rejected():
     export = valid_export()
     rows = export["symbols"]["EURUSD"]["rates"]["M15"]["rates"]
     del rows[3:9]  # 90 minutes of bars missing mid-session
-    assert "EURUSD M15 rates: missing candles between" in rejection(export)
+    assert "EURUSD M15 rates: missing candles during scheduled market hours" in rejection(export)
 
 
 def test_weekend_gap_is_accepted():
     export = valid_export()
-    friday_close = datetime(2026, 11, 6, 21, 0, tzinfo=UTC)
+    friday_close = datetime(2026, 11, 6, 22, 0, tzinfo=UTC)  # 17:00 New York
     sunday_open = datetime(2026, 11, 8, 22, 0, tzinfo=UTC)
     rows = export["symbols"]["EURUSD"]["rates"]["H1"]["rates"]
     # Rebuild H1 as: 5 bars to Friday's close, then hourly from Sunday's open to NOW.
@@ -471,7 +492,9 @@ def test_synthetic_example_export_is_valid():
     assert example["format"] == EXPORT_FORMAT
     assert example["_note"].startswith("SYNTHETIC EXAMPLE")
     as_of = datetime.fromisoformat(example["exported_at_utc"])
-    snapshot = build_snapshot(example, now=as_of, settings=ExportSettings(min_completed_candles=2))
+    snapshot = build_snapshot(
+        example, now=as_of, settings=dataclasses.replace(SETTINGS, min_completed_candles=2)
+    )
     assert snapshot.account.login == "REDACTED"
 
 
@@ -678,13 +701,13 @@ def test_broker_time_at_a_dst_change_is_rejected(broker_wall):
 
 
 def test_rule_that_disagrees_with_live_offset_is_rejected():
-    settings = ExportSettings(min_completed_candles=10, broker_timezone="UTC", broker_shift_hours=3)
+    settings = dataclasses.replace(SETTINGS, broker_timezone="UTC", broker_shift_hours=3)
     with pytest.raises(ExportRejected, match="does not match the configured broker time-zone rule"):
         build_snapshot(valid_export(), now=NOW, settings=settings)
 
 
 def test_unknown_broker_timezone_is_rejected():
-    settings = ExportSettings(min_completed_candles=10, broker_timezone="Mars/Olympus")
+    settings = dataclasses.replace(SETTINGS, broker_timezone="Mars/Olympus")
     with pytest.raises(ExportRejected, match="invalid broker timezone"):
         build_snapshot(valid_export(), now=NOW, settings=settings)
 
@@ -702,7 +725,7 @@ def test_bar_closing_within_clock_skew_is_treated_as_forming():
     # The 09:45 bar closed 3 s before the export, inside the 5 s skew allowance.
     assert m15.candles[-1].timestamp == datetime(2026, 11, 10, 9, 30, tzinfo=UTC)
 
-    trusting = ExportSettings(min_completed_candles=10, clock_skew_seconds=0)
+    trusting = dataclasses.replace(SETTINGS, clock_skew_seconds=0)
     snapshot = build_snapshot(export, now=NOW, settings=trusting)
     m15 = next(s for s in snapshot.candles if s.symbol == "EURUSD" and s.timeframe == "M15")
     assert m15.candles[-1].timestamp == datetime(2026, 11, 10, 9, 45, tzinfo=UTC)
@@ -725,3 +748,124 @@ def test_missing_offset_metadata_is_rejected(path):
         target = target[key]
     del target["broker_offset_seconds"]
     assert "missing broker offset metadata" in rejection(export)
+
+
+# --- sessions, holidays and early closes ------------------------------------------------
+
+
+def xauusd_h1_without_early_close_hours() -> dict[str, Any]:
+    """XAUUSD H1 with no bars from Mon 9 Nov 14:00 to 18:00 New York (19:00-23:00 UTC)."""
+    export = valid_export()
+    series = export["symbols"]["XAUUSD"]["rates"]["H1"]
+    series["rates"] = [
+        row
+        for row in series["rates"]
+        if utc_bar_open(row) not in {datetime(2026, 11, 9, h, tzinfo=UTC) for h in (19, 20, 21, 22)}
+    ]
+    series["count"] = len(series["rates"])
+    return export
+
+
+def utc_bar_open(row: dict[str, Any]) -> datetime:
+    return datetime.fromtimestamp(row["time"] - OFFSET, tz=UTC)
+
+
+def test_unlisted_early_close_is_rejected_as_a_gap():
+    message = rejection(xauusd_h1_without_early_close_hours())
+    assert "XAUUSD H1 rates: missing candles during scheduled market hours" in message
+    assert "add it to the market calendar closures" in message
+
+
+def test_configured_early_close_explains_the_gap():
+    early_close = sessions_with_closure(
+        {
+            "profiles": ["gold"],
+            "start": "2026-11-09T13:30",
+            "end": "2026-11-09T18:00",
+            "reason": "test early close",
+        }
+    )
+    settings = dataclasses.replace(SETTINGS, calendar=early_close)
+    build_snapshot(xauusd_h1_without_early_close_hours(), now=NOW, settings=settings)
+
+
+def sessions_with_closure(closure: dict[str, Any]):
+    config = yaml.safe_load(Path("config/market_sessions.yaml").read_text())
+    config["closures"] = [closure]
+    return parse_market_calendar(config)
+
+
+def test_candles_are_not_stale_during_a_scheduled_closure():
+    # Last XAUUSD M15 bar closes at 17:00 New York; the export is taken during the daily break.
+    during_break = datetime(2026, 11, 9, 22, 40, tzinfo=UTC)  # 17:40 New York
+    m15 = rates("XAUUSD", "M15", 2000.0)
+    last_close_open = broker_epoch(datetime(2026, 11, 9, 21, 45, tzinfo=UTC))
+    m15["rates"] = [
+        {**row, "time": last_close_open - 900 * i}
+        for i, row in reversed(list(enumerate(m15["rates"])))
+    ]
+
+    clock = BrokerClock("America/New_York", 7, OFFSET)
+    series = _candle_series("XAUUSD", "M15", m15, clock, during_break, SETTINGS)
+    assert series.candles[-1].timestamp == datetime(2026, 11, 9, 21, 45, tzinfo=UTC)
+
+    eurusd = dict(m15, symbol="EURUSD")  # forex has no break: the same history is stale
+    with pytest.raises(ValueError, match="stale"):
+        _candle_series("EURUSD", "M15", eurusd, clock, during_break, SETTINGS)
+
+
+def test_missing_calendar_is_rejected():
+    settings = dataclasses.replace(SETTINGS, calendar=None)
+    with pytest.raises(ExportRejected, match="no market calendar configured"):
+        build_snapshot(valid_export(), now=NOW, settings=settings)
+
+
+# --- instrument and margin specifications ------------------------------------------------
+
+
+def test_instrument_and_margin_specifications_are_captured():
+    snapshot = build_snapshot(valid_export(), now=NOW, settings=SETTINGS)
+    spec = next(i for i in snapshot.instruments if i.symbol == "EURUSD")
+    assert (spec.tick_value, spec.tick_value_profit, spec.tick_value_loss) == (0.75, 0.75, 0.76)
+    assert (spec.stops_level_points, spec.freeze_level_points, spec.calc_mode) == (10, 0, 0)
+    assert (spec.margin_currency, spec.margin_hedged) == ("EUR", 50000.0)
+    assert (spec.digits, spec.point) == (5, 0.00001)
+    account = snapshot.account
+    assert (account.leverage, account.margin_mode, account.stop_out_mode) == (100, 2, 0)
+    assert (account.margin_call_level, account.stop_out_level) == (50.0, 20.0)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "trade_tick_value_loss",
+        "trade_tick_value_profit",
+        "trade_stops_level",
+        "currency_margin",
+        "trade_calc_mode",
+        "margin_hedged",
+    ],
+)
+def test_missing_instrument_specification_is_rejected(field):
+    export = valid_export()
+    del export["symbols"]["GBPUSD"]["symbol_info"][field]
+    assert f"GBPUSD symbol_info: missing '{field}'" in rejection(export)
+
+
+def test_zero_loss_tick_value_is_rejected():
+    export = valid_export()
+    export["symbols"]["USDJPY"]["symbol_info"]["trade_tick_value_loss"] = 0
+    assert "tick_value_loss" in rejection(export)
+
+
+def test_unreported_leverage_is_rejected():
+    export = valid_export()
+    export["account_info"]["leverage"] = 0  # what a disconnected terminal reported
+    assert "'leverage' must be positive" in rejection(export)
+
+
+@pytest.mark.parametrize("field", ["margin_so_call", "margin_so_so", "margin_mode"])
+def test_missing_account_margin_field_is_rejected(field):
+    export = valid_export()
+    del export["account_info"][field]
+    assert f"account_info: missing '{field}'" in rejection(export)

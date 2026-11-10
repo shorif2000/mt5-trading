@@ -31,7 +31,7 @@ The bridge also refuses `order_send` unless launched with trading enabled
 | `terminal_status` | none | `mcp_trading_enabled`, `bridge_reachable`, `bridge.trading_allowed_by_bridge`, `terminal.{connected, trade_allowed}`, `broker_offset_seconds`, `broker_offset_confident` | yes |
 | `get_account_info` | none | MT5 `account_info()`: `login`, `trade_mode` (0 demo, 1 contest, 2 real), `balance`, `credit`, `equity`, `margin`, `margin_free`, `margin_level`, `currency`, `server` | yes |
 | `list_symbols` | `group`, `limit` | name, path, currencies, digits, visible, trade_mode | symbol verification only |
-| `get_symbol_info` | `symbol` | MT5 `symbol_info()`: `point`, `digits`, `trade_contract_size`, `trade_tick_size`, `trade_tick_value`, `volume_min/max/step`, `trade_mode`, currencies | yes |
+| `get_symbol_info` | `symbol` | MT5 `symbol_info()`: `point`, `digits`, `trade_contract_size`, `trade_tick_size`, `trade_tick_value`, `trade_tick_value_profit/loss`, `trade_stops_level`, `trade_freeze_level`, `trade_calc_mode`, `margin_initial/maintenance/hedged`, `volume_min/max/step`, `trade_mode`, currencies | yes |
 | `get_tick` | `symbol` | `time`, `time_msc`, `bid`, `ask`, `time_utc`, `time_broker` + offset info | yes |
 | `get_rates` | `symbol`, `timeframe`, `count` / `start` / `end` | `rates[]` of `time`, `open`, `high`, `low`, `close`, `tick_volume`, `spread`, `real_volume`, `time_utc`; `truncated` | yes |
 | `get_positions` | `symbol` or `ticket` | `count`, `positions[]` with `ticket`, `type` (0 BUY, 1 SELL), `volume`, `price_open`, `sl`, `tp`, `profit`, `time` | yes |
@@ -174,29 +174,55 @@ Rejects the whole export, listing every reason, when any of these holds:
 - **Freshness:**
   - the export is older than 120 s,
   - a tick is older than 120 s, or
-  - the latest completed candle is more than one bar old.
+  - the market was scheduled to be open for more than one bar since the latest completed
+    candle (a daily break, weekend or configured closure is not staleness).
 - **Candles:**
   - missing or truncated response,
   - fewer than 50 completed bars,
   - not strictly ascending,
   - not aligned to the timeframe,
   - invalid OHLC,
-  - more than one incomplete bar, or
-  - a gap longer than 75 min that is not the weekend close.
+  - more than one incomplete bar,
+  - missing bars covering more than 15 min of scheduled market hours (see "Sessions" below),
+    or
+  - no market calendar configured, or no session profile for the symbol.
 - **The currently forming candle is always dropped.** A bar counts as complete only when
   `open + duration <= exported_at_utc - clock_skew_seconds` (5 s by default), so a local clock
   running slightly ahead of the broker cannot admit a forming bar. `exported_at_utc` is taken
   *before* any data is read. `CandleSeries` enforces completion again at model level.
 - **Specs:**
   - name differs from the requested symbol (catches `XAUUSD.crp`),
-  - non-positive contract size, tick size, tick value or volumes, or
-  - `volume_max < volume_min`.
+  - non-positive contract size, tick size, volumes, `trade_tick_value`,
+    `trade_tick_value_profit` or `trade_tick_value_loss`,
+  - `volume_max < volume_min`, or
+  - any of `digits`, `point`, `trade_stops_level`, `trade_freeze_level`, `trade_calc_mode`,
+    `currency_margin`, `margin_initial`, `margin_maintenance` or `margin_hedged` missing or
+    invalid.
 
-  `trade_allowed` is true only for full trade mode (4).
+  `trade_allowed` is true only for full trade mode (4). `trade_calc_mode`, `margin_mode` and
+  `margin_so_mode` are kept as raw MT5 integers, not decoded.
+- **Account margin:** `leverage` must be positive (a disconnected terminal reported 0), and
+  `margin_mode`, `margin_so_mode`, `margin_so_call` and `margin_so_so` are required.
 - **Positions and orders:**
   - `count` mismatch,
   - unknown position type, or
   - a non-pending order type in the pending list.
+
+**Sessions** (`src/trading/market_data/sessions.py`, `config/market_sessions.yaml`). Missing
+bars are acceptable only while the market was scheduled to be closed. The bridge does not expose
+MT5 session times, so the schedule is configuration. Times are New York wall-clock times, so
+they follow US daylight saving. Verified from this broker's H1 and M15 history, 3 to 10 Nov
+2026:
+
+| Profile | Symbols | Week | Daily break |
+|---|---|---|---|
+| `major_fx` | EURUSD, GBPUSD, USDJPY | Sun 17:00 to Fri 17:00 | none visible |
+| `gold` | XAUUSD | Sun 18:00 to Fri 17:00 | 17:00 to 18:00 |
+
+Holidays and early closes are listed under `closures` with the affected profiles and a reason.
+None are shipped: each must be taken from the broker's published schedule. Until one is listed,
+its gap is rejected with a message pointing to the calendar. Pass another file with
+`ingest --sessions`.
 
   MT5's `0` for SL, TP, stop-limit and expiration becomes `null`.
 
@@ -280,19 +306,26 @@ code 3 when the snapshot is older than `--maximum-age-seconds`. If collection fa
 
 ## 9. Outstanding limitations
 
-- Gap detection is a heuristic. It tolerates breaks of 75 minutes or less and the Friday to
-  Sunday close. Holidays and broker maintenance will cause rejections; rerun later or review
-  them manually.
+- Holidays, early closes and broker maintenance must be added to
+  `config/market_sessions.yaml` by hand. Until they are, those gaps are rejected. With 120 bars
+  per series, an H4 gap stays in the window for about 20 trading days.
+- Session times are verified from one week of history. They are not read from MT5, and the
+  forex daily rollover pause is shorter than the 15-minute tolerance, so it is not modelled.
+- A stale quote still rejects the whole export, even while that symbol's market is closed
+  (for example during gold's daily break).
 - The broker time-zone rule is verified from one month of history around the 2026 changes.
   If the broker changes its convention, the live-offset check catches it only at collection
   time; history converted before that is not re-checked.
 - MT5 account info has no broker timestamp. `AccountSnapshot.timestamp` is the local
   collection start time (`exported_at_utc`), recorded before `get_account_info` is called. It
   is not a broker-generated time and does not prove the account figures are fresh.
-- `tick_value` is MT5's current value, which changes with conversion rates. It must be
-  refreshed for every sizing calculation. `trade_tick_value_loss` (which can differ) is not yet
-  captured.
-- `calculation_currency` (margin currency) is left unset pending a decision on its meaning.
+- Tick values are MT5's current values, which change with conversion rates. They must be
+  refreshed for every sizing calculation. `tick_value_loss` is captured but position sizing
+  still uses `tick_value`; switching it is a risk-engine change for a separate review.
+- Margin estimates still need MT5's `order_calc_margin` (the `calc_margin` tool), which the
+  collector does not call. The captured fields (`leverage`, `calc_mode`, `margin_currency`,
+  `margin_initial`, `margin_hedged`) are not enough to reproduce every broker formula.
+- `InstrumentSpec.calculation_currency` is unused; the margin currency is in `margin_currency`.
 - Correlated exposure and currency conversion are not computed.
 - The terminal may be logged into a live account. Read-only access is enforced by this app, by the
   `mt5-mcp` configuration and by the bridge. It still relies on the registered server keeping

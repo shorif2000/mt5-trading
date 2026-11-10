@@ -110,6 +110,29 @@ class InstrumentSpec(BaseModel):
     volume_step: float = Field(gt=0)
     trade_allowed: bool
     calculation_currency: str | None = None
+    # Captured from MT5 symbol_info by the MCP export. Optional here so that hand-built specs
+    # stay valid, but the export adapter requires every one of them.
+    digits: int | None = Field(default=None, ge=0, le=12)
+    point: float | None = Field(default=None, gt=0)
+    tick_value_profit: float | None = Field(
+        default=None, gt=0, description="Value of one tick for a winning move, account currency"
+    )
+    tick_value_loss: float | None = Field(
+        default=None, gt=0, description="Value of one tick for a losing move, account currency"
+    )
+    stops_level_points: int | None = Field(
+        default=None, ge=0, description="Minimum SL/TP distance from price, in points"
+    )
+    freeze_level_points: int | None = Field(
+        default=None, ge=0, description="Distance within which orders cannot be modified"
+    )
+    calc_mode: int | None = Field(
+        default=None, ge=0, description="Raw MT5 SYMBOL_TRADE_CALC_MODE (profit/margin formula)"
+    )
+    margin_currency: str | None = None
+    margin_initial: float | None = Field(default=None, ge=0)
+    margin_maintenance: float | None = Field(default=None, ge=0)
+    margin_hedged: float | None = Field(default=None, ge=0)
 
     @model_validator(mode="after")
     def maximum_volume_must_cover_minimum(self) -> "InstrumentSpec":
@@ -215,6 +238,13 @@ class AccountSnapshot(BaseModel):
     free_margin: float
     margin_level_percent: float | None = Field(default=None, ge=0)
     trade_mode: AccountTradeMode | None = None
+    leverage: int | None = Field(default=None, ge=1)
+    margin_mode: int | None = Field(default=None, ge=0, description="Raw MT5 ACCOUNT_MARGIN_MODE")
+    stop_out_mode: int | None = Field(
+        default=None, ge=0, description="Raw MT5 ACCOUNT_MARGIN_SO_MODE: 0 percent, 1 money"
+    )
+    margin_call_level: float | None = Field(default=None, ge=0)
+    stop_out_level: float | None = Field(default=None, ge=0)
     timestamp: datetime = Field(
         description="Local collection time (UTC); not a broker timestamp or proof of freshness"
     )

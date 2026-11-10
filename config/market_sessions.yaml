@@ -1,0 +1,35 @@
+# Trading sessions used to judge gaps and staleness in MT5 candle history.
+#
+# The MT5 bridge does not expose session times, so this file is configuration that must be
+# verified against the broker. Times are wall-clock times in `timezone` and must be quoted.
+#
+# Verified for the current broker from H1/M15 history, 3 to 10 November 2026:
+#   forex: week from Sunday 17:00 to Friday 17:00 New York, no daily break visible on H1/M15
+#   gold:  week from Sunday 18:00 to Friday 17:00 New York, daily break 17:00 to 18:00
+timezone: America/New_York
+
+# Open-market time that may be missing between two candles before it counts as a gap
+# (thin liquidity around rollover can leave a short period without ticks).
+max_unexplained_gap_minutes: 15
+
+profiles:
+  major_fx:
+    symbols: [EURUSD, GBPUSD, USDJPY]
+    week_open: {day: sunday, time: "17:00"}
+    week_close: {day: friday, time: "17:00"}
+    daily_breaks: []
+  gold:
+    symbols: [XAUUSD]
+    week_open: {day: sunday, time: "18:00"}
+    week_close: {day: friday, time: "17:00"}
+    daily_breaks:
+      - {start: "17:00", end: "18:00"}
+
+# Holidays and early closes. Add each one from the broker's published schedule; do not
+# guess. Until a closure is listed here, its gap is reported and the export is rejected.
+# Times without an offset are in `timezone`. Example:
+#   - profiles: [gold]
+#     start: "2026-11-26T13:30"
+#     end: "2026-11-26T18:00"
+#     reason: "US Thanksgiving early close (verify with broker notice)"
+closures: []
