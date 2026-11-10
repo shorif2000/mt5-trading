@@ -89,6 +89,12 @@ and `.json`, which are meant to be committed. They record:
 - **Terms:** instrument terms, and the account's margin terms (no account identifiers).
 - **Run:** the command and the environment.
 
+Version 1.1 (`docs/strategy-xauusd-v1.1-real-yield-filter.md`) adds a real-yield direction
+filter from FRED `DFII10`. Download the series through the FRED MCP server's download link
+(JSON) to `data/fred/dfii10.local.json`, then run
+`uv run mt5-trading backtest --real-yield data/fred/dfii10.local.json`. The report compares
+Version 1.0 and Version 1.1 in the base scenario.
+
 Use `--require-clean` to refuse a run with uncommitted changes.
 
 Costs are set in `config/backtest.yaml`. Stop-exit slippage comes from the account's observed

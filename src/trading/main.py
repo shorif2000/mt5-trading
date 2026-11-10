@@ -27,7 +27,8 @@ from trading.backtest.provenance import (
     run_id,
     unique_paths,
 )
-from trading.backtest.runner import PERIODS, run_scenarios
+from trading.backtest.real_yield import RealYieldFilter, RealYieldParameters, load_series
+from trading.backtest.runner import PERIODS, compare_versions, run_periods, run_scenarios
 from trading.market_data.history import download_history_to_file
 from trading.market_data.market_snapshot import load_snapshot
 from trading.market_data.mcp_collector import (
@@ -224,6 +225,13 @@ def backtest(
     require_clean: bool = typer.Option(
         False, help="Refuse to run with uncommitted changes, so the commit reproduces it"
     ),
+    real_yield: Path | None = typer.Option(
+        None,
+        exists=True,
+        readable=True,
+        help="FRED DFII10 download (JSON): runs Version 1.1 with the real-yield filter and "
+        "compares it with Version 1.0",
+    ),
 ) -> None:
     """Offline backtest of the approved XAUUSD M15 strategy on a paper ledger, for every
     configured cost scenario. Read-only: margin comes from MT5 calc_margin; nothing is sent.
@@ -255,6 +263,8 @@ def backtest(
         console.print("[red]Export lacks the account margin-call settings.[/red]")
         raise typer.Exit(code=2)
     model = load_cost_model(cost_config)
+    gate = RealYieldFilter(load_series(real_yield)) if real_yield is not None else None
+    version = "1.0" if gate is None else "1.1"
     base_config = BacktestConfig(
         starting_balance=model.starting_balance,
         account_currency=account.currency,
@@ -262,6 +272,7 @@ def backtest(
         margin_call_level=Decimal(str(account.margin_call_level)),
         sizing=load_sizing_config(risk_config),
         costs=model.base(),
+        real_yield_filter=gate,
     )
     scenarios = [(c.label, dataclasses.replace(base_config, costs=c)) for c in model.grid()]
     notes = [
@@ -284,11 +295,29 @@ def backtest(
             calendar=calendar,
             margin_provider=provider,
             cost_notes=notes,
+            version=version,
         )
+
+    def compare(provider: MarginProvider | None, filtered: list[tuple[str, BacktestResult]]) -> str:
+        if gate is None:
+            return ""
+        _, baseline = run_periods(
+            m15=bars[("XAUUSD", "M15")],
+            h1=bars[("XAUUSD", "H1")],
+            conversion_m15=bars[("GBPUSD", "M15")],
+            spec=spec,
+            conversion_spec=conversion_spec,
+            calendar=calendar,
+            config=dataclasses.replace(base_config, real_yield_filter=None),
+            margin_provider=provider,
+            cost_notes=notes,
+        )
+        return compare_versions(baseline, filtered, gate)
 
     if no_margin:
         notes.append("Margin: NOT requested (--no-margin); every sized signal fails margin.")
         text, results, base_results = run(None)
+        comparison = compare(None, base_results)
     else:
         notes.append("Margin: MT5 calc_margin over one read-only session.")
         with MarginSession() as session:
@@ -299,13 +328,34 @@ def backtest(
                 )
 
             text, results, base_results = run(provider)
+            comparison = compare(provider, base_results)
+    if comparison:
+        text = text.replace("## Data coverage", comparison + "\n## Data coverage", 1)
     exchange_calendar = sessions.parent / "exchange_holidays.yaml"
     parameters = {
         "strategy": {
             "name": "XAUUSD M15 trend pullback",
-            "version": "1.0",
+            "version": version,
             "specification": "docs/strategy-xauusd-trend-pullback.md",
             "values": PullbackParameters(),
+            **(
+                {
+                    "amendment": "docs/strategy-xauusd-v1.1-real-yield-filter.md",
+                    "real_yield_filter": RealYieldParameters(),
+                    "real_yield_series": {
+                        "series_id": gate.series.series_id,
+                        "source": "FRED via the read-only FRED MCP server (download link)",
+                        "fred_last_updated": gate.series.last_updated,
+                        "vintage": "current only; revisions cannot be checked",
+                        "observations": len(gate.series.values),
+                        "first": gate.series.values[0][0],
+                        "last": gate.series.values[-1][0],
+                        "missing_marked_by_fred": len(gate.series.holidays),
+                    },
+                }
+                if gate is not None
+                else {}
+            ),
         },
         "sessions": SessionRules(),
         "periods": [{"name": n, "from": a, "until": b} for n, a, b in PERIODS],
@@ -341,6 +391,7 @@ def backtest(
         "cost_config": cost_config,
         "sessions": sessions,
         "exchange_calendar": exchange_calendar,
+        **({"real_yield": real_yield} if real_yield is not None else {}),
         "uv.lock": Path("uv.lock"),
         "pyproject.toml": Path("pyproject.toml"),
     }

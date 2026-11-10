@@ -24,6 +24,7 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from trading.backtest.bars import Bar
+from trading.backtest.real_yield import RealYieldFilter
 from trading.market_data.sessions import MarketCalendar
 from trading.models import AccountSnapshot, Direction, InstrumentSpec, MarketSnapshot, Quote
 from trading.risk.margin import (
@@ -103,6 +104,7 @@ class BacktestConfig:
     costs: ExecutionCosts
     sessions: SessionRules = field(default_factory=SessionRules)
     news_filter_available: bool = False  # Version 1.0 runs without an economic calendar
+    real_yield_filter: RealYieldFilter | None = None  # Version 1.1; None runs Version 1.0
     # Signals are evaluated only for bars closing in [trade_from, trade_until); earlier bars
     # serve as indicator warm-up. A position open at trade_until is closed at its forced close.
     trade_from: datetime | None = None
@@ -608,6 +610,8 @@ class Backtest:
                 reason = "missing candles in the decision window"
             elif reason is None and bar.spread_points > self.strategy.params.max_spread_points:
                 reason = f"signal spread {bar.spread_points} points above maximum"
+            elif reason is None and self.config.real_yield_filter is not None:
+                reason = self.config.real_yield_filter.check(candidate.direction, close_time)
             if reason:
                 filtered = SignalRecord(
                     close_time, candidate.direction, Outcome.FILTERED, (reason,)
