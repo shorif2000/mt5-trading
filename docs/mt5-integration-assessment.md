@@ -366,9 +366,11 @@ code 3 when the snapshot is older than `--maximum-age-seconds`. If collection fa
 - MT5 account info has no broker timestamp. `AccountSnapshot.timestamp` is the local
   collection start time (`exported_at_utc`), recorded before `get_account_info` is called. It
   is not a broker-generated time and does not prove the account figures are fresh.
-- Tick values are MT5's current values, which change with conversion rates. They must be
-  refreshed for every sizing calculation. `tick_value_loss` is captured but position sizing
-  still uses `tick_value`; switching it is a risk-engine change for a separate review.
+- Tick values are MT5's current values, which change with conversion rates. Position sizing
+  (`src/trading/risk/position_sizing.py`) uses `tick_value_loss` from a fresh snapshot and
+  verifies it against the snapshot's own quotes. It never falls back to `tick_value`.
+  Commission and slippage are not reported by MT5 and must be set in `config/risk.yaml`;
+  until they are, sizing is rejected.
 - Margin estimates still need MT5's `order_calc_margin` (the `calc_margin` tool), which the
   collector does not call. The captured fields (`leverage`, `calc_mode`, `margin_currency`,
   `margin_initial`, `margin_hedged`) are not enough to reproduce every broker formula.
