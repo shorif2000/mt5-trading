@@ -6,6 +6,10 @@
 # Verified for the current broker from H1/M15 history, 3 to 10 November 2026:
 #   forex: week from Sunday 17:00 to Friday 17:00 New York, no daily break visible on H1/M15
 #   gold:  week from Sunday 18:00 to Friday 17:00 New York, daily break 17:00 to 18:00
+# Gold is also confirmed by the broker's published XAUUSD hours (retrieved 2026-11-10):
+#   server time Mon-Thu 01:01-23:58, Fri 01:01-23:57; server GMT+2 standard, GMT+3 US DST,
+#   i.e. 18:01-16:58 New York. Holiday notices override this weekly schedule.
+#   https://www.vantagemarkets.com/media/vantage-xauusd-trading-conditions-geo/
 timezone: America/New_York
 
 # Reported by `mt5-trading calendar` and `ingest`. Update both when this file is reviewed.
@@ -46,7 +50,8 @@ profiles:
 #                Late open: from the normal opening to the late opening. Times without an
 #                offset are wall-clock times in `timezone` (below) or the calendar timezone.
 #   timezone:    optional IANA zone for start/end
-#   reason, source (required), source_url (optional), retrieved (date, required), status
+#   reason, source (required), source_url (required when confirmed), retrieved (date, required),
+#   status
 #
 # Example:
 #   - type: early_close
@@ -58,4 +63,116 @@ profiles:
 #     source_url: "https://..."
 #     retrieved: "2026-11-20"
 #     status: confirmed
-closures: []
+#
+# The entries below are UNCONFIRMED placeholders for dates under investigation. They never
+# explain a gap; they are named in gap rejections. Replace each with the broker notice's exact
+# type and times, and set status: confirmed, once the notice is available.
+closures:
+  - type: full_closure
+    profiles: [gold]
+    start: "2026-11-26T00:00"
+    end: "2026-11-27T00:00"
+    reason: "US Thanksgiving: XAUUSD schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [major_fx]
+    start: "2026-11-26T00:00"
+    end: "2026-11-27T00:00"
+    reason: "US Thanksgiving: forex schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [gold]
+    start: "2026-11-27T00:00"
+    end: "2026-11-28T00:00"
+    reason: "Day after US Thanksgiving: XAUUSD schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [major_fx]
+    start: "2026-11-27T00:00"
+    end: "2026-11-28T00:00"
+    reason: "Day after US Thanksgiving: forex schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [gold]
+    start: "2026-12-24T00:00"
+    end: "2026-12-25T00:00"
+    reason: "Christmas Eve: XAUUSD schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [major_fx]
+    start: "2026-12-24T00:00"
+    end: "2026-12-25T00:00"
+    reason: "Christmas Eve: forex schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [gold]
+    start: "2026-12-25T00:00"
+    end: "2026-12-26T00:00"
+    reason: "Christmas Day: XAUUSD schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [major_fx]
+    start: "2026-12-25T00:00"
+    end: "2026-12-26T00:00"
+    reason: "Christmas Day: forex schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [gold]
+    start: "2026-12-31T00:00"
+    end: "2027-01-01T00:00"
+    reason: "New Year's Eve: XAUUSD schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [major_fx]
+    start: "2026-12-31T00:00"
+    end: "2027-01-01T00:00"
+    reason: "New Year's Eve: forex schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [gold]
+    start: "2027-01-01T00:00"
+    end: "2027-01-02T00:00"
+    reason: "New Year's Day: XAUUSD schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed
+  - type: full_closure
+    profiles: [major_fx]
+    start: "2027-01-01T00:00"
+    end: "2027-01-02T00:00"
+    reason: "New Year's Day: forex schedule not yet confirmed; whole New York day flagged, times unknown"
+    source: "Pending broker Holiday Trading Hours notice (not found or not retrievable)"
+    source_url: "https://www.vantagemarkets.com/en-au/notifications/"
+    retrieved: "2026-11-10"
+    status: unconfirmed

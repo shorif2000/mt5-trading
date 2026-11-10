@@ -43,6 +43,7 @@ def closure(**overrides: Any) -> dict[str, Any]:
         "end": "2026-11-26T18:00",
         "reason": "test closure",
         "source": "Broker trading notice",
+        "source_url": "https://example.test/notice",
         "retrieved": "2026-11-01",
         "status": "confirmed",
     }
@@ -200,6 +201,7 @@ def test_unconfirmed_entry_may_overlap_a_confirmed_one():
         ({"type": "half_day"}, "type: must be one of"),
         ({"status": "probably"}, "status: must be one of"),
         ({"source": None}, "source: required"),
+        ({"source_url": None}, "source_url: required for a confirmed closure"),
         ({"retrieved": None}, "retrieved: required"),
         ({"reason": None}, "reason: required"),
         ({"profiles": None}, "set profiles or symbols"),
@@ -254,3 +256,31 @@ def test_missing_exchange_file_is_an_error_not_an_empty_calendar(tmp_path):
     sessions.write_text(Path("config/market_sessions.yaml").read_text())
     with pytest.raises(ValueError, match="cannot read exchange calendar"):
         load_market_calendar(sessions)
+
+
+# --- repository placeholders for unconfirmed holiday dates ------------------------------
+
+
+@pytest.mark.parametrize(
+    ("symbol", "window", "label"),
+    [
+        ("XAUUSD", (utc(2026, 11, 26, 14), utc(2026, 11, 26, 20)), "US Thanksgiving: XAUUSD"),
+        ("EURUSD", (utc(2026, 12, 25, 6), utc(2026, 12, 25, 12)), "Christmas Day: forex"),
+        ("GBPUSD", (utc(2027, 1, 1, 6), utc(2027, 1, 1, 12)), "New Year's Day: forex"),
+    ],
+)
+def test_unconfirmed_holiday_dates_are_flagged_but_never_explain_a_gap(symbol, window, label):
+    open_without_placeholders = calendar_with([]).open_time(symbol, *window)
+    # The placeholders do not close the market...
+    assert CALENDAR.open_time(symbol, *window) == open_without_placeholders > timedelta(0)
+    # ...but a gap on that date names them, scoped to the right instrument group only.
+    notes = [n for n in CALENDAR.notes(symbol, *window) if n.startswith("unconfirmed")]
+    assert len(notes) == 1 and label in notes[0]
+
+
+def test_unconfirmed_placement_does_not_mix_gold_and_forex():
+    window = (utc(2026, 11, 26, 14), utc(2026, 11, 26, 20))
+    gold = " ".join(CALENDAR.notes("XAUUSD", *window))
+    forex = " ".join(CALENDAR.notes("EURUSD", *window))
+    assert "XAUUSD schedule" in gold and "forex schedule" not in gold
+    assert "forex schedule" in forex and "XAUUSD schedule" not in forex
