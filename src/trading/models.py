@@ -11,9 +11,9 @@ class Direction(StrEnum):
     SELL = "sell"
 
 
-def _require_aware_timestamp(value: datetime, field_name: str) -> datetime:
+def _require_aware_timestamp(value: datetime) -> datetime:
     if value.tzinfo is None or value.utcoffset() is None:
-        raise ValueError(f"{field_name} must include a timezone")
+        raise ValueError("Timestamp must include a timezone")
     return value
 
 
@@ -30,14 +30,16 @@ class Candle(BaseModel):
     @field_validator("timestamp")
     @classmethod
     def timestamp_must_be_aware(cls, value: datetime) -> datetime:
-        return _require_aware_timestamp(value, "Candle timestamp")
+        return _require_aware_timestamp(value)
 
     @model_validator(mode="after")
-    def validate_ohlc(self) -> "Candle":
-        if self.high < max(self.open, self.close, self.low):
-            raise ValueError("Candle high must be at least the open, close and low")
-        if self.low > min(self.open, self.close, self.high):
-            raise ValueError("Candle low must be no greater than the open, close and high")
+    def validate_ohlc_relationships(self) -> "Candle":
+        if self.high < self.low:
+            raise ValueError("Candle high cannot be below low")
+        if not self.low <= self.open <= self.high:
+            raise ValueError("Candle open must be between low and high")
+        if not self.low <= self.close <= self.high:
+            raise ValueError("Candle close must be between low and high")
         return self
 
 
@@ -54,15 +56,13 @@ class Quote(BaseModel):
     @field_validator("timestamp")
     @classmethod
     def timestamp_must_be_aware(cls, value: datetime) -> datetime:
-        return _require_aware_timestamp(value, "Quote timestamp")
+        return _require_aware_timestamp(value)
 
-    @field_validator("ask")
-    @classmethod
-    def ask_must_not_be_below_bid(cls, value: float, info):
-        bid = info.data.get("bid")
-        if bid is not None and value < bid:
+    @model_validator(mode="after")
+    def ask_must_not_be_below_bid(self) -> "Quote":
+        if self.ask < self.bid:
             raise ValueError("Ask cannot be below bid")
-        return value
+        return self
 
     @property
     def spread(self) -> float:
@@ -89,7 +89,7 @@ class InstrumentSpec(BaseModel):
     calculation_currency: str | None = None
 
     @model_validator(mode="after")
-    def validate_volume_limits(self) -> "InstrumentSpec":
+    def maximum_volume_must_cover_minimum(self) -> "InstrumentSpec":
         if self.volume_max < self.volume_min:
             raise ValueError("Maximum volume cannot be below minimum volume")
         return self
@@ -111,7 +111,7 @@ class Position(BaseModel):
     @field_validator("timestamp")
     @classmethod
     def timestamp_must_be_aware(cls, value: datetime) -> datetime:
-        return _require_aware_timestamp(value, "Position timestamp")
+        return _require_aware_timestamp(value)
 
 
 class AccountSnapshot(BaseModel):
@@ -123,15 +123,15 @@ class AccountSnapshot(BaseModel):
     balance: float
     credit: float
     equity: float
-    margin: float
+    margin: float = Field(ge=0)
     free_margin: float
-    margin_level_percent: float | None = None
+    margin_level_percent: float | None = Field(default=None, ge=0)
     timestamp: datetime
 
     @field_validator("timestamp")
     @classmethod
     def timestamp_must_be_aware(cls, value: datetime) -> datetime:
-        return _require_aware_timestamp(value, "Account timestamp")
+        return _require_aware_timestamp(value)
 
 
 class MarketSnapshot(BaseModel):
@@ -148,14 +148,4 @@ class MarketSnapshot(BaseModel):
     @field_validator("generated_at")
     @classmethod
     def generated_at_must_be_aware(cls, value: datetime) -> datetime:
-        return _require_aware_timestamp(value, "generated_at")
-
-    @model_validator(mode="after")
-    def reject_duplicate_market_data(self) -> "MarketSnapshot":
-        quote_symbols = [quote.symbol for quote in self.quotes]
-        instrument_symbols = [instrument.symbol for instrument in self.instruments]
-        if len(quote_symbols) != len(set(quote_symbols)):
-            raise ValueError("Snapshot contains duplicate quote symbols")
-        if len(instrument_symbols) != len(set(instrument_symbols)):
-            raise ValueError("Snapshot contains duplicate instrument specifications")
-        return self
+        return _require_aware_timestamp(value)
