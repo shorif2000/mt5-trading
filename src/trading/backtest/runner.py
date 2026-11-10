@@ -1,4 +1,5 @@
-"""Run the Version 1.0 backtest over the approved chronological periods and write a report."""
+"""Run the backtest (Version 1.0, or 1.1 with the real-yield filter) over the approved
+chronological periods and write a report."""
 
 import dataclasses
 from collections.abc import Sequence
@@ -9,6 +10,7 @@ from typing import Any
 from trading.backtest.bars import Bar
 from trading.backtest.engine import Backtest, BacktestConfig, BacktestResult, MarginProvider
 from trading.backtest.history_bars import coverage
+from trading.backtest.real_yield import RealYieldFilter
 from trading.backtest.report import metrics, render_period
 from trading.market_data.sessions import MarketCalendar
 from trading.models import InstrumentSpec
@@ -32,6 +34,7 @@ def run_periods(
     config: BacktestConfig,
     margin_provider: MarginProvider | None,
     cost_notes: Sequence[str],
+    version: str = "1.0",
 ) -> tuple[str, list[tuple[str, BacktestResult]]]:
     results = []
     for name, start, end in PERIODS:
@@ -48,7 +51,7 @@ def run_periods(
         )
         results.append((name, backtest.run()))
     lines = [
-        "# XAUUSD M15 trend pullback, Version 1.0: offline backtest",
+        f"# XAUUSD M15 trend pullback, Version {version}: offline backtest",
         "",
         "Research only. No orders were placed; MT5 was used read-only for history and margin.",
         "",
@@ -58,6 +61,18 @@ def run_periods(
         f"- Cost scenario: {config.costs.label}.",
         *[f"- {note}" for note in cost_notes],
         "- **Not news-filtered:** no economic calendar source (Version 1.0 decision).",
+        *(
+            [
+                "- **Real-yield filter (Version 1.1):** FRED DFII10 change over 20 published "
+                "observations; <= -0.10 pp longs only, >= +0.10 pp shorts only, otherwise both. "
+                "An observation is used from 17:00 New York on the next business day after its "
+                "date. FRED's current vintage only (revisions cannot be checked).",
+                "- **Out of sample is not blind:** the 2026 period was already viewed in the "
+                "Version 1.0 reports before Version 1.1 was specified.",
+            ]
+            if config.real_yield_filter is not None
+            else []
+        ),
         "- Fills: longs buy at the ask (entry bar spread paid) and sell at the bid; shorts sell "
         "at the bid and buy back at the ask (exit bar spread paid). Stop exits slip by the "
         "evidenced stop percentile; take profits fill at the target; entries and market exits "
@@ -88,8 +103,8 @@ def run_periods(
         lines += [render_period(name, window, metrics(result))]
     lines += [
         "",
-        "Parameters were not optimised: the approved Version 1.0 values were used unchanged in "
-        "every period.",
+        f"Parameters were not optimised: the approved Version {version} values were used "
+        "unchanged in every period.",
     ]
     return "\n".join(lines) + "\n", results
 
@@ -110,6 +125,7 @@ def run_scenarios(
     calendar: MarketCalendar,
     margin_provider: MarginProvider | None,
     cost_notes: Sequence[str],
+    version: str = "1.0",
 ) -> tuple[str, dict[str, dict[str, Any]], list[tuple[str, BacktestResult]]]:
     """The base scenario in full, preceded by a summary of every scenario and period. Also
     returns every scenario's per-period metrics for the run manifest."""
@@ -136,6 +152,7 @@ def run_scenarios(
             config=config,
             margin_provider=margin_provider,
             cost_notes=cost_notes,
+            version=version,
         )
         cells = []
         collected[name] = {}
@@ -151,3 +168,47 @@ def run_scenarios(
     head, _, rest = base_text.partition("## Data coverage")
     report = head + "\n".join(summary) + "\n\n## Data coverage" + rest
     return report, collected, base_results
+
+
+def compare_versions(
+    baseline: Sequence[tuple[str, BacktestResult]],
+    filtered: Sequence[tuple[str, BacktestResult]],
+    gate: RealYieldFilter,
+) -> str:
+    """Version 1.0 against Version 1.1 in the same cost scenario, with the Version 1.0 trades
+    whose signal the real-yield rules reject. Removing a trade can free time for a different
+    later trade, so the removed trades do not account exactly for the difference."""
+    lines = [
+        "## Version 1.0 against Version 1.1 (base scenario)",
+        "",
+        "| Period | Version | Trades | Win rate | Net (GBP) | Profit factor | Max drawdown |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    removed_lines = []
+    for (name, before), (_, after) in zip(baseline, filtered, strict=True):
+        for version, result in (("1.0", before), ("1.1", after)):
+            m = metrics(result)
+            pf = "n/a" if m.profit_factor is None else f"{m.profit_factor:.2f}"
+            wr = "n/a" if m.win_rate is None else f"{m.win_rate:.1%}"
+            lines.append(
+                f"| {name} | {version} | {m.trades} | {wr} | £{m.net_gbp:,.2f} | {pf} | "
+                f"{m.max_drawdown_percent:.1f}% |"
+            )
+        # The entry fills at the open of the bar after the signal bar, i.e. at the signal close.
+        removed = [t for t in before.trades if gate.check(t.direction, t.entry_time) is not None]
+        net = sum((t.net_gbp for t in removed), Decimal(0))
+        wins = sum(1 for t in removed if t.net_gbp > 0)
+        removed_lines.append(
+            f"| {name} | {len(removed)} of {len(before.trades)} | {wins} | £{net:,.2f} |"
+        )
+    lines += [
+        "",
+        "Version 1.0 trades whose signal the Version 1.1 rules reject (their Version 1.0 result). "
+        "Removing a trade can free time for a different later trade, so these do not account "
+        "exactly for the difference between the versions.",
+        "",
+        "| Period | Removed | Of which wins | Net of removed (GBP) |",
+        "|---|---|---|---|",
+        *removed_lines,
+    ]
+    return "\n".join(lines) + "\n"

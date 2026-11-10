@@ -2,7 +2,7 @@
 
 from bisect import bisect_right
 from collections.abc import Callable
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal as D
 from pathlib import Path
 from typing import Any
@@ -11,6 +11,7 @@ import pytest
 
 from trading.backtest.bars import Bar
 from trading.backtest.engine import Backtest, BacktestConfig, ExecutionCosts, Outcome
+from trading.backtest.real_yield import RealYieldFilter, RealYieldParameters, RealYieldSeries
 from trading.backtest.report import metrics
 from trading.market_data.sessions import load_market_calendar
 from trading.models import Direction, InstrumentSpec
@@ -92,11 +93,13 @@ def run(
     balance: str = "100",
     sizing: SizingConfig = SIZING,
     costs: ExecutionCosts = COSTS,
+    real_yield: RealYieldFilter | None = None,
 ):
     conversion = [Bar(b.open_time, 1.25, 1.2501, 1.2499, 1.25, 12) for b in bars]
     h1 = h1_bars(bars[0].open_time)
     strategy = StubStrategy(h1, signals, trend or (lambda _: Direction.BUY))
-    config = BacktestConfig(D(balance), "GBP", 0, D("50"), sizing, costs)
+    config = BacktestConfig(D(balance), "GBP", 0, D("50"), sizing, costs,
+                            real_yield_filter=real_yield)  # fmt: skip
     return Backtest(m15=bars, h1=h1, conversion_m15=conversion, spec=XAU, conversion_spec=GBP,
                     calendar=CALENDAR, config=config, margin_provider=margin,
                     strategy=strategy).run()  # type: ignore[arg-type]  # fmt: skip
@@ -379,3 +382,17 @@ def test_distinct_pullback_events_are_counted_once():
             for i in (8, 9)}  # fmt: skip
     m = metrics(run(flat_bars(), same, balance="10000"))
     assert (m.signals, m.distinct_pullback_events) == (2, 1)
+
+
+def test_version_1_1_filters_a_long_signal_while_real_yields_are_rising():
+    # Rising 0.20 pp by Friday 6 Nov, published Monday 9 Nov; the signal is on Tuesday 10 Nov.
+    rising = RealYieldSeries("DFII10", "test", (
+        (date(2026, 11, 4), D("2.60")), (date(2026, 11, 5), D("2.70")),
+        (date(2026, 11, 6), D("2.80"))), frozenset())  # fmt: skip
+    gate = RealYieldFilter(rising, RealYieldParameters(lookback=2))
+    result = run(flat_bars(), long_setup(8), real_yield=gate)
+
+    [signal] = result.signals
+    assert signal.outcome is Outcome.FILTERED
+    assert signal.reasons == ("real-yield filter: +0.20 pp over 2 days",)
+    assert result.trades == []

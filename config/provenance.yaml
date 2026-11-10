@@ -25,4 +25,9 @@ add_ons:
       use: >
         Read-only MT5 access through a local bridge: market data, history, deal history and
         broker margin (calc_margin). Trading tools disabled (MT5_ENABLE_TRADING=0).
+    - name: fred
+      project: FRED MCP server (Federal Reserve Bank of St. Louis, mcp.stlouisfed.org)
+      use: >
+        Read-only economic data. Version 1.1 downloads DFII10 (10-year TIPS yield) for the
+        real-yield filter; also used to look up indicator values. No code produced.
   python_packages: see the environment section (exact versions per run)
