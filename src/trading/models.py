@@ -1,7 +1,8 @@
 """Typed domain models used by the read-only research application."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import StrEnum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -11,16 +12,35 @@ class Direction(StrEnum):
     SELL = "sell"
 
 
+TIMEFRAME_SECONDS: dict[str, int] = {"M15": 900, "H1": 3600, "H4": 14400}
+
+Timeframe = Literal["M15", "H1", "H4"]
+AccountTradeMode = Literal["demo", "contest", "real", "unknown"]
+PendingOrderType = Literal[
+    "BUY_LIMIT", "SELL_LIMIT", "BUY_STOP", "SELL_STOP", "BUY_STOP_LIMIT", "SELL_STOP_LIMIT"
+]
+
+
 def _require_aware_timestamp(value: datetime) -> datetime:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError("Timestamp must include a timezone")
     return value
 
 
+def _check_broker_time(timestamp: datetime, broker_time: datetime | None) -> None:
+    """``broker_time`` is the same instant as ``timestamp``, shown in the broker's offset."""
+    if broker_time is None:
+        return
+    _require_aware_timestamp(broker_time)
+    if broker_time != timestamp:
+        raise ValueError("broker_time must be the same instant as timestamp")
+
+
 class Candle(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     timestamp: datetime
+    broker_time: datetime | None = None
     open: float = Field(gt=0)
     high: float = Field(gt=0)
     low: float = Field(gt=0)
@@ -34,6 +54,7 @@ class Candle(BaseModel):
 
     @model_validator(mode="after")
     def validate_ohlc_relationships(self) -> "Candle":
+        _check_broker_time(self.timestamp, self.broker_time)
         if self.high < self.low:
             raise ValueError("Candle high cannot be below low")
         if not self.low <= self.open <= self.high:
@@ -50,6 +71,7 @@ class Quote(BaseModel):
     bid: float = Field(gt=0)
     ask: float = Field(gt=0)
     timestamp: datetime
+    broker_time: datetime | None = None
     point: float = Field(gt=0)
     digits: int = Field(ge=0, le=12)
 
@@ -60,6 +82,7 @@ class Quote(BaseModel):
 
     @model_validator(mode="after")
     def ask_must_not_be_below_bid(self) -> "Quote":
+        _check_broker_time(self.timestamp, self.broker_time)
         if self.ask < self.bid:
             raise ValueError("Ask cannot be below bid")
         return self
@@ -107,11 +130,69 @@ class Position(BaseModel):
     take_profit: float | None = Field(default=None, gt=0)
     profit_account_currency: float
     timestamp: datetime
+    broker_time: datetime | None = None
 
     @field_validator("timestamp")
     @classmethod
     def timestamp_must_be_aware(cls, value: datetime) -> datetime:
         return _require_aware_timestamp(value)
+
+    @model_validator(mode="after")
+    def broker_time_must_match(self) -> "Position":
+        _check_broker_time(self.timestamp, self.broker_time)
+        return self
+
+
+class PendingOrder(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ticket: str = Field(min_length=1)
+    symbol: str = Field(min_length=1)
+    order_type: PendingOrderType
+    volume: float = Field(gt=0)
+    price: float = Field(gt=0)
+    stop_limit_price: float | None = Field(default=None, gt=0)
+    stop_loss: float | None = Field(default=None, gt=0)
+    take_profit: float | None = Field(default=None, gt=0)
+    timestamp: datetime
+    broker_time: datetime | None = None
+    expiration: datetime | None = None
+
+    @field_validator("timestamp", "expiration")
+    @classmethod
+    def timestamps_must_be_aware(cls, value: datetime | None) -> datetime | None:
+        return None if value is None else _require_aware_timestamp(value)
+
+    @model_validator(mode="after")
+    def broker_time_must_match(self) -> "PendingOrder":
+        _check_broker_time(self.timestamp, self.broker_time)
+        return self
+
+
+class CandleSeries(BaseModel):
+    """Completed candles only, oldest first. ``as_of`` is the UTC moment completion is judged."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    symbol: str = Field(min_length=1)
+    timeframe: Timeframe
+    as_of: datetime
+    candles: list[Candle] = Field(min_length=1)
+
+    @field_validator("as_of")
+    @classmethod
+    def as_of_must_be_aware(cls, value: datetime) -> datetime:
+        return _require_aware_timestamp(value)
+
+    @model_validator(mode="after")
+    def candles_must_be_ordered_and_completed(self) -> "CandleSeries":
+        duration = timedelta(seconds=TIMEFRAME_SECONDS[self.timeframe])
+        for previous, current in zip(self.candles, self.candles[1:], strict=False):
+            if current.timestamp <= previous.timestamp:
+                raise ValueError("Candles must be strictly ascending with no duplicates")
+        if self.candles[-1].timestamp + duration > self.as_of:
+            raise ValueError("Candle series must not include the currently forming candle")
+        return self
 
 
 class AccountSnapshot(BaseModel):
@@ -126,6 +207,7 @@ class AccountSnapshot(BaseModel):
     margin: float = Field(ge=0)
     free_margin: float
     margin_level_percent: float | None = Field(default=None, ge=0)
+    trade_mode: AccountTradeMode | None = None
     timestamp: datetime
 
     @field_validator("timestamp")
@@ -140,8 +222,10 @@ class MarketSnapshot(BaseModel):
     account: AccountSnapshot
     quotes: list[Quote]
     instruments: list[InstrumentSpec]
+    candles: list[CandleSeries] = Field(default_factory=list)
     positions: list[Position] = Field(default_factory=list)
-    pending_orders_count: int = Field(default=0, ge=0)
+    pending_orders: list[PendingOrder] = Field(default_factory=list)
+    broker_utc_offset_seconds: int | None = None
     generated_at: datetime
     source: str = "manual_or_mcp_export"
 

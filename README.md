@@ -35,17 +35,20 @@ uv sync
 cp .env.example .env
 ```
 
-The application currently consumes a timestamped JSON market snapshot. It does not connect
-to MT5 directly.
+The application reads MT5 data only through the read-only tools of the existing `mt5-mcp`
+server, started with trading forced off. See `docs/mt5-integration-assessment.md`.
 
 ## Run the diagnostic
 
 ```bash
-uv run mt5-trading diagnose --snapshot data/sample_snapshot.json
+uv run mt5-trading collect     # raw read-only tool responses -> data/mcp_export.local.json
+uv run mt5-trading ingest --export data/mcp_export.local.json   # validate -> data/snapshot.local.json
+uv run mt5-trading diagnose --snapshot data/snapshot.local.json
 ```
 
-The sample file contains no market prices and is intentionally marked as illustrative.
-Replace it only with data retrieved from the read-only MT5 MCP tools.
+`*.local.json` files contain real account data and are git-ignored. `ingest` rejects stale,
+incomplete, disconnected or timezone-ambiguous data and lists every reason.
+`data/sample_snapshot.json` is an empty illustrative template.
 
 ## Validate
 
