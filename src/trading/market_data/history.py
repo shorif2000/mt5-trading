@@ -26,7 +26,7 @@ from trading.market_data.mcp_collector import (
     verify_read_only,
 )
 
-CHUNK_DAYS = {"M15": 30, "H1": 150, "H4": 600}
+CHUNK_DAYS = {"M1": 2, "M15": 30, "H1": 150, "H4": 600}  # chunk + 1-day overlap < 5,000 bars
 OVERLAP = timedelta(days=1)
 HISTORY_CHUNK = timedelta(days=90)
 
