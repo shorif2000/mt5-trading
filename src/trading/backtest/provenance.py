@@ -8,6 +8,7 @@ never recorded; only the margin terms that affect results are.
 import dataclasses
 import hashlib
 import json
+import os
 import platform
 import subprocess
 import sys
@@ -17,6 +18,8 @@ from decimal import Decimal
 from importlib import metadata
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 from trading.models import AccountSnapshot, InstrumentSpec
 
@@ -186,6 +189,9 @@ def render_markdown(manifest: Mapping[str, Any]) -> str:
         + ", ".join(f"{k} {v}" for k, v in env["packages"].items()),
         f"- Full parameters, instrument and account terms: `{manifest['manifest_path']}`",
         "",
+        *_render_ai(manifest.get("ai_and_tools")),
+        *_render_data(manifest.get("input_data"), manifest.get("data_sample")),
+        *_render_trades(manifest.get("trade_sample")),
         "### Parameters",
         "",
         "```json",
@@ -205,8 +211,10 @@ def build_manifest(
     parameters: Mapping[str, Any],
     manifest_path: Path,
     results: Mapping[str, Any],
+    extra: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     return {
+        **plain(extra or {}),
         "run_id": run_id(started, code),
         "started_utc": started.astimezone(UTC).isoformat(),
         "command": " ".join([Path(command[0]).name, *command[1:]]) if command else "",
@@ -217,3 +225,149 @@ def build_manifest(
         "results": plain(results),
         "manifest_path": _shareable(manifest_path),
     }
+
+
+# --- AI model, tools and data -----------------------------------------------------------
+
+
+def ai_and_tools(config_path: Path, bridge_repo: Path | None) -> dict[str, Any]:
+    """Declared AI assistance and add-ons, plus the evidence this process can read itself."""
+    declared = None
+    if config_path.exists():
+        declared = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    trailers = _git("log", "--format=%(trailers:key=Co-Authored-By,valueonly)") or ""
+    co_authors: dict[str, int] = {}
+    for line in trailers.splitlines():
+        name = line.split("<")[0].strip()
+        if name:
+            co_authors[name] = co_authors.get(name, 0) + 1
+    bridge = None
+    if bridge_repo is not None:
+        commit = _git("-C", str(bridge_repo), "rev-parse", "HEAD")
+        status = _git("-C", str(bridge_repo), "status", "--porcelain")
+        bridge = {
+            "project": bridge_repo.name,
+            "commit": commit.strip() if commit else None,
+            "dirty": bool(status and status.strip()),
+        }
+    return {
+        "declared": declared,
+        "evidence": {
+            "run_from_claude_code_session": os.environ.get("CLAUDECODE") == "1",
+            "git_co_author_commits": co_authors,
+            "git_commits_total": len((_git("rev-list", "HEAD") or "").split()),
+            "mt5_bridge_repository": bridge,
+        },
+    }
+
+
+def describe_series(history: Mapping[str, Any], coverage: Mapping[str, Any]) -> dict[str, Any]:
+    """Source, retrieval and coverage of the downloaded history, without account details."""
+    status = history.get("terminal_status") or {}
+    return {
+        "source": "MetaTrader 5 terminal via the read-only mt5-mcp bridge (get_rates)",
+        "downloaded_utc": history.get("downloaded_utc"),
+        "broker_offset_seconds_at_download": status.get("broker_offset_seconds"),
+        "terminal_build": (status.get("version") or {}).get("build"),
+        "price_basis": "bid OHLC per bar plus the bar's spread in points; ask = bid + spread",
+        "series": coverage,
+    }
+
+
+def bar_sample(bars: Sequence[Any], count: int = 3) -> list[dict[str, Any]]:
+    """The first and last ``count`` bars exactly as the backtest used them."""
+    chosen = [*bars[:count], *bars[-count:]] if len(bars) > 2 * count else list(bars)
+    return [plain(bar) for bar in chosen]
+
+
+def _render_ai(info: Mapping[str, Any] | None) -> list[str]:
+    if not info:
+        return []
+    declared_all = info.get("declared") or {}
+    declared = declared_all.get("ai_assistance") or {}
+    addons = declared_all.get("add_ons") or {}
+    evidence = info.get("evidence") or {}
+    bridge = evidence.get("mt5_bridge_repository") or {}
+    authors = ", ".join(
+        f"{k} ({v} commits)" for k, v in evidence.get("git_co_author_commits", {}).items()
+    )
+    agents = [f"{a['name']} ({a['use']})" for a in declared.get("agents_used") or []]
+    servers = [
+        f"{m['name']} ({m['project']}): {str(m['use']).strip()}"
+        for m in addons.get("mcp_servers") or []
+    ]
+    session = "yes" if evidence.get("run_from_claude_code_session") else "no"
+    tools = agents + list(declared.get("other_tools") or [])
+    dirty = " (uncommitted changes)" if bridge.get("dirty") else ""
+    return [
+        "### AI model, tools and add-ons",
+        "",
+        f"- AI assistance (declared in `config/provenance.yaml`): {declared.get('tool')}, "
+        f"model {declared.get('model')} (`{declared.get('model_id')}`).",
+        f"- Role: {str(declared.get('role', '')).strip()}",
+        f"- Claude Code skills used: {', '.join(declared.get('skills_used') or []) or 'none'}",
+        f"- Sub-agents and other tools: {'; '.join(tools)}",
+        f"- MCP servers: {'; '.join(servers)}",
+        f"- Evidence: run from a Claude Code session: {session}; git co-authors: "
+        f"{authors or 'none'} of {evidence.get('git_commits_total')} commits; MT5 bridge "
+        f"`{bridge.get('project')}` at `{bridge.get('commit')}`{dirty}.",
+        "",
+    ]
+
+
+def _render_data(data: Mapping[str, Any] | None, sample: Mapping[str, Any] | None) -> list[str]:
+    if not data:
+        return []
+    lines = [
+        "### Input data",
+        "",
+        f"- Source: {data['source']}; price basis: {data['price_basis']}.",
+        f"- Downloaded: {data.get('downloaded_utc') or 'not recorded'} (file last modified "
+        f"{data.get('file_modified_utc')}); broker offset at download "
+        f"{data.get('broker_offset_seconds_at_download')} s; terminal build "
+        f"{data.get('terminal_build')}.",
+        "",
+        "| Series | Bars | First (UTC) | Last (UTC) | Gaps in scheduled hours |",
+        "|---|---|---|---|---|",
+    ]
+    for name, item in data["series"].items():
+        lines.append(
+            f"| {name} | {item['bars']} | {item['first']} | {item['last']} | {item['gaps']} |"
+        )
+    if sample:
+        lines += [
+            "",
+            "Data sample: first and last 3 bars of each series (bid OHLC, spread in points).",
+            "",
+            "| Series | Open (UTC) | Open | High | Low | Close | Spread |",
+            "|---|---|---|---|---|---|---|",
+        ]
+        for name, bars in sample.items():
+            lines += [
+                f"| {name} | {b['open_time']} | {b['open']} | {b['high']} | {b['low']} | "
+                f"{b['close']} | {b['spread_points']} |"
+                for b in bars
+            ]
+    return [*lines, ""]
+
+
+def _render_trades(sample: Mapping[str, Any] | None) -> list[str]:
+    if not sample:
+        return []
+    lines = [
+        "### Backtest sample",
+        "",
+        "Base scenario, first 5 trades of each period; every trade is in the JSON manifest.",
+        "",
+        "| Period | Side | Entry (UTC) | Exit (UTC) | Entry fill | Exit fill | Stop | Target "
+        "| Volume | Exit | Net (GBP) |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for period, trades in sample.items():
+        lines += [
+            f"| {period} | {t['direction']} | {t['entry_time']} | {t['exit_time']} | "
+            f"{t['entry_price']} | {t['exit_price']} | {t['stop']} | {t['target']} | "
+            f"{t['volume']} | {t['exit_reason']} | {float(t['net_gbp']):.2f} |"
+            for t in trades
+        ]
+    return [*lines, ""]

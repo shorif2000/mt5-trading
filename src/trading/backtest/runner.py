@@ -110,7 +110,7 @@ def run_scenarios(
     calendar: MarketCalendar,
     margin_provider: MarginProvider | None,
     cost_notes: Sequence[str],
-) -> tuple[str, dict[str, dict[str, Any]]]:
+) -> tuple[str, dict[str, dict[str, Any]], list[tuple[str, BacktestResult]]]:
     """The base scenario in full, preceded by a summary of every scenario and period. Also
     returns every scenario's per-period metrics for the run manifest."""
     collected: dict[str, dict[str, Any]] = {}
@@ -124,6 +124,7 @@ def run_scenarios(
         "|---|" + "---|" * len(PERIODS),
     ]
     base_text = ""
+    base_results: list[tuple[str, BacktestResult]] = []
     for name, config in scenarios:
         text, results = run_periods(
             m15=m15,
@@ -146,6 +147,7 @@ def run_scenarios(
         marker = " **(base)**" if name == base else ""
         summary.append(f"| {config.costs.label}{marker} | " + " | ".join(cells) + " |")
         if name == base:
-            base_text = text
+            base_text, base_results = text, results
     head, _, rest = base_text.partition("## Data coverage")
-    return head + "\n".join(summary) + "\n\n## Data coverage" + rest, collected
+    report = head + "\n".join(summary) + "\n\n## Data coverage" + rest
+    return report, collected, base_results

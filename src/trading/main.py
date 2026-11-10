@@ -13,12 +13,15 @@ from rich.console import Console
 from rich.table import Table
 
 from trading.backtest.cost_model import evidence_from_history, load_cost_model
-from trading.backtest.engine import BacktestConfig, MarginProvider, SessionRules
-from trading.backtest.history_bars import load_history
+from trading.backtest.engine import BacktestConfig, BacktestResult, MarginProvider, SessionRules
+from trading.backtest.history_bars import coverage, load_history
 from trading.backtest.provenance import (
     account_terms,
+    ai_and_tools,
+    bar_sample,
     build_manifest,
     code_state,
+    describe_series,
     instrument_terms,
     render_markdown,
     run_id,
@@ -32,6 +35,7 @@ from trading.market_data.mcp_collector import (
     MarginSession,
     collect_to_file,
     margin_from_server,
+    registered_server,
 )
 from trading.market_data.mcp_export import ExportRejected, ExportSettings, load_mcp_export
 from trading.market_data.sessions import load_market_calendar
@@ -266,7 +270,9 @@ def backtest(
     ]
     bars = load_history(history)
 
-    def run(provider: MarginProvider | None) -> tuple[str, dict[str, Any]]:
+    def run(
+        provider: MarginProvider | None,
+    ) -> tuple[str, dict[str, Any], list[tuple[str, BacktestResult]]]:
         return run_scenarios(
             scenarios=scenarios,
             base=model.base().label,
@@ -282,7 +288,7 @@ def backtest(
 
     if no_margin:
         notes.append("Margin: NOT requested (--no-margin); every sized signal fails margin.")
-        text, results = run(None)
+        text, results, base_results = run(None)
     else:
         notes.append("Margin: MT5 calc_margin over one read-only session.")
         with MarginSession() as session:
@@ -292,7 +298,7 @@ def backtest(
                     symbol="XAUUSD", side=side, volume=float(volume), price=float(price)
                 )
 
-            text, results = run(provider)
+            text, results, base_results = run(provider)
     exchange_calendar = sessions.parent / "exchange_holidays.yaml"
     parameters = {
         "strategy": {
@@ -338,6 +344,31 @@ def backtest(
         "uv.lock": Path("uv.lock"),
         "pyproject.toml": Path("pyproject.toml"),
     }
+    try:
+        bridge_repo: Path | None = registered_server().bridge_repo
+    except CollectorError:
+        bridge_repo = None
+    history_raw = json.loads(history.read_text(encoding="utf-8"))
+    series_coverage = {}
+    for (symbol, timeframe), series_bars in bars.items():
+        c = coverage(symbol, timeframe, series_bars, calendar)
+        series_coverage[f"{symbol} {timeframe}"] = {
+            "bars": c.bars,
+            "first": c.first,
+            "last": c.last,
+            "gaps": len(c.gaps),
+        }
+    input_data = describe_series(history_raw, series_coverage)
+    input_data["file_modified_utc"] = datetime.fromtimestamp(
+        history.stat().st_mtime, tz=UTC
+    ).isoformat()
+    extra = {
+        "ai_and_tools": ai_and_tools(Path("config/provenance.yaml"), bridge_repo),
+        "input_data": input_data,
+        "data_sample": {f"{s} {tf}": bar_sample(b) for (s, tf), b in bars.items()},
+        "trade_sample": {period: result.trades[:5] for period, result in base_results},
+        "base_scenario_trades": {period: result.trades for period, result in base_results},
+    }
     manifest = build_manifest(
         code=code,
         started=started,
@@ -346,6 +377,7 @@ def backtest(
         parameters=parameters,
         manifest_path=manifest_path,
         results=results,
+        extra=extra,
     )
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
     report.write_text(

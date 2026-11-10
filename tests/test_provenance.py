@@ -123,3 +123,58 @@ def test_no_home_directory_in_the_manifest(repo, tmp_path):
     assert "/Users/someone" not in text and manifest["command"] == "mt5-trading backtest"
     assert manifest["inputs"]["export"]["path"] == "elsewhere.json"
     assert manifest["manifest_path"] == "reports/r.json"
+
+
+# --- AI model, tools and data -------------------------------------------------------------
+
+
+def test_ai_declaration_and_evidence_are_recorded(repo, monkeypatch):
+    from trading.backtest.provenance import ai_and_tools
+
+    (repo / "rule.py").write_text("X = 2\n")
+    git(repo, "add", ".")
+    git(
+        repo,
+        "commit",
+        "-q",
+        "-m",
+        "change\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+    )
+    declaration = repo / "provenance.yaml"
+    declaration.write_text(
+        "ai_assistance: {tool: Claude Code, model: Claude Opus 5.5, model_id: claude-opus-5-5,"
+        " skills_used: [], agents_used: []}\nadd_ons: {mcp_servers: []}\n"
+    )
+    monkeypatch.setenv("CLAUDECODE", "1")
+    info = ai_and_tools(declaration, bridge_repo=repo)
+    assert info["declared"]["ai_assistance"]["model_id"] == "claude-opus-5-5"
+    assert info["evidence"]["git_co_author_commits"] == {"Claude Opus 5.5": 1}
+    assert info["evidence"]["run_from_claude_code_session"] is True
+    assert info["evidence"]["mt5_bridge_repository"]["commit"]
+    rendered = render_markdown(
+        {"run_id": "r", "started_utc": "t", "command": "c", "code": code_state(), "inputs": {},
+         "environment": {"python": "3", "platform": "p", "packages": {}}, "parameters": {},
+         "manifest_path": "m", "ai_and_tools": plain(info)}
+    )  # fmt: skip
+    assert "Claude Opus 5.5 (`claude-opus-5-5`)" in rendered
+    assert "Claude Code skills used: none" in rendered
+
+
+def test_data_sample_takes_first_and_last_bars():
+    from trading.backtest.bars import Bar
+    from trading.backtest.provenance import bar_sample
+
+    bars = [Bar(STARTED.replace(minute=i), 1, 2, 0.5, 1.5, 20) for i in range(10)]
+    sample = bar_sample(bars, count=2)
+    assert [b["open_time"] for b in sample] == [plain(bars[i])["open_time"] for i in (0, 1, 8, 9)]
+
+
+def test_input_data_description_has_no_account_details():
+    from trading.backtest.provenance import describe_series
+
+    terminal = {"path": "C:\\\\Program Files\\\\MetaTrader 5"}
+    status = {"broker_offset_seconds": 7200, "version": {"build": 6230}, "terminal": terminal}
+    history = {"downloaded_utc": "2026-11-10T21:03:00+00:00", "terminal_status": status}
+    described = describe_series(history, {"XAUUSD M15": {"bars": 1}})
+    assert described["broker_offset_seconds_at_download"] == 7200
+    assert "Program Files" not in json.dumps(described)
