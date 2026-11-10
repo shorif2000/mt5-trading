@@ -77,9 +77,13 @@ ledger. History and broker margin come from MT5 read-only; nothing is sent to th
 
 ```bash
 uv run mt5-trading collect-history                  # read-only bars, git-ignored local file
-uv run mt5-trading backtest                         # writes reports/xauusd_m15_backtest.local.md
-uv run mt5-trading backtest --slippage-points 64    # slippage sensitivity
+uv run mt5-trading slippage-evidence                # stop-loss slippage from local history
+uv run mt5-trading backtest                         # every cost scenario in config/backtest.yaml
 ```
+
+Costs are set in `config/backtest.yaml`. Stop-exit slippage comes from the account's observed
+stop-loss fills. Entry slippage is unknown, so the backtest runs labelled scenarios rather than
+assuming a value; take profits fill at the target.
 
 ## Validate
 

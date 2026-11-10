@@ -14,10 +14,11 @@ Every signal ends in one category: filtered (with the reason), rejected by risk,
 margin, or executable. Only executable signals open positions and change the paper ledger.
 """
 
+import dataclasses
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta
-from decimal import ROUND_FLOOR, Decimal
+from decimal import Decimal
 from enum import StrEnum
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -60,12 +61,46 @@ class SessionRules:
 
 
 @dataclass(frozen=True)
+class ExecutionCosts:
+    """Adverse slippage per fill type, in points (1 point = the symbol's point, USD 0.01 for
+    XAUUSD).
+
+    - ``stop_exit_points``: evidence, a percentile of the account's observed stop-loss slippage.
+    - ``entry_points`` and ``market_exit_points``: UNKNOWN (MT5 records no requested price for
+      market orders), so each value is a labelled scenario, not an established fact.
+    - ``take_profit_points``: evidence, take-profit fills showed median 0.
+    Sizing allows ``entry_points`` plus the larger of the stop and market exit allowances, so
+    the 2 % check always covers at least the slippage the simulation applies.
+    """
+
+    entry_points: Decimal
+    stop_exit_points: Decimal
+    market_exit_points: Decimal
+    take_profit_points: Decimal = Decimal(0)
+    sizing_stop_points: Decimal | None = None  # e.g. the p95 stop slippage; >= stop_exit_points
+    label: str = ""
+
+    def __post_init__(self) -> None:
+        values = (self.entry_points, self.stop_exit_points, self.market_exit_points,
+                  self.take_profit_points, self.sizing_stop_points or Decimal(0))  # fmt: skip
+        if any(v < 0 for v in values):
+            raise ValueError("slippage points must not be negative")
+        if self.sizing_stop_points is not None and self.sizing_stop_points < self.stop_exit_points:
+            raise ValueError("the sizing stop allowance must cover the simulated stop slippage")
+
+    def sizing_allowance(self) -> Decimal:
+        stop = max(self.stop_exit_points, self.sizing_stop_points or Decimal(0))
+        return self.entry_points + max(stop, self.market_exit_points)
+
+
+@dataclass(frozen=True)
 class BacktestConfig:
     starting_balance: Decimal
     account_currency: str
     stop_out_mode: int
     margin_call_level: Decimal
     sizing: SizingConfig
+    costs: ExecutionCosts
     sessions: SessionRules = field(default_factory=SessionRules)
     news_filter_available: bool = False  # Version 1.0 runs without an economic calendar
     # Signals are evaluated only for bars closing in [trade_from, trade_until); earlier bars
@@ -85,6 +120,7 @@ class SignalRecord:
     maximum_risk: Decimal | None = None
     minimum_volume_loss: Decimal | None = None  # when the 0.01 minimum exceeded the limit
     required_margin: Decimal | None = None
+    pullback_event: datetime | None = None  # open of the pullback run this candle belongs to
 
 
 @dataclass(frozen=True)
@@ -92,31 +128,46 @@ class TradeRecord:
     direction: Direction
     entry_time: datetime
     exit_time: datetime
-    entry_price: Decimal  # filled, including slippage
-    exit_price: Decimal
+    quoted_entry: Decimal  # ask (buy) or bid (sell) at the entry bar open
+    entry_price: Decimal  # actual fill, including entry slippage
+    exit_price: Decimal  # actual fill, including exit slippage
     stop: Decimal
-    target: Decimal
+    target: Decimal  # 2R from the quoted entry (Appendix A.F)
     volume: Decimal
     exit_reason: str
-    gross_usd: Decimal
-    net_gbp: Decimal
+    exit_kind: str  # "stop", "target" or "market"
+    # All amounts in GBP at the exit GBPUSD rate. Reconciliation (checked for every trade):
+    # net = gross - spread - entry slippage - exit slippage - commission.
+    gross_gbp: Decimal  # bid-to-bid move, before every cost
+    spread_cost_gbp: Decimal  # long: entry bar spread; short: exit bar spread
+    entry_slippage_gbp: Decimal
+    exit_slippage_gbp: Decimal
     commission_gbp: Decimal
-    spread_cost_gbp: Decimal
-    slippage_cost_gbp: Decimal
+    net_gbp: Decimal
+    planned_reward_to_risk: Decimal  # |target - entry fill| / |entry fill - stop|
+    realised_r: Decimal | None  # net / estimated loss at sizing
     balance_after: Decimal
     maximum_risk: Decimal | None = None
+    estimated_loss: Decimal | None = None
+
+    @property
+    def slippage_cost_gbp(self) -> Decimal:
+        return self.entry_slippage_gbp + self.exit_slippage_gbp
 
 
 @dataclass
 class _Position:
     setup: Setup
     entry_time: datetime
-    entry_price: Decimal
+    quoted_entry: Decimal
+    entry_bid: Decimal
+    entry_spread: Decimal  # price units
+    entry_price: Decimal  # fill
     target: Decimal
     volume: Decimal
     force_close_at: datetime
-    spread_cost_gbp: Decimal
     maximum_risk: Decimal | None = None
+    estimated_loss: Decimal | None = None
     exit_next_open: str | None = None
 
 
@@ -156,16 +207,20 @@ class Backtest:
         self.contract = _d(spec.contract_size)
         self.zone = ZoneInfo(config.sessions.zone)
         self.strategy = strategy or XauusdM15Pullback(m15, h1, self.tick)
-        slippage = config.sizing.slippage_points.get(SYMBOL)
         commission = config.sizing.commission_per_lot.get(SYMBOL)
-        if slippage is None or commission is None:
-            raise ValueError("XAUUSD slippage and commission must be configured before a backtest")
-        # The sizing allowance covers entry and exit together; it is split between the two
-        # fills in whole points so that they add up to exactly the allowance.
-        entry_points = (slippage / 2).to_integral_value(rounding=ROUND_FLOOR)
-        self.entry_slippage = entry_points * self.point
-        self.exit_slippage = (slippage - entry_points) * self.point
+        if commission is None:
+            raise ValueError("XAUUSD commission must be configured before a backtest")
         self.commission = commission
+        self.costs = config.costs
+        self.entry_slippage = config.costs.entry_points * self.point
+        # Sizing uses the combined allowance of this cost scenario, never less than simulated.
+        self.sizing = dataclasses.replace(
+            config.sizing,
+            slippage_points={
+                **config.sizing.slippage_points,
+                SYMBOL: config.costs.sizing_allowance(),
+            },
+        )
         self.balance = config.starting_balance
 
     # --- time rules ---------------------------------------------------------------------
@@ -307,7 +362,7 @@ class Backtest:
             "executable",
             holding_nights=0,
         )
-        sizing = size_position(snapshot, request, self.config.sizing, now=fill.open_time)
+        sizing = size_position(snapshot, request, self.sizing, now=fill.open_time)
         if not sizing.accepted or sizing.volume is None:
             minimum = (
                 sizing.estimated_loss
@@ -361,12 +416,16 @@ class Backtest:
         position = _Position(
             setup=setup,
             entry_time=fill.open_time,
+            quoted_entry=entry,
+            entry_bid=bid,
+            entry_spread=ask - bid,
             entry_price=entry + slip,
+            # Appendix A.F: 2R from the quoted entry, as an order's take profit would be set.
             target=target_price(entry, setup.stop, p.target_r, self.tick),
             volume=sizing.volume,
             force_close_at=self._force_close_for(fill.open_time),
-            spread_cost_gbp=fill.spread_points * self.point * sizing.volume * self.contract * rate,
             maximum_risk=sizing.maximum_risk,
+            estimated_loss=sizing.estimated_loss,
         )
         signal = SignalRecord(
             signal_time,
@@ -411,39 +470,68 @@ class Backtest:
     def _close(
         self, position: _Position, bar: Bar, price: Decimal, reason: str, at: datetime
     ) -> TradeRecord | None:
+        """Close at ``price``: the bid (long) or ask (short) level before exit slippage."""
         buy = position.setup.direction == Direction.BUY
-        # Targets fill as limit orders (take-profit fills showed median 0 slippage); every other
-        # exit is a market or stop fill and slips adversely.
-        slipped = not reason.startswith("target")
-        adverse = self.exit_slippage if slipped else Decimal(0)
-        fill = price - adverse if buy else price + adverse
+        kind = "stop" if reason.startswith("stop") else (
+            "target" if reason.startswith("target") else "market"
+        )  # fmt: skip
+        points = {"stop": self.costs.stop_exit_points, "target": self.costs.take_profit_points,
+                  "market": self.costs.market_exit_points}[kind]  # fmt: skip
+        exit_slip = points * self.point
+        fill = price - exit_slip if buy else price + exit_slip
         rate = self._usd_to_gbp_rate(bar.open_time)
         if rate is None:
             return None
-        move = (fill - position.entry_price) if buy else (position.entry_price - fill)
-        gross_usd = move * position.volume * self.contract
+        exit_spread = bar.spread_points * self.point
+        # Bid-to-bid move, then the costs on top of it, all in price units per ounce.
+        if buy:
+            gross_px = price - position.entry_bid
+            spread_px = position.entry_spread  # bought at the ask, sold at the bid
+            net_px = fill - position.entry_price
+        else:
+            gross_px = position.entry_bid - (price - exit_spread)
+            spread_px = exit_spread  # sold at the bid, bought back at the ask
+            net_px = position.entry_price - fill
+        if net_px != gross_px - spread_px - self.entry_slippage - exit_slip:
+            raise AssertionError(
+                f"cost reconciliation failed for the trade at {position.entry_time}"
+            )
+        ounces = position.volume * self.contract
         commission = self.commission * position.volume
-        slippage_price = self.entry_slippage + (self.exit_slippage if slipped else 0)
-        net = gross_usd * rate - commission
+        net = net_px * ounces * rate - commission
         self.balance += net
+        stop = position.setup.stop
         return TradeRecord(
             direction=position.setup.direction,
             entry_time=position.entry_time,
             exit_time=at,
+            quoted_entry=position.quoted_entry,
             entry_price=position.entry_price,
             exit_price=fill,
-            stop=position.setup.stop,
+            stop=stop,
             target=position.target,
             volume=position.volume,
             exit_reason=reason,
-            gross_usd=gross_usd,
-            net_gbp=net,
+            exit_kind=kind,
+            gross_gbp=gross_px * ounces * rate,
+            spread_cost_gbp=spread_px * ounces * rate,
+            entry_slippage_gbp=self.entry_slippage * ounces * rate,
+            exit_slippage_gbp=exit_slip * ounces * rate,
             commission_gbp=commission,
-            spread_cost_gbp=position.spread_cost_gbp,
-            slippage_cost_gbp=slippage_price * position.volume * self.contract * rate,
+            net_gbp=net,
+            planned_reward_to_risk=abs(position.target - position.entry_price)
+            / abs(position.entry_price - stop),
+            realised_r=net / position.estimated_loss if position.estimated_loss else None,
             balance_after=self.balance,
             maximum_risk=position.maximum_risk,
+            estimated_loss=position.estimated_loss,
         )
+
+    def _with_event(self, record: SignalRecord, setup: Setup) -> SignalRecord:
+        if setup.pullback_event_start < 0:
+            return record
+        event = self.m15[setup.pullback_event_start].open_time
+        return dataclasses.replace(record, pullback_event=event)
 
     # --- run --------------------------------------------------------------------------------
 
@@ -458,17 +546,15 @@ class Backtest:
                 setup, signal_time = pending
                 pending = None
                 if bar.open_time != signal_time:
-                    result.signals.append(
-                        SignalRecord(
-                            signal_time,
-                            setup.direction,
-                            Outcome.FILTERED,
-                            ("missing candle before entry",),
-                        )
+                    record = SignalRecord(
+                        signal_time,
+                        setup.direction,
+                        Outcome.FILTERED,
+                        ("missing candle before entry",),
                     )
                 else:
                     record, position = self._try_entry(setup, signal_time, bar)
-                    result.signals.append(record)
+                result.signals.append(self._with_event(record, setup))
             if position is not None:
                 exit_at_open = None
                 if bar.open_time >= position.force_close_at:
@@ -523,9 +609,10 @@ class Backtest:
             elif reason is None and bar.spread_points > self.strategy.params.max_spread_points:
                 reason = f"signal spread {bar.spread_points} points above maximum"
             if reason:
-                result.signals.append(
-                    SignalRecord(close_time, candidate.direction, Outcome.FILTERED, (reason,))
+                filtered = SignalRecord(
+                    close_time, candidate.direction, Outcome.FILTERED, (reason,)
                 )
+                result.signals.append(self._with_event(filtered, candidate))
             else:
                 pending = (candidate, close_time)
         if position is not None:

@@ -1,0 +1,30 @@
+# XAUUSD Version 1.0 backtest execution cost model. 1 point = USD 0.01 per ounce, so 40 points
+# is USD 0.40 per ounce: USD 0.40 on 0.01 lot (1 oz), USD 40 on 1.0 lot (100 oz).
+starting_balance_gbp: 100
+
+# EVIDENCE. Adverse slippage of the account's own stop-loss exits: the deal price against the
+# stop price of the order MT5 created when the stop triggered, longs and shorts combined.
+# Read-only account history retrieved 2026-11-10 (6,583 exits, Aug 2025 to Nov 2026; mean
+# 16.1, max 550, 1.9 % favourable). Recompute with `mt5-trading slippage-evidence`.
+stop_loss_slippage_points:
+  p50: 7
+  p75: 20
+  p90: 40
+  p95: 60
+  p99: 140
+# Position sizing allows at least this stop percentile, whatever the scenario simulates.
+sizing_stop_percentile: p95
+
+# EVIDENCE. 165 take-profit exits filled with median 0 slippage (90th percentile 2-8 points).
+take_profit_slippage_points: 0
+
+# SCENARIOS. Market-entry slippage cannot be measured (MT5 records no requested price for
+# market orders), so it is unknown. Each value below is a scenario, not an established fact.
+# Market exits (16:45 forced close, H1 trend exit, end of data) use the same value.
+entry_slippage_scenarios_points:
+  zero: 0  # optimistic scenario only; NOT an established cost
+  stop-median-proxy: 7
+  stop-p90-proxy: 40
+base_scenario:
+  entry: stop-median-proxy
+  stop_percentile: p90

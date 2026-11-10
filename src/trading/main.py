@@ -11,9 +11,10 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from trading.backtest.cost_model import evidence_from_history, load_cost_model
 from trading.backtest.engine import BacktestConfig, MarginProvider
 from trading.backtest.history_bars import load_history
-from trading.backtest.runner import run_periods
+from trading.backtest.runner import run_scenarios
 from trading.market_data.history import download_history_to_file
 from trading.market_data.market_snapshot import load_snapshot
 from trading.market_data.mcp_collector import (
@@ -174,6 +175,19 @@ def collect_history(
     console.print(f"History written to {output}")
 
 
+@app.command(name="slippage-evidence")
+def slippage_evidence(
+    history: Path = typer.Option(
+        Path("data/history/account_xauusd.local.json"), exists=True, readable=True
+    ),
+) -> None:
+    """Recompute XAUUSD stop-loss slippage percentiles from local read-only account history.
+    Prints aggregates only; no tickets or account details."""
+    summary = evidence_from_history(history)
+    for key, value in summary.items():
+        console.print(f"{key}: {value}")
+
+
 @app.command()
 def backtest(
     history: Path = typer.Option(
@@ -187,14 +201,12 @@ def backtest(
     ),
     sessions: Path = typer.Option(Path("config/market_sessions.yaml"), exists=True),
     risk_config: Path = typer.Option(Path("config/risk.yaml"), exists=True),
-    slippage_points: int | None = typer.Option(
-        None, min=0, help="Override the configured XAUUSD slippage (sensitivity runs)"
-    ),
+    cost_config: Path = typer.Option(Path("config/backtest.yaml"), exists=True),
     no_margin: bool = typer.Option(False, help="Do not request broker margin (all fail margin)"),
     report: Path = typer.Option(Path("reports/xauusd_m15_backtest.local.md")),
 ) -> None:
-    """Offline backtest of the approved XAUUSD M15 strategy on a GBP 100 paper ledger.
-    Read-only: margin comes from MT5 calc_margin; nothing is sent to the market."""
+    """Offline backtest of the approved XAUUSD M15 strategy on a paper ledger, for every
+    configured cost scenario. Read-only: margin comes from MT5 calc_margin; nothing is sent."""
     calendar = load_market_calendar(sessions)
     raw = json.loads(export.read_text(encoding="utf-8"))
     snapshot = load_mcp_export(
@@ -209,48 +221,39 @@ def backtest(
     )
     spec = next(i for i in snapshot.instruments if i.symbol == "XAUUSD")
     conversion_spec = next(i for i in snapshot.instruments if i.symbol == "GBPUSD")
-    sizing = load_sizing_config(risk_config)
-    notes = [
-        "Commission: £0 round turn per lot, verified (Standard swap-free account; 18,466 "
-        "historical XAUUSD deals all with commission 0).",
-    ]
-    if slippage_points is not None:
-        sizing = dataclasses.replace(
-            sizing,
-            slippage_points={**sizing.slippage_points, "XAUUSD": Decimal(slippage_points)},
-        )
-        notes.append(f"Slippage: {slippage_points} points (sensitivity override).")
-    else:
-        notes.append(
-            f"Slippage: {sizing.slippage_points.get('XAUUSD')} points total (entry + exit), "
-            "about the 90th percentile of the account's stop-loss slippage."
-        )
     account = snapshot.account
     if account.stop_out_mode is None or account.margin_call_level is None:
         console.print("[red]Export lacks the account margin-call settings.[/red]")
         raise typer.Exit(code=2)
-    config = BacktestConfig(
-        starting_balance=Decimal("100"),
+    model = load_cost_model(cost_config)
+    base_config = BacktestConfig(
+        starting_balance=model.starting_balance,
         account_currency=account.currency,
         stop_out_mode=account.stop_out_mode,
         margin_call_level=Decimal(str(account.margin_call_level)),
-        sizing=sizing,
+        sizing=load_sizing_config(risk_config),
+        costs=model.base(),
     )
+    scenarios = [(c.label, dataclasses.replace(base_config, costs=c)) for c in model.grid()]
+    notes = [
+        "Commission: £0 round turn per lot, verified (Standard swap-free account; 18,466 "
+        "historical XAUUSD deals all with commission 0).",
+    ]
     bars = load_history(history)
 
     def run(provider: MarginProvider | None) -> str:
-        text, _ = run_periods(
+        return run_scenarios(
+            scenarios=scenarios,
+            base=model.base().label,
             m15=bars[("XAUUSD", "M15")],
             h1=bars[("XAUUSD", "H1")],
             conversion_m15=bars[("GBPUSD", "M15")],
             spec=spec,
             conversion_spec=conversion_spec,
             calendar=calendar,
-            config=config,
             margin_provider=provider,
             cost_notes=notes,
         )
-        return text
 
     if no_margin:
         notes.append("Margin: NOT requested (--no-margin); every sized signal fails margin.")

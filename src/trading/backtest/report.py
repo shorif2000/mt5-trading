@@ -46,7 +46,13 @@ class Metrics:
     average_holding: timedelta | None
     spread_cost: Decimal
     commission_cost: Decimal
-    slippage_cost: Decimal
+    entry_slippage_cost: Decimal
+    exit_slippage_cost: Decimal
+    costs_reconcile: bool  # gross - all costs == net, summed over trades
+    average_planned_rr: Decimal | None  # target vs stop distance from the actual entry fill
+    average_realised_r: Decimal | None  # net / estimated loss at sizing
+    distinct_pullback_events: int
+    executable_pullback_events: int
     by_session: dict[str, tuple[int, Decimal]]
     by_month: dict[str, tuple[int, Decimal]]
     exit_reasons: dict[str, int]
@@ -74,11 +80,15 @@ def metrics(result: BacktestResult) -> Metrics:
     for trade in trades:
         by_session[session_of(trade)].append(trade.net_gbp)
         by_month[trade.entry_time.astimezone(NEW_YORK).strftime("%Y-%m")].append(trade.net_gbp)
-    # Gross = before all costs: spread and slippage are inside the fill prices, so add them back.
-    gross = sum(
-        (t.net_gbp + t.commission_gbp + t.spread_cost_gbp + t.slippage_cost_gbp for t in trades),
+    gross = sum((t.gross_gbp for t in trades), Decimal(0))
+    costs = sum(
+        (t.spread_cost_gbp + t.entry_slippage_gbp + t.exit_slippage_gbp + t.commission_gbp
+         for t in trades),
         Decimal(0),
-    )
+    )  # fmt: skip
+    net = sum((t.net_gbp for t in trades), Decimal(0))
+    realised = [t.realised_r for t in trades if t.realised_r is not None]
+    events = {(s.direction, s.pullback_event) for s in result.signals if s.pullback_event}
     executable = [s for s in result.signals if s.outcome == Outcome.EXECUTABLE]
     return Metrics(
         signals=len(result.signals),
@@ -112,7 +122,19 @@ def metrics(result: BacktestResult) -> Metrics:
         ),
         spread_cost=sum((t.spread_cost_gbp for t in trades), Decimal(0)),
         commission_cost=sum((t.commission_gbp for t in trades), Decimal(0)),
-        slippage_cost=sum((t.slippage_cost_gbp for t in trades), Decimal(0)),
+        entry_slippage_cost=sum((t.entry_slippage_gbp for t in trades), Decimal(0)),
+        exit_slippage_cost=sum((t.exit_slippage_gbp for t in trades), Decimal(0)),
+        costs_reconcile=abs(gross - costs - net) < Decimal("1E-9"),
+        average_planned_rr=(
+            sum((t.planned_reward_to_risk for t in trades), Decimal(0)) / len(trades)
+            if trades
+            else None
+        ),
+        average_realised_r=sum(realised, Decimal(0)) / len(realised) if realised else None,
+        distinct_pullback_events=len(events),
+        executable_pullback_events=len(
+            {(s.direction, s.pullback_event) for s in executable if s.pullback_event}
+        ),
         by_session={k: (len(v), sum(v, Decimal(0))) for k, v in sorted(by_session.items())},
         by_month={k: (len(v), sum(v, Decimal(0))) for k, v in sorted(by_month.items())},
         exit_reasons=dict(Counter(t.exit_reason for t in trades).most_common()),
@@ -125,6 +147,10 @@ def metrics(result: BacktestResult) -> Metrics:
 
 def _money(value: Decimal | None) -> str:
     return "n/a" if value is None else f"£{value:,.2f}"
+
+
+def _ratio(value: Decimal | None) -> str:
+    return "n/a" if value is None else f"{value:.2f}"
 
 
 def verdict(m: Metrics) -> str:
@@ -142,13 +168,15 @@ def render_period(name: str, window: str, m: Metrics) -> str:
     lines += [
         "| Outcome | Count |",
         "|---|---|",
-        f"| Signals generated | {m.signals} |",
+        f"| Signal candles generated | {m.signals} |",
+        f"| &nbsp;&nbsp;distinct pullback events | {m.distinct_pullback_events} |",
         f"| Filtered by strategy rules | {m.outcomes.get('filtered', 0)} |",
         f"| Rejected by risk management | {m.risk_rejections} |",
         f"| &nbsp;&nbsp;of which minimum volume above 2% | {m.minimum_volume_rejections} |",
         f"| Rejected by margin | {m.margin_rejections} |",
         f"| Executable | {m.executable} |",
         f"| &nbsp;&nbsp;of which at the 0.01 minimum volume | {m.executable_at_minimum_volume} |",
+        f"| &nbsp;&nbsp;distinct pullback events traded | {m.executable_pullback_events} |",
         "",
     ]
     if m.filter_reasons:
@@ -172,8 +200,13 @@ def render_period(name: str, window: str, m: Metrics) -> str:
         f"| Maximum drawdown | {_money(m.max_drawdown_gbp)} ({m.max_drawdown_percent:.1f}%) |",
         f"| Maximum consecutive losses | {m.max_consecutive_losses} |",
         f"| Average holding time | {holding} |",
-        f"| Costs: spread / commission / slippage | {_money(m.spread_cost)} / "
-        f"{_money(m.commission_cost)} / {_money(m.slippage_cost)} |",
+        "| Costs: spread / entry slippage / exit slippage / commission | "
+        f"{_money(m.spread_cost)} / {_money(m.entry_slippage_cost)} / "
+        f"{_money(m.exit_slippage_cost)} / "
+        f"{_money(m.commission_cost)} |",
+        f"| Gross - costs = net reconciles | {'yes' if m.costs_reconcile else 'NO'} |",
+        f"| Average planned reward:risk at the actual fill | {_ratio(m.average_planned_rr)} |",
+        f"| Average realised R (net / estimated loss) | {_ratio(m.average_realised_r)} |",
         f"| Final paper balance (from £100) | {_money(m.final_balance)} |",
         f"| Losses above the 2% limit (stop gaps) | {m.losses_above_risk_limit} |",
         "",
