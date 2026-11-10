@@ -1,0 +1,25 @@
+mode: read_only
+display_timezone: Europe/London
+
+instruments:
+  - EURUSD
+  - GBPUSD
+  - USDJPY
+  - XAUUSD
+
+timeframes:
+  context: H4
+  setup: H1
+  confirmation: M15
+
+market_data:
+  maximum_age_seconds: 120
+  require_completed_candles: true
+  reject_missing_candles: true
+
+strategy:
+  name: trend_pullback_research
+  enabled: false
+  description: >
+    Research hypothesis only. Requires parameter selection, backtesting and out-of-sample
+    validation before it can produce candidate signals.

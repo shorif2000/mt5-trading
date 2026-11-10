@@ -1,0 +1,23 @@
+# Confirm these names against the broker terminal. Do not assume that these are exact
+# broker symbols. Contract specifications must come from MT5, not these defaults.
+instruments:
+  EURUSD:
+    asset_class: forex
+    enabled: false
+    quote_currency: USD
+    strategy_profile: major_fx
+  GBPUSD:
+    asset_class: forex
+    enabled: false
+    quote_currency: USD
+    strategy_profile: major_fx
+  USDJPY:
+    asset_class: forex
+    enabled: false
+    quote_currency: JPY
+    strategy_profile: major_fx
+  XAUUSD:
+    asset_class: metal
+    enabled: false
+    quote_currency: USD
+    strategy_profile: gold

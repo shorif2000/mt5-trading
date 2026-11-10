@@ -1,0 +1,17 @@
+# Intentionally unconfigured. Do not infer or invent risk limits.
+# The risk engine rejects proposals until all required values are explicitly reviewed.
+enabled: false
+account_currency: null
+maximum_risk_per_trade_percent: null
+maximum_daily_loss_percent: null
+maximum_open_positions: null
+maximum_total_open_risk_percent: null
+maximum_spread_points:
+  EURUSD: null
+  GBPUSD: null
+  USDJPY: null
+  XAUUSD: null
+minimum_reward_to_risk: null
+require_stop_loss: true
+require_take_profit: true
+allow_trading: false
