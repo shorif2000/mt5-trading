@@ -7,13 +7,18 @@ equity, free margin or a fixed amount.
 Loss per lot, in the account currency:
 
     adverse distance = |entry - stop| + spread (buy with a bid-based entry) + slippage
-    loss per lot     = ceil(adverse distance / tick size) x tick_value_loss + commission
+    loss per lot     = ceil(adverse distance / tick size) x tick_value_loss + commission + swap
+
+Swap is charged for the stated maximum holding period: nights + 2 x ceil(nights / 5), as any
+run of five trading nights can include the triple-swap night. Swap credits are never used to
+reduce the estimated loss.
 
 ``tick_value_loss`` is MT5's value of one tick for a losing move, already in the account
 currency. It is verified against the snapshot's own quotes and never replaced by the generic
 ``tick_value``. Every input problem rejects the calculation instead of being guessed.
 """
 
+import math
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from decimal import ROUND_CEILING, ROUND_DOWN, Decimal
@@ -26,8 +31,11 @@ from trading.risk.sizing_config import SizingConfig
 
 Direction = Literal["buy", "sell"]
 # "bid": entry and stop are chart (bid) prices; a buy fills at the ask, so the spread is added.
-# "executable": entry is the fill side (ask for a buy, bid for a sell); nothing is added.
+# "executable": a market entry at the current fill side (ask for a buy, bid for a sell); it must
+# match the snapshot quote, and nothing is added.
 EntryBasis = Literal["bid", "executable"]
+SWAP_MODE_POINTS = 1
+SWAP_MODE_ACCOUNT_CURRENCY = 4
 
 
 @dataclass(frozen=True)
@@ -37,6 +45,8 @@ class SizingRequest:
     entry: Decimal
     stop_loss: Decimal | None
     entry_basis: EntryBasis
+    # Maximum number of rollovers the trade may be held over; 0 means closed before rollover.
+    holding_nights: int
 
 
 @dataclass(frozen=True)
@@ -49,6 +59,7 @@ class LossModel:
     tick_size: Decimal
     tick_value_loss: Decimal
     commission_per_lot: Decimal
+    swap_per_lot: Decimal = Decimal(0)
 
     @property
     def ticks(self) -> Decimal:
@@ -57,7 +68,7 @@ class LossModel:
 
     @property
     def loss_per_lot(self) -> Decimal:
-        return self.ticks * self.tick_value_loss + self.commission_per_lot
+        return self.ticks * self.tick_value_loss + self.commission_per_lot + self.swap_per_lot
 
 
 @dataclass(frozen=True)
@@ -86,7 +97,7 @@ def estimated_loss(volume: Decimal, model: LossModel) -> Decimal:
     """Worst-case loss of ``volume`` lots, recomputed from the per-lot inputs."""
     adverse = model.price_distance + model.spread + model.slippage
     ticks = (adverse / model.tick_size).to_integral_value(rounding=ROUND_CEILING)
-    return volume * (ticks * model.tick_value_loss + model.commission_per_lot)
+    return volume * (ticks * model.tick_value_loss + model.commission_per_lot + model.swap_per_lot)
 
 
 def _floor_to_step(volume: Decimal, step: Decimal) -> Decimal:
@@ -133,6 +144,29 @@ def _tick_value_problem(
             f"({difference:.2%} > {tolerance:.2%}); conversion is unreliable"
         )
     return None
+
+
+def _swap_per_lot(
+    spec: InstrumentSpec, request: SizingRequest, tick_value_loss: Decimal
+) -> Decimal | str:
+    """Worst-case swap charge per lot in the account currency, or a rejection reason."""
+    nights = request.holding_nights
+    if isinstance(nights, bool) or not isinstance(nights, int) or nights < 0:
+        return "holding_nights must be a whole number of nights, 0 or more"
+    if nights == 0:
+        return Decimal(0)
+    rate = spec.swap_long if request.direction == "buy" else spec.swap_short
+    if spec.swap_mode is None or rate is None or spec.point is None:
+        return f"{spec.symbol}: swap specification missing; overnight cost cannot be estimated"
+    charge = max(Decimal(0), -_d(rate))  # credits never reduce the estimated loss
+    if spec.swap_mode == SWAP_MODE_POINTS:
+        per_night = charge * tick_value_loss * _d(spec.point) / _d(spec.tick_size)
+    elif spec.swap_mode == SWAP_MODE_ACCOUNT_CURRENCY:
+        per_night = charge
+    else:
+        return f"{spec.symbol}: swap mode {spec.swap_mode} is not supported for estimation"
+    charged_nights = nights + 2 * math.ceil(nights / 5)
+    return per_night * charged_nights
 
 
 def size_position(
@@ -205,11 +239,28 @@ def size_position(
         for label, price in (("entry", entry), ("stop loss", stop)):
             if not _on_increment(price, tick_size):
                 problems.append(f"{label} {price} is not a multiple of the tick size {tick_size}")
+        bid, ask = _d(quote.bid), _d(quote.ask)
+        if request.entry_basis == "executable":
+            fill = ask if request.direction == "buy" else bid
+            if entry != fill:
+                side = "ask" if request.direction == "buy" else "bid"
+                problems.append(
+                    f"executable {request.direction} entry {entry} does not match the current "
+                    f"{side} {fill:.{quote.digits}f}; the spread would not be counted"
+                )
         if spec.point is not None and spec.stops_level_points is not None:
             minimum = spec.stops_level_points * _d(spec.point)
-            if abs(entry - stop) < minimum:
+            # MT5 measures a market order's stop from the price that closes it (bid for a
+            # buy, ask for a sell); a planned entry's stop is measured from the entry.
+            if request.entry_basis == "executable":
+                reference = bid if request.direction == "buy" else ask
+            else:
+                reference = entry
+            distance = reference - stop if request.direction == "buy" else stop - reference
+            if distance < minimum:
                 problems.append(
-                    f"stop distance {abs(entry - stop)} is below the broker stops level {minimum}"
+                    f"stop distance {distance} from {reference:.{quote.digits}f} is below "
+                    f"the broker stops level {minimum}"
                 )
 
     if (
@@ -226,6 +277,9 @@ def size_position(
     conversion = _tick_value_problem(snapshot, spec, tick_value_loss, config.tick_value_tolerance)
     if conversion:
         return reject(conversion)
+    swap = _swap_per_lot(spec, request, tick_value_loss)
+    if isinstance(swap, str):
+        return reject(swap)
 
     spread = _d(quote.ask) - _d(quote.bid)
     model = LossModel(
@@ -237,6 +291,7 @@ def size_position(
         tick_size=tick_size,
         tick_value_loss=tick_value_loss,
         commission_per_lot=commission,
+        swap_per_lot=swap,
     )
     step, volume_min = _d(spec.volume_step), _d(spec.volume_min)
     volume = min(
