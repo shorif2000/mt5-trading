@@ -1,4 +1,0 @@
-pydantic<3,>=2.7
-pyyaml<7,>=6.0
-typer<1,>=0.12
-rich<15,>=13.7

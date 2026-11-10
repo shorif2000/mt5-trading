@@ -41,7 +41,7 @@ to MT5 directly.
 ## Run the diagnostic
 
 ```bash
-uv run mt5-trading --snapshot data/sample_snapshot.json
+uv run mt5-trading diagnose --snapshot data/sample_snapshot.json
 ```
 
 The sample file contains no market prices and is intentionally marked as illustrative.
