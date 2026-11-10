@@ -196,6 +196,13 @@ class CandleSeries(BaseModel):
 
 
 class AccountSnapshot(BaseModel):
+    """Account state as reported by MT5.
+
+    MT5 account info carries no broker timestamp. ``timestamp`` is when collection was
+    recorded on this machine, not a broker-generated time and not proof that the account
+    figures are fresh.
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     login: str = Field(min_length=1)
@@ -208,7 +215,9 @@ class AccountSnapshot(BaseModel):
     free_margin: float
     margin_level_percent: float | None = Field(default=None, ge=0)
     trade_mode: AccountTradeMode | None = None
-    timestamp: datetime
+    timestamp: datetime = Field(
+        description="Local collection time (UTC); not a broker timestamp or proof of freshness"
+    )
 
     @field_validator("timestamp")
     @classmethod

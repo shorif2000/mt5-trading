@@ -109,10 +109,17 @@ documented protocol. It reuses the running bridge and the terminal's existing co
 second MT5 connection or bridge is created. It does **not** call Claude's MCP session.
 
 Safety in the collector:
-- It refuses to run if the server advertises any tool not annotated read-only, which
-  includes every trading tool (`tools_trade.py` annotates them `read_only_hint=False`).
-- Every required tool must be annotated read-only.
+- The server command is not a user option. It is read from the user-scope `mt5` entry in
+  `~/.claude.json` and must be exactly `<absolute path to uv> --directory <existing absolute
+  repo> run mt5-mcp` over stdio, with no `MT5_ENABLE_TRADING` other than `0`. It is started
+  as an argument list, never through a shell, with a minimal environment and
+  `MT5_ENABLE_TRADING=0` forced.
+- It refuses to run if the server advertises any tool without `read_only_hint=True`. That
+  includes a missing annotation, `false`, or a tool also marked `destructive_hint=True`.
+  Every trading tool is covered (`tools_trade.py` annotates them `read_only_hint=False`).
 - Only 7 allowlisted tools are ever called. `check_order` and `calc_*` are excluded.
+- `login`, `name`, `server` and `company` are replaced with `REDACTED` before the raw export
+  is written.
 
 Two stages keep acquisition and validation separate:
 
@@ -174,16 +181,17 @@ Every timestamp is kept twice. `timestamp` is aware UTC. `broker_time` is the sa
 the broker's fixed offset, for example `2026-11-10T21:00:00+02:00`. Models reject a
 `broker_time` that is not the same instant. The account login is replaced with `REDACTED`.
 
-## 7. Example redacted export
+## 7. Example export (synthetic)
 
-The full file is `data/example_mcp_export.json`. Its account, positions and orders are synthetic. It is trimmed to 3 bars per timeframe, so it
-deliberately fails the minimum-candle rule. Excerpt, extracted from that file (the last M15
-row is the forming bar, which `ingest` drops):
+`data/example_mcp_export.json` is **entirely synthetic**: the account, balances, leverage, server,
+instrument specifications, prices, positions, orders and timestamps are fictional. It has 3 bars
+per timeframe, so it passes validation only with `min_completed_candles=2`, which a test checks.
+Excerpt (the last M15 row is the forming bar, which `ingest` drops):
 
 ```json
 {
   "format": "mt5-mcp-export/v1",
-  "exported_at_utc": "2026-11-10T19:17:35.058055+00:00",
+  "exported_at_utc": "2030-01-08T10:00:30+00:00",
   "terminal_status": {
     "mcp_trading_enabled": false,
     "bridge": {
@@ -198,33 +206,34 @@ row is the forming bar, which `ingest` drops):
   },
   "account_info": {
     "login": "REDACTED",
+    "server": "REDACTED",
     "trade_mode": 0,
     "currency": "USD",
-    "balance": 0
+    "balance": 10000.0
   },
   "symbols": {
     "EURUSD": {
       "tick": {
-        "time": 1794345445,
-        "bid": 1.11641,
-        "ask": 1.11655,
-        "time_utc": "2026-11-10T19:17:25Z",
-        "time_broker": "2026-11-10T21:17:25"
+        "time": 1894104029,
+        "bid": 1.1,
+        "ask": 1.1001,
+        "time_utc": "2030-01-08T10:00:29Z",
+        "time_broker": "2030-01-08T12:00:29"
       },
       "rates": {
         "M15": {
           "truncated": false,
           "rates": [
             {
-              "time": 1794345300,
-              "open": 1.11637,
-              "high": 1.11641,
-              "low": 1.11632,
-              "close": 1.11641,
-              "tick_volume": 68,
-              "spread": 13,
+              "time": 1894104000,
+              "open": 1.1,
+              "high": 1.1002,
+              "low": 1.0998,
+              "close": 1.1001,
+              "tick_volume": 100,
+              "spread": 10,
               "real_volume": 0,
-              "time_utc": "2026-11-10T19:15:00Z"
+              "time_utc": "2030-01-08T10:00:00Z"
             }
           ]
         }
@@ -253,7 +262,9 @@ code 3 when the snapshot is older than `--maximum-age-seconds`. If collection fa
   them manually.
 - The weekend rule uses UTC weekdays. It has not been validated against this broker's DST
   transitions.
-- Account info has no timestamp of its own. It is stamped with the export time.
+- MT5 account info has no broker timestamp. `AccountSnapshot.timestamp` is the local
+  collection start time (`exported_at_utc`), recorded before `get_account_info` is called. It
+  is not a broker-generated time and does not prove the account figures are fresh.
 - `tick_value` is MT5's current value, which changes with conversion rates. It must be
   refreshed for every sizing calculation. `trade_tick_value_loss` (which can differ) is not yet
   captured.

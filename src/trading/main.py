@@ -12,8 +12,6 @@ from trading.market_data.mcp_collector import CollectorError, collect_to_file
 from trading.market_data.mcp_export import ExportRejected, ExportSettings, load_mcp_export
 from trading.risk.exposure import floating_pnl, open_volume_by_symbol
 
-DEFAULT_BRIDGE_REPO = Path.home() / "meta-trader-5-mcp"
-
 app = typer.Typer(help="Read-only MT5 trading research diagnostics.")
 console = Console()
 
@@ -21,17 +19,14 @@ console = Console()
 @app.command()
 def collect(
     output: Path = typer.Option(Path("data/mcp_export.local.json"), help="Raw export JSON"),
-    bridge_repo: Path = typer.Option(
-        DEFAULT_BRIDGE_REPO, exists=True, file_okay=False, help="mt5-mcp checkout"
-    ),
     bars: int = typer.Option(120, min=2, max=5000, help="Bars per timeframe, incl. forming"),
 ) -> None:
-    """Collect a raw export using only read-only mt5-mcp tools (trading forced off)."""
+    """Collect a raw export using only read-only tools of the registered mt5 MCP server
+    (trading forced off). The server command comes from ~/.claude.json, not from options."""
     settings = ExportSettings()
     try:
         collect_to_file(
             output,
-            bridge_repo=bridge_repo,
             symbols=settings.symbols,
             timeframes=settings.timeframes,
             bars=bars,

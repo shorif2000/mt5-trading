@@ -248,7 +248,8 @@ def _account(info: Mapping[str, Any], as_of: datetime) -> AccountSnapshot:
         trade_mode=ACCOUNT_TRADE_MODES.get(trade_mode, "unknown")
         if isinstance(trade_mode, int)
         else "unknown",
-        # account_info carries no time of its own; it was read during the export.
+        # MT5 account info has no broker timestamp. This is the local collection start time,
+        # recorded before account_info was read: not proof that the account data is fresh.
         timestamp=as_of,
     )
 
