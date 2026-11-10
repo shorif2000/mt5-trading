@@ -1,15 +1,27 @@
 """CLI for read-only market snapshot diagnostics."""
 
+import dataclasses
+import json
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
+from typing import Any
 
 import typer
 from rich.console import Console
 from rich.table import Table
 
+from trading.backtest.engine import BacktestConfig, MarginProvider
+from trading.backtest.history_bars import load_history
+from trading.backtest.runner import run_periods
+from trading.market_data.history import download_history_to_file
 from trading.market_data.market_snapshot import load_snapshot
-from trading.market_data.mcp_collector import CollectorError, collect_to_file, margin_from_server
+from trading.market_data.mcp_collector import (
+    CollectorError,
+    MarginSession,
+    collect_to_file,
+    margin_from_server,
+)
 from trading.market_data.mcp_export import ExportRejected, ExportSettings, load_mcp_export
 from trading.market_data.sessions import load_market_calendar
 from trading.risk.exposure import floating_pnl, open_volume_by_symbol
@@ -20,6 +32,7 @@ from trading.risk.margin import (
     margin_account_from_snapshot,
     parse_margin_response,
 )
+from trading.risk.sizing_config import load_sizing_config
 
 app = typer.Typer(help="Read-only MT5 trading research diagnostics.")
 console = Console()
@@ -134,6 +147,127 @@ def margin(
         console.print(f"  - {reason}")
     if not result.accepted:
         raise typer.Exit(code=3)
+
+
+@app.command(name="collect-history")
+def collect_history(
+    output: Path = typer.Option(Path("data/history/xauusd_backtest.local.json")),
+    start: str = typer.Option("2022-11-01", help="UTC date; includes indicator warm-up"),
+    end: str = typer.Option("2026-11-01", help="UTC date (exclusive)"),
+) -> None:
+    """Download XAUUSD M15/H1 and GBPUSD M15 history read-only (no orders, no settings)."""
+    try:
+        result = download_history_to_file(
+            output,
+            requests=[("XAUUSD", "H1"), ("XAUUSD", "M15"), ("GBPUSD", "M15")],
+            start=datetime.fromisoformat(start).replace(tzinfo=UTC),
+            end=datetime.fromisoformat(end).replace(tzinfo=UTC),
+        )
+    except (CollectorError, ValueError) as exc:
+        console.print(f"[red]History download failed:[/red] {exc}")
+        raise typer.Exit(code=2) from exc
+    for series in result["series"]:
+        console.print(
+            f"{series['symbol']} {series['timeframe']}: {len(series['rates'])} bars, "
+            f"{len(series['problems'])} problems"
+        )
+    console.print(f"History written to {output}")
+
+
+@app.command()
+def backtest(
+    history: Path = typer.Option(
+        Path("data/history/xauusd_backtest.local.json"), exists=True, readable=True
+    ),
+    export: Path = typer.Option(
+        Path("data/mcp_export.local.json"),
+        exists=True,
+        readable=True,
+        help="Raw export supplying the current XAUUSD/GBPUSD specifications and margin terms",
+    ),
+    sessions: Path = typer.Option(Path("config/market_sessions.yaml"), exists=True),
+    risk_config: Path = typer.Option(Path("config/risk.yaml"), exists=True),
+    slippage_points: int | None = typer.Option(
+        None, min=0, help="Override the configured XAUUSD slippage (sensitivity runs)"
+    ),
+    no_margin: bool = typer.Option(False, help="Do not request broker margin (all fail margin)"),
+    report: Path = typer.Option(Path("reports/xauusd_m15_backtest.local.md")),
+) -> None:
+    """Offline backtest of the approved XAUUSD M15 strategy on a GBP 100 paper ledger.
+    Read-only: margin comes from MT5 calc_margin; nothing is sent to the market."""
+    calendar = load_market_calendar(sessions)
+    raw = json.loads(export.read_text(encoding="utf-8"))
+    snapshot = load_mcp_export(
+        export,
+        now=datetime.fromisoformat(raw["exported_at_utc"]),
+        settings=ExportSettings(
+            calendar=calendar,
+            max_export_age_seconds=10**9,
+            max_quote_age_seconds=10**9,
+            min_completed_candles=1,
+        ),
+    )
+    spec = next(i for i in snapshot.instruments if i.symbol == "XAUUSD")
+    conversion_spec = next(i for i in snapshot.instruments if i.symbol == "GBPUSD")
+    sizing = load_sizing_config(risk_config)
+    notes = [
+        "Commission: £0 round turn per lot, verified (Standard swap-free account; 18,466 "
+        "historical XAUUSD deals all with commission 0).",
+    ]
+    if slippage_points is not None:
+        sizing = dataclasses.replace(
+            sizing,
+            slippage_points={**sizing.slippage_points, "XAUUSD": Decimal(slippage_points)},
+        )
+        notes.append(f"Slippage: {slippage_points} points (sensitivity override).")
+    else:
+        notes.append(
+            f"Slippage: {sizing.slippage_points.get('XAUUSD')} points total (entry + exit), "
+            "about the 90th percentile of the account's stop-loss slippage."
+        )
+    account = snapshot.account
+    if account.stop_out_mode is None or account.margin_call_level is None:
+        console.print("[red]Export lacks the account margin-call settings.[/red]")
+        raise typer.Exit(code=2)
+    config = BacktestConfig(
+        starting_balance=Decimal("100"),
+        account_currency=account.currency,
+        stop_out_mode=account.stop_out_mode,
+        margin_call_level=Decimal(str(account.margin_call_level)),
+        sizing=sizing,
+    )
+    bars = load_history(history)
+
+    def run(provider: MarginProvider | None) -> str:
+        text, _ = run_periods(
+            m15=bars[("XAUUSD", "M15")],
+            h1=bars[("XAUUSD", "H1")],
+            conversion_m15=bars[("GBPUSD", "M15")],
+            spec=spec,
+            conversion_spec=conversion_spec,
+            calendar=calendar,
+            config=config,
+            margin_provider=provider,
+            cost_notes=notes,
+        )
+        return text
+
+    if no_margin:
+        notes.append("Margin: NOT requested (--no-margin); every sized signal fails margin.")
+        text = run(None)
+    else:
+        notes.append("Margin: MT5 calc_margin over one read-only session.")
+        with MarginSession() as session:
+
+            def provider(side: Side, volume: Decimal, price: Decimal) -> dict[str, Any]:
+                return session.margin(
+                    symbol="XAUUSD", side=side, volume=float(volume), price=float(price)
+                )
+
+            text = run(provider)
+    report.parent.mkdir(parents=True, exist_ok=True)
+    report.write_text(text, encoding="utf-8")
+    console.print(f"Backtest report written to {report}")
 
 
 @app.command(name="calendar")
