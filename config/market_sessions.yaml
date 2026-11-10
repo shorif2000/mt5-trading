@@ -8,6 +8,14 @@
 #   gold:  week from Sunday 18:00 to Friday 17:00 New York, daily break 17:00 to 18:00
 timezone: America/New_York
 
+# Reported by `mt5-trading calendar` and `ingest`. Update both when this file is reviewed.
+last_updated: "2026-11-10"
+# Date up to which broker closures (below) have been checked against broker notices.
+closures_reviewed_through: "2026-11-10"
+
+# Exchange holidays used as reference information only (never explain a gap by themselves).
+exchange_calendar: exchange_holidays.yaml
+
 # Open-market time that may be missing between two candles before it counts as a gap
 # (thin liquidity around rollover can leave a short period without ticks).
 max_unexplained_gap_minutes: 15
@@ -18,18 +26,36 @@ profiles:
     week_open: {day: sunday, time: "17:00"}
     week_close: {day: friday, time: "17:00"}
     daily_breaks: []
+    # Exchange calendars shown as reference when a gap is rejected (not broker schedules).
+    reference_markets: [US, UK, JP]
   gold:
     symbols: [XAUUSD]
     week_open: {day: sunday, time: "18:00"}
     week_close: {day: friday, time: "17:00"}
     daily_breaks:
       - {start: "17:00", end: "18:00"}
+    reference_markets: [US, UK]
 
-# Holidays and early closes. Add each one from the broker's published schedule; do not
-# guess. Until a closure is listed here, its gap is reported and the export is rejected.
-# Times without an offset are in `timezone`. Example:
-#   - profiles: [gold]
+# Broker closures: the MT5 schedule changes that explain missing candles. Take them from the
+# broker's published notices, not from exchange calendars. Only `status: confirmed` entries
+# explain gaps; `unconfirmed` entries are reported when a gap is rejected but never accept one.
+#
+#   type:        full_closure | early_close | late_open
+#   profiles / symbols: affected session profiles and/or individual symbols (at least one)
+#   start, end:  the closed period. Early close: from the early close to the normal reopening.
+#                Late open: from the normal opening to the late opening. Times without an
+#                offset are wall-clock times in `timezone` (below) or the calendar timezone.
+#   timezone:    optional IANA zone for start/end
+#   reason, source (required), source_url (optional), retrieved (date, required), status
+#
+# Example:
+#   - type: early_close
+#     profiles: [gold]
 #     start: "2026-11-26T13:30"
 #     end: "2026-11-26T18:00"
-#     reason: "US Thanksgiving early close (verify with broker notice)"
+#     reason: "US Thanksgiving: gold closes early"
+#     source: "Broker trading notice"
+#     source_url: "https://..."
+#     retrieved: "2026-11-20"
+#     status: confirmed
 closures: []

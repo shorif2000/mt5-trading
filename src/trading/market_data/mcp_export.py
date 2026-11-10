@@ -389,7 +389,10 @@ def _unexplained_gaps(
     for previous, current in zip(candles, candles[1:], strict=False):
         closed = previous.timestamp + duration
         if calendar.open_time(symbol, closed, current.timestamp) > calendar.max_unexplained_gap:
-            gaps.append(f"{closed.isoformat()} to {current.timestamp.isoformat()}")
+            text = f"{closed.isoformat()} to {current.timestamp.isoformat()}"
+            # Reference only: these never accept a gap, they tell a reviewer what to confirm.
+            notes = calendar.notes(symbol, closed, current.timestamp)
+            gaps.append(f"{text} [{'; '.join(notes)}]" if notes else text)
     return gaps
 
 
@@ -464,8 +467,8 @@ def _candle_series(
     if gaps:
         raise ValueError(
             f"{where}: missing candles during scheduled market hours between "
-            f"{', '.join(gaps)}; if this was a holiday or early close, add it to the market "
-            "calendar closures"
+            f"{', '.join(gaps)}; if this was a broker holiday or early close, add it to the "
+            "market calendar closures as confirmed"
         )
     return CandleSeries(symbol=symbol, timeframe=timeframe, as_of=as_of, candles=completed)
 

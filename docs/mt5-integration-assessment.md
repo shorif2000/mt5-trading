@@ -219,10 +219,50 @@ they follow US daylight saving. Verified from this broker's H1 and M15 history, 
 | `major_fx` | EURUSD, GBPUSD, USDJPY | Sun 17:00 to Fri 17:00 | none visible |
 | `gold` | XAUUSD | Sun 18:00 to Fri 17:00 | 17:00 to 18:00 |
 
-Holidays and early closes are listed under `closures` with the affected profiles and a reason.
-None are shipped: each must be taken from the broker's published schedule. Until one is listed,
-its gap is rejected with a message pointing to the calendar. Pass another file with
-`ingest --sessions`.
+**Broker closures** are listed under `closures` in `market_sessions.yaml`:
+- **Fields:** `type` (`full_closure`, `early_close` or `late_open`), `profiles` and/or
+  `symbols`, `start`/`end` with an optional `timezone`, `reason`, `source`, `source_url`,
+  `retrieved` and `status`.
+- **Only `confirmed` entries explain a gap.** `unconfirmed` entries are named in the rejection
+  message but never accept one.
+- **No overlaps:** overlapping confirmed entries for the same profile or symbol are rejected
+  as duplicates or conflicts.
+- **Precedence:** these come from broker notices and take precedence. None are shipped yet.
+- `last_updated` and `closures_reviewed_through` record when the file was last reviewed.
+- Pass another file with `ingest --sessions`.
+
+**Exchange holidays** (`config/exchange_holidays.yaml`) are reference information only. They
+never explain a gap, because the broker's forex and gold sessions do not follow any one
+exchange. When a gap is rejected, entries for the profile's `reference_markets` on those
+dates are listed, so a reviewer knows what to confirm with the broker.
+`mt5-trading calendar` reports the last update and coverage of both files without network
+access.
+
+| Market | Source | Automated |
+|---|---|---|
+| US | NYSE hours and calendars page: full closures, and early closes from its footnotes | yes |
+| UK | LSE business days: non-trading days, and half days with the closing time | yes |
+| AU | ASX trading calendar: CLOSED and CLOSE EARLY days ("OPEN" public holidays skipped) | yes |
+| IN | NSE `holiday-master` JSON. Days with a special session are `unconfirmed` | yes |
+| JP | JPX page lists exchange-specific dates only; national holidays are implied | no |
+| HK | HKEX: no stable machine-readable holiday table found | no |
+| SG | SGX: holiday data is rendered by JavaScript | no |
+
+**Updater.** `mt5-calendar-update` (`src/trading/market_data/exchange_holidays.py`) uses the
+standard library only, with certificates verified against the operating system trust store.
+- It fetches and parses the automated sources strictly. It checks every date's weekday, and
+  any unrecognised status, layout or early-close time fails that source rather than guessing.
+- It compares the result with the local file and writes a Markdown report.
+- It only *adds* entries. A changed or conflicting entry is reported and that market is left
+  unchanged. An entry the source no longer lists is kept and reported. A failed source keeps
+  its local entries.
+- The file is validated before it is replaced, and a run with no changes leaves it
+  byte-identical.
+
+The weekly workflow `.github/workflows/update-exchange-holidays.yml` runs the updater and the
+tests, then opens or updates a pull request only when the file changed, with the report as its
+body. It never merges, and the job fails visibly when a source failed or a conflict needs
+review.
 
   MT5's `0` for SL, TP, stop-limit and expiration becomes `null`.
 
@@ -306,9 +346,13 @@ code 3 when the snapshot is older than `--maximum-age-seconds`. If collection fa
 
 ## 9. Outstanding limitations
 
-- Holidays, early closes and broker maintenance must be added to
-  `config/market_sessions.yaml` by hand. Until they are, those gaps are rejected. With 120 bars
-  per series, an H4 gap stays in the window for about 20 trading days.
+- Broker holidays, early closes and maintenance cannot be retrieved automatically: no broker
+  notice source is machine-readable. Add them to `config/market_sessions.yaml` as confirmed
+  closures. Until then those gaps are rejected, and an H4 gap stays in the 120-bar window for
+  about 20 trading days. Exchange holidays on those dates are listed in the rejection.
+- JPX, HKEX and SGX holidays must be maintained by hand in `exchange_holidays.yaml`.
+- The official pages can change layout at any time. The updater then fails that source
+  visibly and keeps the existing entries; the parser must then be updated.
 - Session times are verified from one week of history. They are not read from MT5, and the
   forex daily rollover pause is shorter than the 15-minute tolerance, so it is not modelled.
 - A stale quote still rejects the whole export, even while that symbol's market is closed

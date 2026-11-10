@@ -1,19 +1,33 @@
 """Trading sessions and scheduled closures, used to judge gaps and staleness in candle history.
 
 A missing candle is acceptable only if the market was closed: the weekly close, a daily
-break, or a configured closure (holiday or early close). The calendar is configuration
-(``config/market_sessions.yaml``), not broker data: the bridge does not expose MT5 session
-times, so the schedule must be verified against the broker and kept up to date.
+break, or a *confirmed* broker closure (full closure, early close or late open). The calendar
+is local configuration (``config/market_sessions.yaml``), not broker data: the bridge does not
+expose MT5 session times, so the schedule must be verified against the broker.
+
+Exchange holidays (``config/exchange_holidays.yaml``) are loaded as reference information
+only. They never explain a gap; they are named in rejection messages, together with any
+unconfirmed broker closures, so a reviewer knows what to confirm. Nothing is fetched at
+runtime.
 """
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
 import yaml
+
+from trading.market_data.exchange_holidays import (
+    ENTRY_TYPES,
+    STATUSES,
+    EntryType,
+    ExchangeCalendar,
+    Status,
+    load_exchange_calendar,
+)
 
 WEEKDAYS = {
     name: index
@@ -34,10 +48,23 @@ class WeeklySession:
 
 @dataclass(frozen=True)
 class Closure:
+    """A broker session change. ``start``/``end`` bound the closed period: for an early close
+    from the early close to the normal reopening, for a late open from the normal opening to
+    the late opening."""
+
     profiles: frozenset[str]
     start: datetime  # aware
     end: datetime  # aware
     reason: str
+    type: EntryType = "full_closure"
+    status: Status = "confirmed"
+    symbols: frozenset[str] = frozenset()
+    source: str = ""
+    source_url: str | None = None
+    retrieved: date | None = None
+
+    def applies_to(self, symbol: str, profile: str) -> bool:
+        return profile in self.profiles or symbol in self.symbols
 
 
 @dataclass(frozen=True)
@@ -47,6 +74,55 @@ class MarketCalendar:
     symbol_profiles: Mapping[str, str]
     closures: tuple[Closure, ...] = ()
     max_unexplained_gap: timedelta = timedelta(minutes=15)
+    reference_markets: Mapping[str, tuple[str, ...]] = field(default_factory=dict)
+    exchange: ExchangeCalendar | None = None
+    last_updated: date | None = None
+    closures_reviewed_through: date | None = None
+
+    def notes(self, symbol: str, start: datetime, end: datetime) -> list[str]:
+        """Unconfirmed broker closures and reference exchange holidays overlapping
+        ``[start, end]``: information for a reviewer, never a reason to accept a gap."""
+        profile = self.symbol_profiles.get(symbol, "")
+        notes = [
+            f"unconfirmed broker {c.type} {c.start.isoformat()} to {c.end.isoformat()}: {c.reason}"
+            for c in self.closures
+            if c.status == "unconfirmed"
+            and c.applies_to(symbol, profile)
+            and c.start < end
+            and c.end > start
+        ]
+        if self.exchange is not None:
+            for code in self.reference_markets.get(profile, ()):
+                market = self.exchange.markets[code]
+                first = start.astimezone(market.zone).date()
+                last = end.astimezone(market.zone).date()
+                notes += [
+                    f"exchange reference {code} {market.exchange} {e.day} {e.type}"
+                    f"{f' {e.at:%H:%M}' if e.at else ''} {e.name} ({e.status})"
+                    for e in market.entries
+                    if first <= e.day <= last
+                ]
+        return notes
+
+    def summary(self) -> list[str]:
+        """Last update and coverage, for reports."""
+        confirmed = sum(1 for c in self.closures if c.status == "confirmed")
+        lines = [
+            f"sessions last updated {self.last_updated or 'unknown'}; broker closures reviewed "
+            f"through {self.closures_reviewed_through or 'unknown'} "
+            f"({confirmed} confirmed, {len(self.closures) - confirmed} unconfirmed)"
+        ]
+        if self.exchange is not None:
+            for code, market in self.exchange.markets.items():
+                if market.entries:
+                    span = f"{market.entries[0].day} to {market.entries[-1].day}"
+                    retrieved = max(e.retrieved for e in market.entries)
+                    detail = f"{len(market.entries)} entries {span}, last retrieved {retrieved}"
+                else:
+                    detail = "no entries"
+                mode = "automated" if market.automated else "manual"
+                lines.append(f"exchange reference {code} {market.exchange} ({mode}): {detail}")
+        return lines
 
     def open_time(self, symbol: str, start: datetime, end: datetime) -> timedelta:
         """How long the market for ``symbol`` was scheduled to be open in ``[start, end)``."""
@@ -57,7 +133,7 @@ class MarketCalendar:
             raise ValueError(f"no trading session configured for {symbol}")
         overlaps = sorted(
             (max(s, start), min(e, end))
-            for s, e in self._closed_intervals(profile, start, end)
+            for s, e in self._closed_intervals(symbol, profile, start, end)
             if e > start and s < end
         )
         closed = timedelta(0)
@@ -76,7 +152,7 @@ class MarketCalendar:
         return datetime.combine(day, moment, tzinfo=self.zone).astimezone(UTC)
 
     def _closed_intervals(
-        self, profile: str, start: datetime, end: datetime
+        self, symbol: str, profile: str, start: datetime, end: datetime
     ) -> list[tuple[datetime, datetime]]:
         session = self.profiles[profile]
         # Start a week early so a weekly close that began before ``start`` is included.
@@ -96,7 +172,12 @@ class MarketCalendar:
                 end_day = day if break_end > break_start else day + timedelta(days=1)
                 intervals.append((self._at(day, break_start), self._at(end_day, break_end)))
             day += timedelta(days=1)
-        intervals.extend((c.start, c.end) for c in self.closures if profile in c.profiles)
+        # Only confirmed closures explain missing time; unconfirmed ones are reported only.
+        intervals.extend(
+            (c.start, c.end)
+            for c in self.closures
+            if c.status == "confirmed" and c.applies_to(symbol, profile)
+        )
         return intervals
 
 
@@ -139,7 +220,92 @@ def _mapping(value: object, where: str) -> Mapping[str, Any]:
     return value
 
 
-def parse_market_calendar(data: object) -> MarketCalendar:
+def _optional_date(value: object, where: str) -> date | None:
+    if value is None:
+        return None
+    if isinstance(value, date) and not isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        try:
+            return date.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError(f"{where}: invalid date {value!r}") from exc
+    raise ValueError(f"{where}: must be an ISO date")
+
+
+def _required_text(entry: Mapping[str, Any], key: str, where: str) -> str:
+    value = entry.get(key)
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"{where}.{key}: required")
+    return value
+
+
+def _parse_closure(
+    raw: object, where: str, zone: ZoneInfo, profiles: Mapping[str, WeeklySession],
+    symbols: Mapping[str, str],
+) -> Closure:  # fmt: skip
+    entry = _mapping(raw, where)
+    names = entry.get("profiles") or []
+    only = entry.get("symbols") or []
+    if not isinstance(names, list) or not set(names) <= profiles.keys():
+        raise ValueError(f"{where}.profiles: must list known profiles {sorted(profiles)}")
+    if not isinstance(only, list) or not set(only) <= symbols.keys():
+        raise ValueError(f"{where}.symbols: must list configured symbols {sorted(symbols)}")
+    if not names and not only:
+        raise ValueError(f"{where}: set profiles or symbols")
+    closure_type = entry.get("type")
+    if closure_type not in ENTRY_TYPES:
+        raise ValueError(f"{where}.type: must be one of {list(ENTRY_TYPES)}")
+    status = entry.get("status")
+    if status not in STATUSES:
+        raise ValueError(f"{where}.status: must be one of {list(STATUSES)}")
+    local_zone = zone
+    if entry.get("timezone") is not None:
+        try:
+            local_zone = ZoneInfo(str(entry["timezone"]))
+        except (KeyError, ValueError) as exc:
+            raise ValueError(f"{where}.timezone: unknown zone {entry['timezone']!r}") from exc
+    start = _moment(entry.get("start"), local_zone, f"{where}.start")
+    end = _moment(entry.get("end"), local_zone, f"{where}.end")
+    if end <= start:
+        raise ValueError(f"{where}: end must be after start")
+    reason = _required_text(entry, "reason", where)
+    source = _required_text(entry, "source", where)
+    source_url = entry.get("source_url")
+    if source_url is not None and (not isinstance(source_url, str) or not source_url):
+        raise ValueError(f"{where}.source_url: must be text")
+    retrieved = _optional_date(entry.get("retrieved"), f"{where}.retrieved")
+    if retrieved is None:
+        raise ValueError(f"{where}.retrieved: required")
+    return Closure(
+        profiles=frozenset(names),
+        start=start,
+        end=end,
+        reason=reason,
+        type=closure_type,
+        status=status,
+        symbols=frozenset(only),
+        source=source,
+        source_url=source_url,
+        retrieved=retrieved,
+    )
+
+
+def _check_overlaps(closures: list[Closure]) -> None:
+    """Two confirmed closures for the same profile or symbol must not overlap: that is a
+    duplicate or a conflict a reviewer has to resolve."""
+    confirmed = sorted((c for c in closures if c.status == "confirmed"), key=lambda c: c.start)
+    for index, first in enumerate(confirmed):
+        for second in confirmed[index + 1 :]:
+            if second.start >= first.end:
+                break
+            if first.profiles & second.profiles or first.symbols & second.symbols:
+                raise ValueError(
+                    f"closures overlap or duplicate: {first.reason!r} and {second.reason!r}"
+                )
+
+
+def parse_market_calendar(data: object, exchange: ExchangeCalendar | None = None) -> MarketCalendar:
     root = _mapping(data, "market calendar")
     zone_name = root.get("timezone")
     if not isinstance(zone_name, str):
@@ -183,24 +349,24 @@ def parse_market_calendar(data: object) -> MarketCalendar:
                 raise ValueError(f"{where}: {symbol} is already in {symbol_profiles[symbol]}")
             symbol_profiles[symbol] = name
 
-    closures = []
     raw_closures = root.get("closures") or []
     if not isinstance(raw_closures, list):
         raise ValueError("closures: must be a list")
-    for index, raw in enumerate(raw_closures):
-        where = f"closures[{index}]"
-        entry = _mapping(raw, where)
-        names = entry.get("profiles")
-        if not isinstance(names, list) or not names or not set(names) <= profiles.keys():
-            raise ValueError(f"{where}.profiles: must list known profiles {sorted(profiles)}")
-        start = _moment(entry.get("start"), zone, f"{where}.start")
-        end = _moment(entry.get("end"), zone, f"{where}.end")
-        if end <= start:
-            raise ValueError(f"{where}: end must be after start")
-        reason = entry.get("reason")
-        if not isinstance(reason, str) or not reason:
-            raise ValueError(f"{where}.reason: required")
-        closures.append(Closure(frozenset(names), start, end, reason))
+    closures = [
+        _parse_closure(raw, f"closures[{i}]", zone, profiles, symbol_profiles)
+        for i, raw in enumerate(raw_closures)
+    ]
+    _check_overlaps(closures)
+
+    reference_markets: dict[str, tuple[str, ...]] = {}
+    for name, raw in _mapping(root.get("profiles"), "profiles").items():
+        codes = _mapping(raw, f"profiles.{name}").get("reference_markets") or []
+        if not isinstance(codes, list):
+            raise ValueError(f"profiles.{name}.reference_markets: must be a list")
+        if codes and (exchange is None or not set(codes) <= exchange.markets.keys()):
+            known = sorted(exchange.markets) if exchange else []
+            raise ValueError(f"profiles.{name}.reference_markets: must be among {known}")
+        reference_markets[name] = tuple(codes)
 
     return MarketCalendar(
         zone=zone,
@@ -208,12 +374,23 @@ def parse_market_calendar(data: object) -> MarketCalendar:
         symbol_profiles=symbol_profiles,
         closures=tuple(closures),
         max_unexplained_gap=timedelta(minutes=gap_minutes),
+        reference_markets=reference_markets,
+        exchange=exchange,
+        last_updated=_optional_date(root.get("last_updated"), "last_updated"),
+        closures_reviewed_through=_optional_date(
+            root.get("closures_reviewed_through"), "closures_reviewed_through"
+        ),
     )
 
 
 def load_market_calendar(path: Path) -> MarketCalendar:
+    """Load the local sessions file and the exchange reference file it names. Both are local;
+    a missing or invalid file is an error, never silently replaced by an empty calendar."""
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError) as exc:
         raise ValueError(f"cannot read market calendar {path}: {exc}") from exc
-    return parse_market_calendar(data)
+    name = _mapping(data, "market calendar").get("exchange_calendar")
+    if not isinstance(name, str) or not name:
+        raise ValueError("market calendar: 'exchange_calendar' must name the reference file")
+    return parse_market_calendar(data, load_exchange_calendar(path.parent / name))

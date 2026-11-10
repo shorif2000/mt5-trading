@@ -1,0 +1,565 @@
+# Exchange holidays: REFERENCE INFORMATION ONLY, not MT5 broker closures.
+# Automated markets are updated by `mt5-calendar-update` (weekly GitHub Actions workflow,
+# proposed as a pull request for review). Manual markets are maintained by hand.
+# The updater never removes or overwrites an existing entry; conflicts are reported instead.
+# Broker closures that explain candle gaps belong in market_sessions.yaml `closures`.
+markets:
+  US:
+    exchange: NYSE
+    timezone: America/New_York
+    source: NYSE holidays and trading hours
+    source_url: https://www.nyse.com/markets/hours-calendars
+    automated: true
+    entries:
+    - date: '2026-01-01'
+      type: full_closure
+      name: New Year’s Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-01-19'
+      type: full_closure
+      name: Martin Luther King, Jr. Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-02-16'
+      type: full_closure
+      name: Washington's Birthday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-04-03'
+      type: full_closure
+      name: Good Friday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-05-25'
+      type: full_closure
+      name: Memorial Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-06-19'
+      type: full_closure
+      name: Juneteenth National Independence Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-07-03'
+      type: full_closure
+      name: Independence Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-09-07'
+      type: full_closure
+      name: Labor Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-11-26'
+      type: full_closure
+      name: Thanksgiving Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-11-27'
+      type: early_close
+      time: '13:00'
+      name: Early close
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-24'
+      type: early_close
+      time: '13:00'
+      name: Early close
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-25'
+      type: full_closure
+      name: Christmas Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-01-01'
+      type: full_closure
+      name: New Year’s Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-01-18'
+      type: full_closure
+      name: Martin Luther King, Jr. Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-02-15'
+      type: full_closure
+      name: Washington's Birthday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-03-26'
+      type: full_closure
+      name: Good Friday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-05-31'
+      type: full_closure
+      name: Memorial Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-06-18'
+      type: full_closure
+      name: Juneteenth National Independence Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-07-05'
+      type: full_closure
+      name: Independence Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-09-06'
+      type: full_closure
+      name: Labor Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-11-25'
+      type: full_closure
+      name: Thanksgiving Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-11-26'
+      type: early_close
+      time: '13:00'
+      name: Early close
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-12-24'
+      type: full_closure
+      name: Christmas Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-01-17'
+      type: full_closure
+      name: Martin Luther King, Jr. Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-02-21'
+      type: full_closure
+      name: Washington's Birthday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-04-14'
+      type: full_closure
+      name: Good Friday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-05-29'
+      type: full_closure
+      name: Memorial Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-06-19'
+      type: full_closure
+      name: Juneteenth National Independence Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-07-03'
+      type: early_close
+      time: '13:00'
+      name: Early close
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-07-04'
+      type: full_closure
+      name: Independence Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-09-04'
+      type: full_closure
+      name: Labor Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-11-23'
+      type: full_closure
+      name: Thanksgiving Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-11-24'
+      type: early_close
+      time: '13:00'
+      name: Early close
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-12-25'
+      type: full_closure
+      name: Christmas Day
+      status: confirmed
+      retrieved: '2026-11-10'
+  UK:
+    exchange: LSE
+    timezone: Europe/London
+    source: London Stock Exchange business days
+    source_url: https://www.londonstockexchange.com/equities-trading/business-days
+    automated: true
+    entries:
+    - date: '2026-08-31'
+      type: full_closure
+      name: Summer Bank Holiday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-24'
+      type: early_close
+      time: '12:30'
+      name: Christmas Holiday half day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-25'
+      type: full_closure
+      name: Christmas Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-28'
+      type: full_closure
+      name: Boxing Day (substitute)
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-31'
+      type: early_close
+      time: '12:30'
+      name: New Year's Holiday half day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-01-01'
+      type: full_closure
+      name: New Year's Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-03-26'
+      type: full_closure
+      name: Good Friday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-03-29'
+      type: full_closure
+      name: Easter Monday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-05-03'
+      type: full_closure
+      name: Early May Bank Holiday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-05-31'
+      type: full_closure
+      name: Spring Bank Holiday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-08-30'
+      type: full_closure
+      name: Summer Bank Holiday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-12-24'
+      type: early_close
+      time: '12:30'
+      name: Christmas Holiday half day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-12-27'
+      type: full_closure
+      name: Christmas Day (substitute)
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-12-28'
+      type: full_closure
+      name: Boxing Day (substitute)
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-12-31'
+      type: early_close
+      time: '12:30'
+      name: New Year's Holiday half day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-01-03'
+      type: full_closure
+      name: New Year's Day (substitute)
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-04-14'
+      type: full_closure
+      name: Good Friday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-04-17'
+      type: full_closure
+      name: Easter Monday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-05-01'
+      type: full_closure
+      name: Early May Bank Holiday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-05-29'
+      type: full_closure
+      name: Spring Bank Holiday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-08-28'
+      type: full_closure
+      name: Summer Bank Holiday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-12-22'
+      type: early_close
+      time: '12:30'
+      name: Christmas Holiday half day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-12-25'
+      type: full_closure
+      name: Christmas Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-12-26'
+      type: full_closure
+      name: Boxing Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2028-12-29'
+      type: early_close
+      time: '12:30'
+      name: New Year's Holiday half day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2029-01-01'
+      type: full_closure
+      name: New Year's Day
+      status: confirmed
+      retrieved: '2026-11-10'
+  AU:
+    exchange: ASX
+    timezone: Australia/Sydney
+    source: ASX trading calendar
+    source_url: https://www.asx.com.au/markets/market-resources/trading-hours-calendar/cash-market-trading-hours/trading-calendar
+    automated: true
+    entries:
+    - date: '2026-01-01'
+      type: full_closure
+      name: New Year’s Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-01-26'
+      type: full_closure
+      name: Australia Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-04-03'
+      type: full_closure
+      name: Good Friday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-04-06'
+      type: full_closure
+      name: Easter Monday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-04-25'
+      type: full_closure
+      name: ANZAC Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-06-08'
+      type: full_closure
+      name: King’s Birthday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-24'
+      type: early_close
+      time: '14:10'
+      name: Last Business day before Christmas Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-25'
+      type: full_closure
+      name: Christmas Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-28'
+      type: full_closure
+      name: Boxing Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-31'
+      type: early_close
+      time: '14:10'
+      name: Last Business day of the Year
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-01-01'
+      type: full_closure
+      name: New Year’s Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-01-26'
+      type: full_closure
+      name: Australia Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-03-26'
+      type: full_closure
+      name: Good Friday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-03-29'
+      type: full_closure
+      name: Easter Monday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-06-14'
+      type: full_closure
+      name: King’s Birthday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-12-24'
+      type: early_close
+      time: '14:10'
+      name: Last Business day before Christmas Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-12-27'
+      type: full_closure
+      name: Christmas Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-12-28'
+      type: full_closure
+      name: Boxing Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2027-12-31'
+      type: early_close
+      time: '14:10'
+      name: Last Business day of the Year
+      status: confirmed
+      retrieved: '2026-11-10'
+  IN:
+    exchange: NSE
+    timezone: Asia/Kolkata
+    source: NSE trading holidays (holiday-master API, capital market segment)
+    source_url: https://www.nseindia.com/api/holiday-master?type=trading
+    automated: true
+    entries:
+    - date: '2026-01-15'
+      type: full_closure
+      name: Municipal Corporation Election - Maharashtra
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-01-26'
+      type: full_closure
+      name: Republic Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-02-15'
+      type: full_closure
+      name: Mahashivratri
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-03-03'
+      type: full_closure
+      name: Holi
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-03-21'
+      type: full_closure
+      name: Id-Ul-Fitr (Ramadan Eid)
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-03-26'
+      type: full_closure
+      name: Shri Ram Navami
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-03-31'
+      type: full_closure
+      name: Shri Mahavir Jayanti
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-04-03'
+      type: full_closure
+      name: Good Friday
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-04-14'
+      type: full_closure
+      name: Dr. Baba Saheb Ambedkar Jayanti
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-05-01'
+      type: full_closure
+      name: Maharashtra Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-05-28'
+      type: full_closure
+      name: Bakri Id
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-06-26'
+      type: full_closure
+      name: Muharram
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-08-15'
+      type: full_closure
+      name: Independence Day
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-09-14'
+      type: full_closure
+      name: Ganesh Chaturthi
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-10-02'
+      type: full_closure
+      name: Mahatma Gandhi Jayanti
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-10-20'
+      type: full_closure
+      name: Dussehra
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-11-08'
+      type: full_closure
+      name: Diwali Laxmi Pujan*
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-11-10'
+      type: full_closure
+      name: Diwali-Balipratipada
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-11-24'
+      type: full_closure
+      name: Prakash Gurpurb Sri Guru Nanak Dev
+      status: confirmed
+      retrieved: '2026-11-10'
+    - date: '2026-12-25'
+      type: full_closure
+      name: Christmas
+      status: confirmed
+      retrieved: '2026-11-10'
+  JP:
+    exchange: JPX
+    timezone: Asia/Tokyo
+    source: JPX market holidays (page lists exchange-specific dates; national holidays implied)
+    source_url: https://www.jpx.co.jp/english/corporate/about-jpx/calendar/index.html
+    automated: false
+    entries: []
+  HK:
+    exchange: HKEX
+    timezone: Asia/Hong_Kong
+    source: HKEX trading hours and holiday arrangements
+    source_url: https://www.hkex.com.hk/Services/Trading-hours-and-Severe-Weather-Arrangements/Trading-Hours/Securities-Market?sc_lang=en
+    automated: false
+    entries: []
+  SG:
+    exchange: SGX
+    timezone: Asia/Singapore
+    source: SGX securities trading (holiday data is rendered by JavaScript)
+    source_url: https://www.sgx.com/securities/trading
+    automated: false
+    entries: []

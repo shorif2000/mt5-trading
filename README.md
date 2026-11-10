@@ -80,9 +80,17 @@ uv run mypy src
 ## Market calendar
 
 `config/market_sessions.yaml` defines when each market is scheduled to be open (New York time).
-Missing candles are accepted only while a market is closed. Holidays and early closes are not
-shipped: add each one under `closures` from the broker's published schedule, or `ingest` will
-reject the gap.
+Missing candles are accepted only while a market is closed:
+- **Broker closures:** add holidays, early closes and late opens under `closures` from the
+  broker's published notices with `status: confirmed`, or `ingest` will reject the gap.
+- **Exchange holidays:** `config/exchange_holidays.yaml` holds exchange holidays (US, UK,
+  Australia, India automated; Japan, Hong Kong, Singapore by hand) as reference only. A weekly
+  GitHub Actions workflow proposes updates as a pull request; nothing is fetched at runtime.
+
+```bash
+uv run mt5-trading calendar      # last update and coverage of the local calendar
+uv run mt5-calendar-update --report report.md   # what the weekly workflow runs
+```
 
 ## Project principles
 
