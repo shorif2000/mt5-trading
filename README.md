@@ -5,7 +5,7 @@ A read-only foundation for researching intraday forex and gold setups with Claud
 ## Safety status
 
 This project does not place, modify or close orders. It has no live execution implementation.
-MT5 data is collected only through an allowlist of seven read-only tools of the existing
+MT5 data is collected only through an allowlist of eight read-only tools of the existing
 `mt5-mcp` server, started with trading forced off. The collector refuses to run if that server
 advertises any tool not annotated read-only. The order gateway and approval functions always
 raise.

@@ -49,7 +49,7 @@ class FakeSession:
 
 
 def read_only_tools() -> list[SimpleNamespace]:
-    return [tool(name) for name in READ_ONLY_TOOLS] + [tool("calc_margin")]
+    return [tool(name) for name in READ_ONLY_TOOLS] + [tool("list_symbols")]
 
 
 def run_collect(session: FakeSession) -> dict[str, Any]:
@@ -217,3 +217,36 @@ def test_missing_registration_is_refused(tmp_path):
 def test_unreadable_registration_is_refused(tmp_path):
     with pytest.raises(CollectorError, match="Cannot read MCP registration"):
         registered_server(tmp_path / "missing.json")
+
+
+# --- margin requests --------------------------------------------------------------------
+
+
+def test_margin_request_calls_only_calc_margin_with_the_exact_proposal():
+    from trading.market_data.mcp_collector import request_margin
+
+    session = FakeSession(read_only_tools())
+    result = asyncio.run(
+        request_margin(session, symbol="XAUUSD", side="BUY", volume=0.01, price=2000.2)
+    )
+    assert session.calls == [
+        ("calc_margin", {"symbol": "XAUUSD", "side": "BUY", "volume": 0.01, "price": 2000.2})
+    ]
+    assert result == {"tool": "calc_margin"}
+
+
+def test_margin_request_refuses_a_server_exposing_trading_tools():
+    from trading.market_data.mcp_collector import request_margin
+
+    session = FakeSession([*read_only_tools(), tool("place_order", read_only=False)])
+    with pytest.raises(CollectorError, match="trading tools"):
+        asyncio.run(request_margin(session, symbol="XAUUSD", side="BUY", volume=0.01))
+    assert session.calls == []
+
+
+def test_margin_request_rejects_an_invalid_side():
+    from trading.market_data.mcp_collector import request_margin
+
+    with pytest.raises(CollectorError, match="BUY or SELL"):
+        asyncio.run(request_margin(FakeSession(read_only_tools()), symbol="XAUUSD",
+                                   side="CLOSE", volume=0.01))  # fmt: skip
