@@ -8,10 +8,61 @@ from rich.console import Console
 from rich.table import Table
 
 from trading.market_data.market_snapshot import load_snapshot
+from trading.market_data.mcp_collector import CollectorError, collect_to_file
+from trading.market_data.mcp_export import ExportRejected, ExportSettings, load_mcp_export
 from trading.risk.exposure import floating_pnl, open_volume_by_symbol
 
 app = typer.Typer(help="Read-only MT5 trading research diagnostics.")
 console = Console()
+
+
+@app.command()
+def collect(
+    output: Path = typer.Option(Path("data/mcp_export.local.json"), help="Raw export JSON"),
+    bridge_repo: Path = typer.Option(
+        Path.home() / "meta-trader-5-mcp", exists=True, file_okay=False, help="mt5-mcp checkout"
+    ),
+    bars: int = typer.Option(120, min=2, max=5000, help="Bars per timeframe, incl. forming"),
+) -> None:
+    """Collect a raw export using only read-only mt5-mcp tools (trading forced off)."""
+    settings = ExportSettings()
+    try:
+        collect_to_file(
+            output,
+            bridge_repo=bridge_repo,
+            symbols=settings.symbols,
+            timeframes=settings.timeframes,
+            bars=bars,
+        )
+    except CollectorError as exc:
+        console.print(f"[red]Collection failed:[/red] {exc}")
+        raise typer.Exit(code=2) from exc
+    console.print(f"Raw export written to {output}. Validate it with `mt5-trading ingest`.")
+
+
+@app.command()
+def ingest(
+    export: Path = typer.Option(..., exists=True, readable=True, help="Raw MCP export JSON"),
+    output: Path = typer.Option(Path("data/snapshot.local.json"), help="Validated snapshot"),
+    maximum_age_seconds: int = typer.Option(120, min=1),
+    minimum_candles: int = typer.Option(50, min=1),
+) -> None:
+    """Validate a raw read-only MT5 MCP export and write a validated snapshot."""
+    settings = ExportSettings(
+        max_export_age_seconds=maximum_age_seconds,
+        max_quote_age_seconds=maximum_age_seconds,
+        min_completed_candles=minimum_candles,
+    )
+    try:
+        data = load_mcp_export(export, now=datetime.now(UTC), settings=settings)
+    except ExportRejected as exc:
+        console.print("[red]Export rejected. Analysis is blocked:[/red]")
+        for reason in exc.reasons:
+            console.print(f"  - {reason}")
+        raise typer.Exit(code=2) from exc
+
+    output.write_text(data.model_dump_json(indent=2), encoding="utf-8")
+    console.print(f"[green]Export accepted.[/green] Validated snapshot written to {output}")
 
 
 @app.command()
@@ -35,9 +86,14 @@ def diagnose(
     table.add_row("Account server", data.account.server)
     table.add_row("Account currency", data.account.currency)
     table.add_row("Snapshot age (seconds)", f"{age:.1f}")
-    table.add_row("Snapshot freshness", "FRESH" if 0 <= age <= maximum_age_seconds else "STALE / FUTURE")
+    table.add_row(
+        "Snapshot freshness", "FRESH" if 0 <= age <= maximum_age_seconds else "STALE / FUTURE"
+    )
     table.add_row("Positions", str(len(data.positions)))
-    table.add_row("Pending orders", str(data.pending_orders_count))
+    table.add_row("Account type", data.account.trade_mode or "not reported")
+    offset = data.broker_utc_offset_seconds
+    table.add_row("Broker UTC offset", "unknown" if offset is None else f"{offset / 3600:+g} h")
+    table.add_row("Pending orders", str(len(data.pending_orders)))
     table.add_row("Floating P/L", f"{floating_pnl(data.positions):.2f} {data.account.currency}")
     console.print(table)
 
@@ -57,6 +113,25 @@ def diagnose(
             quote.symbol, str(quote.bid), str(quote.ask), f"{quote.spread_points:.1f}"
         )
     console.print(quote_table)
+
+    if data.candles:
+        candle_table = Table(title="Completed candles")
+        candle_table.add_column("Symbol")
+        candle_table.add_column("Timeframe")
+        candle_table.add_column("Count")
+        candle_table.add_column("Last bar open (UTC)")
+        candle_table.add_column("Last bar open (broker)")
+        for series in data.candles:
+            last = series.candles[-1]
+            broker = last.broker_time.isoformat() if last.broker_time else "not reported"
+            candle_table.add_row(
+                series.symbol,
+                series.timeframe,
+                str(len(series.candles)),
+                last.timestamp.astimezone(UTC).isoformat(),
+                broker,
+            )
+        console.print(candle_table)
 
     if age < 0 or age > maximum_age_seconds:
         console.print("[red]Analysis blocked: snapshot is not fresh.[/red]")

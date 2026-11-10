@@ -1,8 +1,8 @@
-"""Fail-closed boundary for the MT5 MCP integration.
+"""Fail-closed boundary for a direct Python connection to MT5.
 
-The installed community bridge uses a particular local bridge protocol. This module does
-not guess that protocol. Verify the installed repository's current source and tool schemas
-before implementing a read-only client.
+The chosen integration (docs/mt5-integration-assessment.md) is a JSON export of read-only
+MCP tool responses, validated by ``trading.market_data.mcp_export``. Python deliberately
+does not connect to the bridge: its token-authenticated socket also serves ``order_send``.
 """
 
 from typing import Protocol
@@ -16,14 +16,11 @@ class ReadOnlyMarketDataClient(Protocol):
 
 
 class MT5MCPClient:
-    """Placeholder that deliberately refuses unverified connection attempts."""
-
-    def __init__(self) -> None:
-        self._verified = False
+    """Placeholder that deliberately refuses direct connection attempts."""
 
     def get_snapshot(self, symbols: list[str]) -> MarketSnapshot:
         del symbols
         raise RuntimeError(
-            "MT5 MCP adapter is not implemented. Verify the installed bridge protocol "
-            "and use read-only tools. No connection or trading action was attempted."
+            "Direct MT5 connections are not supported. Export read-only MCP tool responses "
+            "and run `mt5-trading ingest`. No connection or trading action was attempted."
         )
