@@ -5,8 +5,10 @@ A read-only foundation for researching intraday forex and gold setups with Claud
 ## Safety status
 
 This project does not place, modify or close orders. It has no live execution implementation.
-The MT5 adapter is deliberately a fail-closed interface until the installed bridge protocol
-and its exact read-only tools have been verified.
+MT5 data is collected only through an allowlist of seven read-only tools of the existing
+`mt5-mcp` server, started with trading forced off. The collector refuses to run if that server
+advertises any tool not annotated read-only. The order gateway and approval functions always
+raise.
 
 Keep the following controls in place:
 
@@ -17,8 +19,9 @@ Keep the following controls in place:
 
 ## Initial scope
 
-The intended research universe is EURUSD, GBPUSD, USDJPY and XAUUSD. The exact broker
-symbol names must be confirmed from the connected terminal before use.
+The research universe is EURUSD, GBPUSD, USDJPY and XAUUSD. These exact broker symbol names
+were verified against the connected terminal. `XAUUSD.crp` also exists there but is a
+conversion-only symbol and is rejected.
 
 The candidate workflow uses H4 for context, H1 for setup identification and M15 for
 entry confirmation. The strategy is a research hypothesis, not a proven profitable system.
@@ -27,16 +30,26 @@ entry confirmation. The strategy is a research hypothesis, not a proven profitab
 
 - Python 3.11 or later
 - `uv`
+- MetaTrader 5 running and logged in, with
+  [`mt5-mcp`](https://github.com/CodeWithBehnam/meta-trader-5-mcp) installed and registered
+  for Claude Code at user scope as `mt5`, with trading left disabled:
+
+  ```bash
+  claude mcp add --transport stdio --scope user mt5 -- /absolute/path/to/uv --directory /absolute/path/to/meta-trader-5-mcp run mt5-mcp
+  ```
+
+  `collect` starts that registered command itself. It accepts only this exact shape (absolute
+  `uv` path, absolute repository path, no `MT5_ENABLE_TRADING=1`) and takes no command or path
+  from the command line.
 
 ## Setup
 
 ```bash
 uv sync
-cp .env.example .env
 ```
 
-The application reads MT5 data only through the read-only tools of the existing `mt5-mcp`
-server, started with trading forced off. See `docs/mt5-integration-assessment.md`.
+No `.env` file or credentials are needed. See `docs/mt5-integration-assessment.md` for the
+integration design, validation rules and limitations.
 
 ## Run the diagnostic
 
@@ -46,8 +59,14 @@ uv run mt5-trading ingest --export data/mcp_export.local.json   # validate -> da
 uv run mt5-trading diagnose --snapshot data/snapshot.local.json
 ```
 
-`*.local.json` files contain real account data and are git-ignored. `ingest` rejects stale,
-incomplete, disconnected or timezone-ambiguous data and lists every reason.
+`*.local.json` files can contain real account data and are git-ignored anywhere in the
+repository. `collect` replaces the account login, name, server and company with `REDACTED`
+before writing. `ingest` rejects stale, incomplete, disconnected or timezone-ambiguous data and
+lists every reason. Broker times are converted to UTC with the daylight-saving rule in force at
+each moment. The default is New York time + 7 h, overridable with
+`--broker-timezone/--broker-shift-hours`.
+
+`data/example_mcp_export.json` is an entirely synthetic example export.
 `data/sample_snapshot.json` is an empty illustrative template.
 
 ## Validate
