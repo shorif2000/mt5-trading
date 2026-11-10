@@ -22,6 +22,7 @@ from zoneinfo import ZoneInfo
 
 from pydantic import ValidationError
 
+from trading.market_data.sessions import MarketCalendar
 from trading.models import (
     TIMEFRAME_SECONDS,
     AccountSnapshot,
@@ -61,9 +62,9 @@ class ExportSettings:
     max_export_age_seconds: int = 120
     max_quote_age_seconds: int = 120
     min_completed_candles: int = 50
-    # Short session breaks (gold's daily break, rollover) are tolerated; longer gaps are
-    # rejected unless they span the weekend close.
-    max_session_break_minutes: int = 75
+    # Trading sessions and closures (config/market_sessions.yaml). Required: without it no gap
+    # or staleness judgement is possible, so every candle series is rejected.
+    calendar: MarketCalendar | None = None
     # Allowed difference between this machine's clock and the broker's. Also held back when
     # deciding whether a candle has closed, so a fast local clock cannot accept a forming bar.
     clock_skew_seconds: int = 5
@@ -145,6 +146,13 @@ def _integer(record: Mapping[str, Any], key: str, where: str) -> int:
     if isinstance(value, bool) or not isinstance(value, int):
         raise ValueError(f"{where}: '{key}' must be an integer, got {value!r}")
     return int(value)
+
+
+def _positive_integer(record: Mapping[str, Any], key: str, where: str) -> int:
+    value = _integer(record, key, where)
+    if value <= 0:
+        raise ValueError(f"{where}: '{key}' must be positive, got {value} (not reported by MT5)")
+    return value
 
 
 def _text(record: Mapping[str, Any], key: str, where: str) -> str:
@@ -298,6 +306,11 @@ def _account(info: Mapping[str, Any], as_of: datetime) -> AccountSnapshot:
         trade_mode=ACCOUNT_TRADE_MODES.get(trade_mode, "unknown")
         if isinstance(trade_mode, int)
         else "unknown",
+        leverage=_positive_integer(info, "leverage", where),
+        margin_mode=_integer(info, "margin_mode", where),
+        stop_out_mode=_integer(info, "margin_so_mode", where),
+        margin_call_level=_number(info, "margin_so_call", where),
+        stop_out_level=_number(info, "margin_so_so", where),
         # MT5 account info has no broker timestamp. This is the local collection start time,
         # recorded before account_info was read: not proof that the account data is fresh.
         timestamp=as_of,
@@ -319,6 +332,17 @@ def _instrument(symbol: str, info: Mapping[str, Any]) -> InstrumentSpec:
         volume_max=_number(info, "volume_max", where),
         volume_step=_number(info, "volume_step", where),
         trade_allowed=_integer(info, "trade_mode", where) == SYMBOL_TRADE_MODE_FULL,
+        digits=_integer(info, "digits", where),
+        point=_number(info, "point", where),
+        tick_value_profit=_number(info, "trade_tick_value_profit", where),
+        tick_value_loss=_number(info, "trade_tick_value_loss", where),
+        stops_level_points=_integer(info, "trade_stops_level", where),
+        freeze_level_points=_integer(info, "trade_freeze_level", where),
+        calc_mode=_integer(info, "trade_calc_mode", where),
+        margin_currency=_text(info, "currency_margin", where),
+        margin_initial=_number(info, "margin_initial", where),
+        margin_maintenance=_number(info, "margin_maintenance", where),
+        margin_hedged=_number(info, "margin_hedged", where),
     )
 
 
@@ -358,20 +382,13 @@ def _quote(
 
 
 def _unexplained_gaps(
-    candles: list[Candle], duration: timedelta, max_break: timedelta
+    symbol: str, candles: list[Candle], duration: timedelta, calendar: MarketCalendar
 ) -> list[str]:
+    """Missing candles are acceptable only while the market was scheduled to be closed."""
     gaps = []
     for previous, current in zip(candles, candles[1:], strict=False):
         closed = previous.timestamp + duration
-        missing = current.timestamp - closed
-        if missing <= max_break:
-            continue
-        weekend = (
-            closed.weekday() == 4  # Friday close
-            and current.timestamp.weekday() in (6, 0)  # Sunday or Monday open
-            and missing <= timedelta(days=3)
-        )
-        if not weekend:
+        if calendar.open_time(symbol, closed, current.timestamp) > calendar.max_unexplained_gap:
             gaps.append(f"{closed.isoformat()} to {current.timestamp.isoformat()}")
     return gaps
 
@@ -433,16 +450,23 @@ def _candle_series(
             f"{where}: missing candle data, {len(completed)} completed candles "
             f"(need {settings.min_completed_candles})"
         )
+    calendar = settings.calendar
+    if calendar is None:
+        raise ValueError(f"{where}: no market calendar configured; cannot judge gaps")
     last_close = completed[-1].timestamp + duration
-    if cutoff - last_close > duration:
+    # Stale only if the market was open for more than one bar since the last completed bar:
+    # a daily break, weekend or configured closure is not staleness.
+    if calendar.open_time(symbol, last_close, cutoff) > duration:
         raise ValueError(
             f"{where}: stale, latest completed candle closed at {last_close.isoformat()}"
         )
-    gaps = _unexplained_gaps(
-        completed, duration, timedelta(minutes=settings.max_session_break_minutes)
-    )
+    gaps = _unexplained_gaps(symbol, completed, duration, calendar)
     if gaps:
-        raise ValueError(f"{where}: missing candles between {', '.join(gaps)}")
+        raise ValueError(
+            f"{where}: missing candles during scheduled market hours between "
+            f"{', '.join(gaps)}; if this was a holiday or early close, add it to the market "
+            "calendar closures"
+        )
     return CandleSeries(symbol=symbol, timeframe=timeframe, as_of=as_of, candles=completed)
 
 

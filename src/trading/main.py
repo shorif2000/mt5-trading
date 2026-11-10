@@ -10,6 +10,7 @@ from rich.table import Table
 from trading.market_data.market_snapshot import load_snapshot
 from trading.market_data.mcp_collector import CollectorError, collect_to_file
 from trading.market_data.mcp_export import ExportRejected, ExportSettings, load_mcp_export
+from trading.market_data.sessions import load_market_calendar
 from trading.risk.exposure import floating_pnl, open_volume_by_symbol
 
 app = typer.Typer(help="Read-only MT5 trading research diagnostics.")
@@ -49,9 +50,18 @@ def ingest(
     broker_shift_hours: int = typer.Option(
         ExportSettings.broker_shift_hours, help="Hours added to that zone's wall time"
     ),
+    sessions: Path = typer.Option(
+        Path("config/market_sessions.yaml"), exists=True, readable=True, help="Market calendar"
+    ),
 ) -> None:
     """Validate a raw read-only MT5 MCP export and write a validated snapshot."""
+    try:
+        calendar = load_market_calendar(sessions)
+    except ValueError as exc:
+        console.print(f"[red]Market calendar rejected:[/red] {exc}")
+        raise typer.Exit(code=2) from exc
     settings = ExportSettings(
+        calendar=calendar,
         max_export_age_seconds=maximum_age_seconds,
         max_quote_age_seconds=maximum_age_seconds,
         min_completed_candles=minimum_candles,
