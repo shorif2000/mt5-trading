@@ -13,6 +13,7 @@ from trading.research.bls_calendar import (
     apply_release_times,
     build_events,
     embargo,
+    embargo_statement,
     not_published,
     parse_archive,
     parse_schedule,
@@ -143,6 +144,15 @@ def test_a_release_dated_differently_from_the_archive_is_reported_not_used():
 
 def test_embargo_statement_with_the_release_number_before_the_time():
     # Employment Situation wording, as published (2024-03-08 release).
-    html = ("<p>Transmission of material in this news release is embargoed until</p> "
-            "<p>USDL-24-0451</p> <p>8:30 a.m. (ET) Friday, March 8, 2024</p>")
+    html = (
+        "<p>Transmission of material in this news release is embargoed until</p> "
+        "<p>USDL-24-0451</p> <p>8:30 a.m. (ET) Friday, March 8, 2024</p>"
+    )
     assert embargo(html) == (date(2024, 3, 8), time(8, 30))
+
+
+def test_stored_embargo_statement_parses_back_to_the_same_date_and_time():
+    # data/calendar/bls_release_evidence.tsv keeps only this sentence for each release.
+    statement = embargo_statement(RELEASE)
+    assert statement == "embargoed until 8:30 a.m. (ET) Wednesday, April 10, 2024"
+    assert embargo(statement) == embargo(RELEASE)

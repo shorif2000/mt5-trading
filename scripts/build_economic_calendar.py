@@ -30,12 +30,14 @@ from trading.research.bls_calendar import (
     ARCHIVE_NAMES,
     apply_release_times,
     build_events,
+    embargo_statement,
     not_published,
     parse_archive,
     parse_schedule,
 )
 
 RAW = Path("data/calendar/raw")
+EVIDENCE = Path("data/calendar/bls_release_evidence.tsv")  # committed; releases are not
 BLS = RAW / "bls"
 BLS_PAGES = {  # kind -> (schedule file, archive file)
     "cpi": ("cpi_schedule.html", "cpi_archive.html"),
@@ -162,8 +164,9 @@ def main() -> None:
         "events": [],
         "sources": sources,
     }
+    evidence: list[dict[str, str]] = []
     for kind, (schedule_file, archive_file) in BLS_PAGES.items():
-        added = add_bls(kind, BLS / schedule_file, BLS / archive_file, data)
+        added = add_bls(kind, BLS / schedule_file, BLS / archive_file, data, evidence)
         if not added:
             data["unavailable"][kind] = (  # type: ignore[index]
                 "bls.gov refuses automated access (HTTP 403); official pages not saved in "
@@ -171,6 +174,8 @@ def main() -> None:
             )
     data["events"] = sorted([*events, *data["events"]],  # type: ignore[misc]
                             key=lambda e: (str(e["date"]), str(e["time"])))  # fmt: skip
+    if evidence:
+        write_evidence(evidence)
     for finding in data["findings"]:  # type: ignore[attr-defined]
         print(f"finding: {finding}")
     OUT.write_text(yaml.safe_dump(data, sort_keys=False, width=100), encoding="utf-8")
@@ -192,31 +197,60 @@ def bls_manifest() -> dict[str, dict[str, str]]:
             for row in (line.split("\t") for line in lines[1:] if line)}  # fmt: skip
 
 
+EVIDENCE_COLUMNS = ("kind", "date", "file", "url", "sha256", "downloaded_utc",
+                    "embargo_statement")  # fmt: skip
+
+
 def saved_releases(kind: str) -> tuple[dict[date, str], list[dict[str, str]]]:
-    """Release documents downloaded by scripts/download_bls_releases.sh, each checked against
-    the sha256 recorded at download (data/calendar/raw/bls/releases/MANIFEST.tsv)."""
+    """Release documents for ``kind``: downloaded files (scripts/download_bls_releases.sh), each
+    checked against the sha256 recorded at download; otherwise the committed evidence file,
+    which keeps each release's URL, sha256 and exact embargo statement."""
     folder = BLS / "releases"
     manifest = folder / "MANIFEST.tsv"
-    if not manifest.exists():
-        return {}, []
-    lines = manifest.read_text(encoding="utf-8").splitlines()
-    header = lines[0].split("\t")
-    out, sources = {}, []
-    for row in (dict(zip(header, line.split("\t"), strict=True)) for line in lines[1:] if line):
-        name = row["file"]
-        if not name.startswith(f"{ARCHIVE_NAMES[kind]}_"):
-            continue
-        path = folder / name
-        if not path.exists() or sha(path) != row["sha256"]:
-            raise SystemExit(f"{path} is missing or changed since download; download it again")
-        day = datetime.strptime(name.split("_")[1][:8], "%m%d%Y").date()
-        out[day] = path.read_text(encoding="utf-8", errors="ignore")
-        sources.append({"url": row["url"], "file": str(path), "sha256": row["sha256"],
-                        "retrieved_utc": row["downloaded_utc"]})  # fmt: skip
+    out: dict[date, str] = {}
+    sources: list[dict[str, str]] = []
+    if manifest.exists():
+        lines = manifest.read_text(encoding="utf-8").splitlines()
+        header = lines[0].split("\t")
+        for row in (dict(zip(header, ln.split("\t"), strict=True)) for ln in lines[1:] if ln):
+            name = row["file"]
+            if not name.startswith(f"{ARCHIVE_NAMES[kind]}_"):
+                continue
+            path = folder / name
+            if not path.exists() or sha(path) != row["sha256"]:
+                raise SystemExit(f"{path} is missing or changed since download; download again")
+            day = datetime.strptime(name.split("_")[1][:8], "%m%d%Y").date()
+            out[day] = path.read_text(encoding="utf-8", errors="ignore")
+            sources.append({"url": row["url"], "file": str(path), "sha256": row["sha256"],
+                            "retrieved_utc": row["downloaded_utc"]})  # fmt: skip
+        return out, sources
+    if EVIDENCE.exists():
+        lines = EVIDENCE.read_text(encoding="utf-8").splitlines()
+        for row in (dict(zip(EVIDENCE_COLUMNS, ln.split("\t"), strict=True)) for ln in lines[1:]):
+            if row["kind"] != kind:
+                continue
+            out[date.fromisoformat(row["date"])] = row["embargo_statement"]
+            sources.append({"url": row["url"], "file": f"{EVIDENCE} (extract)",
+                            "sha256": row["sha256"],
+                            "retrieved_utc": row["downloaded_utc"]})  # fmt: skip
     return out, sources
 
 
-def add_bls(kind: str, schedule_path: Path, archive_path: Path, data: dict[str, object]) -> bool:
+def write_evidence(rows: list[dict[str, str]]) -> None:
+    """Commit-sized record of every downloaded release (the documents are ~112 MB)."""
+    lines = ["\t".join(EVIDENCE_COLUMNS)]
+    lines += ["\t".join(r[c] for c in EVIDENCE_COLUMNS)
+              for r in sorted(rows, key=lambda r: (r["kind"], r["date"]))]  # fmt: skip
+    EVIDENCE.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def add_bls(
+    kind: str,
+    schedule_path: Path,
+    archive_path: Path,
+    data: dict[str, object],
+    evidence: list[dict[str, str]],
+) -> bool:
     """Add one BLS release to ``data`` from the saved pages; False when they are not saved.
     Each file must match the sha256 recorded when it was saved, so the calendar is built from
     exactly the verified pages."""
@@ -241,6 +275,14 @@ def add_bls(kind: str, schedule_path: Path, archive_path: Path, data: dict[str, 
         f"{kind}: BLS archive says: {note}" for note in not_published(archive_html)
     )
     releases, release_sources = saved_releases(kind)
+    if (BLS / "releases" / "MANIFEST.tsv").exists():
+        for src in release_sources:
+            day = datetime.strptime(Path(src["file"]).name.split("_")[1][:8], "%m%d%Y").date()
+            statement = embargo_statement(releases[day]) or ""
+            evidence.append({"kind": kind, "date": day.isoformat(), "file": Path(src["file"]).name,
+                             "url": src["url"], "sha256": src["sha256"],
+                             "downloaded_utc": src["retrieved_utc"],
+                             "embargo_statement": statement})  # fmt: skip
     built.findings.extend(apply_release_times(kind, built.events, releases))
     data["sources"].extend(release_sources)  # type: ignore[attr-defined]
     untimed = sum(e["time"] is None for e in built.events)

@@ -1,0 +1,5 @@
+file	url	sha256	bytes	saved_utc	verified_utc
+cpi_schedule.html	https://www.bls.gov/schedule/news_release/cpi.htm	cece37b1f964eed1cd51215764a55fb26e310da31b441ab9c65758989c9afc17	55389	2026-11-11T10:10:04Z	2026-11-11T10:12:50Z
+empsit_schedule.html	https://www.bls.gov/schedule/news_release/empsit.htm	939d7d01d2d4e136e54f7fec49ea3108e73dfcf9f50dba383fc7c723e21a556e	55395	2026-11-11T10:09:01Z	2026-11-11T10:12:52Z
+cpi_archive.html	https://www.bls.gov/bls/news-release/cpi.htm	a069474cfb01f3d64419d2c1f6ac6d25354fed8afe71216994d34220762359dd	128830	2026-11-11T10:09:24Z	2026-11-11T10:12:54Z
+empsit_archive.html	https://www.bls.gov/bls/news-release/empsit.htm	876329bf65bbcd0b5640b9ff04307a5d79779fbd696ce36a6865c9b11b2203ef	132734	2026-11-11T10:09:42Z	2026-11-11T10:12:58Z

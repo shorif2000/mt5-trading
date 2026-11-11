@@ -153,6 +153,12 @@ _EMBARGO = re.compile(
 )
 
 
+def embargo_statement(html: str) -> str | None:
+    """The embargo sentence exactly as printed (kept as evidence in git)."""
+    m = _EMBARGO.search(_text(html))
+    return m.group(0) if m else None
+
+
 def embargo(html: str) -> tuple[date, time] | None:
     """Release date and time from a release's embargo statement, e.g. "Transmission of material
     in this release is embargoed until 8:30 a.m. (ET) Wednesday, November 13, 2024"."""
