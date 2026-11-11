@@ -6,7 +6,13 @@ Changes go in a new experiment, which links back to the original.
 
 | Id | Title | Status | Registered | Specification |
 |---|---|---|---|---|
-| EXP-001 | Break-even exits on Version 1.0 entries | draft, awaiting approval | n/a | `../xauusd-research-programme.md`, section 3 |
+| EXP-001 | Break-even exits on Version 1.0 entries | registered | 2026-11-11 | `EXP-001-breakeven-exits.md` |
+| EXP-002 | Strategy A event study (2023–2024) | registered | 2026-11-11 | `EXP-002-strategy-a-event-study.md` |
+| EXP-003 | Strategy A backtest (cost-floor arms) | registered | 2026-11-11 | `EXP-003-strategy-a-backtest.md` |
+| EXP-004 | Strategy C event study (2023–2024) | registered | 2026-11-11 | `EXP-004-strategy-c-event-study.md` |
+| EXP-005 | Strategy C backtest (cost-floor arms) | registered | 2026-11-11 | `EXP-005-strategy-c-backtest.md` |
+| EXP-006 | Strategy B event study (2023–2024) | registered | 2026-11-11 | `EXP-006-strategy-b-event-study.md` |
+| EXP-007 | Strategy B backtest (cost-floor arms) | registered | 2026-11-11 | `EXP-007-strategy-b-backtest.md` |
 
 ## Template
 

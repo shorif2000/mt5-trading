@@ -1,8 +1,9 @@
 # XAUUSD alternative strategy candidates (DRAFT for owner approval)
 
-**Status:** draft, 2026-11-10. **Specifications only. None of these is implemented or tested,
-and none is claimed to be profitable.** Each is a hypothesis, to be tested one at a time under
-the rules of `xauusd-research-programme.md`.
+**Status:** approved by the owner on 2026-11-10 with the recommended defaults (the cost
+floor, the fixed values and the order A, C, B, with D parked). Amendment 1 (2026-11-11, at the
+end) records clarifications made before any result was computed. No numeric parameter
+changed. **None of these is claimed to be profitable.**
 
 The parameter values below are fixed in advance. They are conventional or reasoned choices
 recorded here, not values found by searching 2023–2026 data. Changing any of them after
@@ -120,3 +121,82 @@ If chosen later, it needs the same treatment:
 3. **Order.** Implement A first, then C (which reuses A's levels), then B.
 4. **Variants.** A previous-day-high-and-low version of A, and an Asian-range-only version of
    C, are possible later experiments. They are *not* part of this round.
+
+## Amendment 1 (2026-11-11): clarifications before any result
+
+Made before any EXP-002 to EXP-007 result was computed. Each item makes an existing rule
+deterministic; none changes a numeric parameter.
+
+### Common
+
+1. **Trading day:** the trading day of a moment *t* is the New York date of *t* + 6 hours
+   (18:00 opens the next day).
+2. **`ADR`** on day *d* is ATR(14) of the daily bars of completed trading days up to *d* − 1.
+   Daily bars are aggregated from the M15 bars of each trading day.
+3. **One trade per event:** each strategy emits only the **first** qualifying signal of an
+   event. Later candles of the same event are not signals, so trades and events are counted
+   one-to-one.
+4. **Signals while a position is open** are recorded as skipped ("position already open"),
+   not silently dropped.
+5. **Missing data:** every bar used in a decision (the Asian window, the bars from breakout or
+   sweep to signal, the 48 H1 bars of a range) must be present and consecutive. Otherwise the
+   event is recorded as "data incomplete".
+6. **Timing:** a signal bar must open no later than 15 minutes before the last allowed entry
+   time, so the entry (next bar open) is inside the window.
+7. **Cost floor and news:** see programme Amendment 1 (A1.3, A1.4).
+
+### A. Session breakout and retest
+
+- **Breakout test order:** bars are scanned in time order from 02:00. The first bar meeting
+  the breakout rule for a side is that side's breakout; a later breakout on the same side is
+  ignored.
+- **Window:** retest, confirmation and invalidation are checked bar by bar over the 12 bars
+  after the breakout bar. In each bar, invalidation (close < `AR_H` − 0.10 × `ATR15`) is
+  checked first. A confirmation needs a retest at that bar or earlier.
+- **Priority when both sides qualify on one day:** the day's single A trade opportunity is
+  the confirmed signal with the **earlier signal bar**. The other side is recorded as
+  "superseded" and is not traded, even if the first is later filtered or rejected. Both sides
+  confirming on the same bar is impossible (a close above `AR_H` and below `AR_L`). If it
+  ever occurred, both are recorded as "conflict" and neither is traded.
+  - *Rationale:* chronological priority is what a live system would do. It doesn't depend on
+    code execution order or on the outcome.
+
+### C. Liquidity sweep and failed breakout
+
+- **Approach from inside:** the sweep bar must **open below** `L` (above it for a low level).
+  "Moves beyond a previous high" presumes price was below it. A bar opening beyond the level
+  is a gap, recorded as "opened beyond level", and ends the level for the day.
+- **First breach only:** the first bar of the day with high ≥ `L` + 0.10 × `ATR15` is the
+  level's only candidate. If its high exceeds `L` + 1.50 × `ATR15`, the event is recorded as
+  "displacement, not a sweep" and the level is finished for the day.
+- **Windows:** reclaim = a close < `L` on the sweep bar or one of the next 2 bars.
+  Confirmation = the first of the 4 bars *after* the reclaim bar with close < the sweep bar's
+  low (and < `L`). Invalidation (close > the sweep bar's high) is checked first in each bar.
+- **Level windows:** `AR_H`/`AR_L` sweep bars open 02:00–10:45; `PDH`/`PDL` sweep bars open
+  19:00 (previous calendar day) to 13:45. Signal bars open 01:45–13:45 (entries 02:00–14:00).
+- **Ties:** two events signalling on the same bar in the same direction produce one trade,
+  attributed to the previous-day level, which takes priority over the Asian level (the longer
+  reference). Opposite directions on the same bar are recorded as "conflict" and neither is
+  traded.
+
+### B. Range mean reversion
+
+- **Range at time *t*:** computed from the 48 completed H1 bars ending with the last completed
+  H1 bar before *t*. "Last H1 close inside [`R_L`, `R_H`]" is always true by construction,
+  because that bar is in the window. It is kept, but has no effect.
+- **Range break:** an H1 close below `R_L` − 0.25 × `ATRH1`, or above `R_H` + 0.25 × `ATRH1`,
+  of the range as it stood at the previous H1 bar ends that range. No B entries are allowed
+  while the breaking bar is inside the 48-bar window, i.e. until the range has been rebuilt
+  without it.
+- **Boundary test clusters:** test bars at a boundary that are less than 6 H1 bars apart
+  belong to one cluster.
+- **Event:** a visit to a boundary. M15 bars in the boundary zone (low ≤ `R_L` + 0.25 ×
+  `ATRH1`) belong to the same visit unless 6 H1 bars (24 M15 bars) pass without one. One
+  trade per visit.
+- **Stop-out block:** after a stop-out at a boundary, that boundary (its exact `R_L` or `R_H`
+  value) is blocked until the 48-bar range has a different value for it.
+- **Target:** the midpoint, rounded to the tick towards the entry. The 1.2 reward:risk check
+  uses the quoted entry at the fill, as the Version 1.0 target does.
+- **Range-break exit:** none while a trade is open. The stop and the forced close manage it.
+  The spec defines no other exit.
+- **ADX(14):** Wilder's method, on completed H1 bars.
