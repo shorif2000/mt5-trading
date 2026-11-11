@@ -4,15 +4,15 @@ Every experiment is recorded here **before** any result is computed. Use one fil
 experiment, named `EXP-NNN-<slug>.md`. Never edit a registered entry after its first run.
 Changes go in a new experiment, which links back to the original.
 
-| Id | Title | Status | Registered | Specification |
-|---|---|---|---|---|
-| EXP-001 | Break-even exits on Version 1.0 entries | registered | 2026-11-11 | `EXP-001-breakeven-exits.md` |
-| EXP-002 | Strategy A event study (2023–2024) | registered | 2026-11-11 | `EXP-002-strategy-a-event-study.md` |
-| EXP-003 | Strategy A backtest (cost-floor arms) | registered | 2026-11-11 | `EXP-003-strategy-a-backtest.md` |
-| EXP-004 | Strategy C event study (2023–2024) | registered | 2026-11-11 | `EXP-004-strategy-c-event-study.md` |
-| EXP-005 | Strategy C backtest (cost-floor arms) | registered | 2026-11-11 | `EXP-005-strategy-c-backtest.md` |
-| EXP-006 | Strategy B event study (2023–2024) | registered | 2026-11-11 | `EXP-006-strategy-b-event-study.md` |
-| EXP-007 | Strategy B backtest (cost-floor arms) | registered | 2026-11-11 | `EXP-007-strategy-b-backtest.md` |
+| Id | Title | Status | Registered | Specification | Result |
+|---|---|---|---|---|---|
+| EXP-001 | Break-even exits on Version 1.0 entries | run | 2026-11-11 | `EXP-001-breakeven-exits.md` | run: `../../../reports/research/EXP-001_f1c41d8ec1.md` |
+| EXP-002 | Strategy A event study (2023–2024) | run | 2026-11-11 | `EXP-002-strategy-a-event-study.md` | run: `../../../reports/research/EXP-002_c860443017.md` |
+| EXP-003 | Strategy A backtest (cost-floor arms) | run | 2026-11-11 | `EXP-003-strategy-a-backtest.md` | run: `../../../reports/research/EXP-003_c860443017.md` |
+| EXP-004 | Strategy C event study (2023–2024) | run | 2026-11-11 | `EXP-004-strategy-c-event-study.md` | run: `../../../reports/research/EXP-004_9294d7b6de.md` |
+| EXP-005 | Strategy C backtest (cost-floor arms) | run | 2026-11-11 | `EXP-005-strategy-c-backtest.md` | run: `../../../reports/research/EXP-005_9294d7b6de.md` |
+| EXP-006 | Strategy B event study (2023–2024) | run | 2026-11-11 | `EXP-006-strategy-b-event-study.md` | run: `../../../reports/research/EXP-006_806154fa75.md` |
+| EXP-007 | Strategy B backtest (cost-floor arms) | run | 2026-11-11 | `EXP-007-strategy-b-backtest.md` | run: `../../../reports/research/EXP-007_806154fa75.md` |
 
 ## Template
 
