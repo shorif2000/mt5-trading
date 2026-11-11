@@ -49,7 +49,7 @@ class QuoteObservation:
 
 
 def _plain(value: Any) -> Any:
-    return str(value) if isinstance(value, Decimal) else value
+    return format(value, "f") if isinstance(value, Decimal) else value
 
 
 def observe(
