@@ -24,3 +24,6 @@ dist/
 # Local MT5 exports and snapshots contain real account data
 *.local.json
 *.local.md
+
+# Official calendar pages (public; sha256 and retrieval time recorded in config/economic_calendar.yaml)
+data/calendar/raw/

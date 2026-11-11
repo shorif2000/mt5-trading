@@ -279,3 +279,30 @@ filter fails closed: when a date is outside the calendar's verified coverage, en
 rejected. A second, news-off run of each arm is reported only to count what the calendar
 excludes. The calendar covers three event types, not every high-impact USD release; reports
 state this.
+
+## Amendment 2 (2026-11-11): news calendar coverage, before any strategy run
+
+Recorded before any EXP-003, EXP-005 or EXP-007 result.
+
+- **Calendar:** `config/economic_calendar.yaml`, built by `scripts/build_economic_calendar.py`
+  from official pages only.
+- **FOMC statements, 2022-11-01 to 2026-11-11:** complete and verified. There are 34
+  statements, each time read from its own federalreserve.gov release page, with the EDT/EST
+  label checked against US daylight saving. One is the 2025-08-22 notation-vote statement,
+  released at 10:00, not 14:00.
+- **Future FOMC meetings** (to 2027-12-31): dates only. A meeting day without a published
+  time blocks the whole New York day.
+- **CPI and Employment Situation are unavailable:** bls.gov refused automated access
+  (HTTP 403, site-wide) on 2026-11-11.
+  - Disguising requests as a browser to get past that block was declined.
+  - The owner can supply saved BLS pages, or authorise a request that identifies itself with
+    contact details, as BLS asks.
+- **Deviation from A1.4:** the news-on arms of EXP-003, EXP-005 and EXP-007 require
+  **FOMC statements only**.
+  - Requiring CPI and Employment Situation, which have no coverage, would fail closed and
+    reject every entry, which yields no information.
+  - Every report labels the news filter **partial: FOMC only; CPI and payrolls not
+    filtered**.
+  - The news-off arm is reported as before.
+  - When BLS dates are added, the runs are repeated as new runs under new ids. These are not
+    replaced.
