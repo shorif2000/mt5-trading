@@ -139,3 +139,10 @@ def test_a_release_dated_differently_from_the_archive_is_reported_not_used():
     findings = apply_release_times("cpi", events, {date(2024, 3, 12): RELEASE})
     assert findings == ["cpi: 2024-03-12 release says 2024-04-10; time not used"]
     assert next(e for e in events if e["date"] == "2024-04-10")["time"] is None
+
+
+def test_embargo_statement_with_the_release_number_before_the_time():
+    # Employment Situation wording, as published (2024-03-08 release).
+    html = ("<p>Transmission of material in this news release is embargoed until</p> "
+            "<p>USDL-24-0451</p> <p>8:30 a.m. (ET) Friday, March 8, 2024</p>")
+    assert embargo(html) == (date(2024, 3, 8), time(8, 30))

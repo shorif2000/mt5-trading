@@ -147,7 +147,7 @@ def build_events(
 
 
 _EMBARGO = re.compile(
-    r"embargoed\s+until\s+(\d{1,2}):(\d{2})\s*([ap])\.?\s*m\.?\s*\(?\s*(?:ET|EDT|EST|Eastern)?"
+    r"embargoed\s+until\s+(?:USDL-[\d-]+\s+)?(\d{1,2}):(\d{2})\s*([ap])\.?\s*m\.?\s*\(?\s*(?:ET|EDT|EST|Eastern)?"
     r"[^A-Za-z0-9]*(?:[A-Z][a-z]+day,?\s+)?([A-Z][a-z]+)\.?\s+(\d{1,2}),\s+(\d{4})",
     flags=re.I,
 )
