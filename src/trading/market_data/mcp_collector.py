@@ -33,6 +33,8 @@ READ_ONLY_TOOLS = frozenset(
         "get_symbol_info",
         "get_tick",
         "get_rates",
+        # Historical ticks (bid/ask), read for intrabar data-coverage research only.
+        "get_ticks",
         "get_positions",
         "get_orders",
         # Broker margin calculation (MT5 order_calc_margin): computes only, sends nothing.

@@ -1,0 +1,175 @@
+{
+  "code": {
+    "branch": "research/xauusd-programme",
+    "commit": "806154fa75a65e790e798edb1226c03eca1b3995",
+    "commit_date": "2026-11-11T09:44:05Z",
+    "dirty": false,
+    "short_commit": "806154fa75",
+    "uncommitted_diff_sha256": null,
+    "uncommitted_files": []
+  },
+  "command": "run_candidate_experiments.py --strategy B --require-clean",
+  "environment": {
+    "packages": {
+      "mcp": "2.3.0",
+      "mt5-trading-research": "0.1.0",
+      "pydantic": "2.14.3",
+      "pyyaml": "6.0.3",
+      "truststore": "0.10.5",
+      "typer": "0.29.0"
+    },
+    "platform": "Darwin arm64",
+    "python": "3.12.13"
+  },
+  "inputs": {
+    "candidates": {
+      "bytes": 14336,
+      "path": "docs/research/xauusd-strategy-candidates.md",
+      "sha256": "805968e21c51894b53938aed7bd1a3608c6bb52867f3e4e9dd845bed44996095"
+    },
+    "cost_config": {
+      "bytes": 1535,
+      "path": "config/backtest.yaml",
+      "sha256": "923285c8203a5bf0c1099732987786a9d7f0df3cb5121e96a966223dac4a6a41"
+    },
+    "economic_calendar": {
+      "bytes": 18233,
+      "path": "config/economic_calendar.yaml",
+      "sha256": "19fe1c5a6422eede3e8b881cce46357d198821e9443753854f78a998712c6d5d"
+    },
+    "history": {
+      "bytes": 39327471,
+      "path": "data/history/xauusd_backtest.local.json",
+      "sha256": "e3b35038566b61b599998500b56aac8d1de39927560fc85cc4a15745901d4be9"
+    },
+    "programme": {
+      "bytes": 19300,
+      "path": "docs/research/xauusd-research-programme.md",
+      "sha256": "6ee4695981a07798ad203ae27c9dc8d41e3974e91baa5542226f8335be87d8b4"
+    },
+    "risk_config": {
+      "bytes": 2293,
+      "path": "config/risk.yaml",
+      "sha256": "0a8733521d0127de39edf93b07fef91239bea8715050816a26439476fc747925"
+    },
+    "sessions": {
+      "bytes": 8477,
+      "path": "config/market_sessions.yaml",
+      "sha256": "ee9d5817742ae74c9e57482428a2be2c7b24fdba263a005f26a535b4ee77fbdd"
+    },
+    "specification_export": {
+      "bytes": 507823,
+      "path": "data/mcp_export.local.json",
+      "sha256": "738b5ecec71004f550075fce227440eb3cf6bb55e8c17335f254f7bb76caa5cf"
+    }
+  },
+  "manifest_path": "reports/research/EXP-006_806154fa75.json",
+  "parameters": {
+    "arms": {
+      "0.10R cost floor": "0.10",
+      "no cost floor": "None"
+    },
+    "base_scenario": "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts",
+    "cost_scenarios": [
+      "entry zero (0 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 60 pts",
+      "entry zero (0 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 60 pts",
+      "entry zero (0 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 60 pts",
+      "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 67 pts",
+      "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts",
+      "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 67 pts",
+      "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 100 pts",
+      "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts",
+      "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 100 pts"
+    ],
+    "cost_status": {
+      "commission": "measured \u00a30",
+      "entry_and_market_exit_slippage": "assumed scenarios",
+      "spread": "measured (bar spread)",
+      "stop_slippage": "measured percentiles",
+      "swap": "0 (no overnight positions)",
+      "take_profit": "measured 0"
+    },
+    "engine_params": {
+      "max_spread_points": 35,
+      "max_stop_atr": 3.0,
+      "target_r": 2.0
+    },
+    "experiment": "EXP-006",
+    "margin": "MT5 calc_margin, read-only (today's leverage)",
+    "news_filter": "FOMC statements only (Amendment 2): CPI and Employment Situation not filtered (bls.gov refused automated access)",
+    "programme_sha256": "6ee4695981a07798ad203ae27c9dc8d41e3974e91baa5542226f8335be87d8b4",
+    "specification": "docs/research/xauusd-strategy-candidates.md",
+    "specification_sha256": "805968e21c51894b53938aed7bd1a3608c6bb52867f3e4e9dd845bed44996095",
+    "strategy": "B: H1 range mean reversion",
+    "stress_scenario": "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts"
+  },
+  "results": {
+    "events": 3,
+    "events_by_month": {
+      "2023-01": 1,
+      "2023-07": 1,
+      "2023-09": 1
+    },
+    "events_by_new_york_hour": {
+      "0": 1,
+      "12": 1,
+      "3": 1
+    },
+    "first_touch_16_bars_before_costs": {
+      "+2R first": 1
+    },
+    "period": "2023-01-01 to 2025-01-01",
+    "quantiles_10_25_50_75_90": {
+      "atr15": [
+        1.703571428571422,
+        1.703571428571422,
+        1.703571428571422,
+        1.703571428571422,
+        1.703571428571422
+      ],
+      "cost_r": [
+        0.26587301587301587,
+        0.26587301587301587,
+        0.26587301587301587,
+        0.26587301587301587,
+        0.26587301587301587
+      ],
+      "mae_r": [
+        0.23412698412698413,
+        0.23412698412698413,
+        0.23412698412698413,
+        0.23412698412698413,
+        0.23412698412698413
+      ],
+      "mfe_r": [
+        2.9007936507936507,
+        2.9007936507936507,
+        2.9007936507936507,
+        2.9007936507936507,
+        2.9007936507936507
+      ],
+      "stop_atr": [
+        1.4792452830188736,
+        1.4792452830188736,
+        1.4792452830188736,
+        1.4792452830188736,
+        1.4792452830188736
+      ],
+      "stop_usd": [
+        2.52,
+        2.52,
+        2.52,
+        2.52,
+        2.52
+      ]
+    },
+    "share_within_cost_floor": 0.0,
+    "signals": 1,
+    "stages": {
+      "signal": 1,
+      "visit, no signal": 2
+    }
+  },
+  "run_id": "20261111T094410Z_806154fa75",
+  "started_utc": "2026-11-11T09:44:10.881955+00:00"
+}

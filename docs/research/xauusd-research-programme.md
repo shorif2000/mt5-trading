@@ -1,7 +1,8 @@
 # XAUUSD research programme (DRAFT for owner approval)
 
-**Status:** draft, 2026-11-10. **Nothing in this document is implemented or run yet.**
-Implementation starts only after the owner approves it, track by track.
+**Status:** approved by the owner on 2026-11-10 with the recommended defaults (section 6).
+Amendment 1 (2026-11-11, below) records the clarifications made before any experiment ran; it
+takes precedence where it is more specific. The original text is kept unchanged above it.
 
 **Background:** the diagnostic review (`reports/diagnostics/xauusd_v1.0_v1.1_findings.md`)
 found no convincing gross edge in Version 1.0 or 1.1. This programme does not repair them. It
@@ -205,3 +206,122 @@ it changes a strategy.
 4. Allow a read-only re-check of M1 and tick history depth once the MT5 bridge is restarted.
 5. Choose whether to source a static economic calendar from official schedules (FOMC, BLS
    CPI and payrolls release dates), so that news restrictions can be applied.
+
+## Amendment 1 (2026-11-11): clarifications before any experiment ran
+
+These clarifications were made on 2026-11-11, before any EXP-001 to EXP-007 result was
+computed (see the commit history of `docs/research/experiments/`). None changes a numeric
+parameter.
+
+### A1.1 Forward hold-out independence (replaces the 2026-11-01 start in section 1, rule 4)
+
+Data from 2026-11-01 onwards **cannot be shown to be independent**:
+- the owner trades this account live, so November prices have been seen;
+- on 2026-11-10 the 7-day news review (GDELT) included gold-market commentary;
+- the read-only M1 audit (2026-11-10 23:39 UTC) downloaded M1 bars up to that moment;
+- strategies A, B and C were specified on 2026-11-10, after all of the above.
+
+The forward hold-out therefore starts with **the gold trading week opening Sunday 2026-11-15
+18:00 New York (trading day 2026-11-16)**, after the specifications and this amendment are
+frozen on branch `research/xauusd-programme`. 2026-11-01 to 2026-11-13 is **not out of
+sample**; it is excluded from every test. No hold-out result is reported in this programme
+(the hold-out has not happened yet).
+
+### A1.2 EXP-001 primary method (makes section 3.1 and 3.2 exact)
+
+- **Trigger check:** after each M15 bar of an open trade *closes* (including the entry bar),
+  the favourable excursion since entry is measured on executable prices: longs on the bid
+  (highest bid high − entry fill), shorts on the ask (entry fill − lowest (bid low + bar
+  spread)).
+- **Activation:** when the excursion has reached the trigger, the break-even stop is active
+  **from the next bar's open**. Throughout the trigger bar the original stop and target stay
+  in force, checked exactly as in Version 1.0 (stop first when both are touched). The new stop
+  is never applied retrospectively inside the trigger bar.
+- **Activation at a gap:** if the activation bar opens at or through the new stop (bid ≤
+  level for a long; ask ≥ level for a short), the trade exits at that executable open, with
+  stop slippage, as Version 1.0 treats any gap through a stop.
+- **Level:** break-even = the entry fill (actual fill price, including entry slippage).
+  BE-1.0+C = entry fill + C in the trade's favour, where C = entry-bar spread + entry slippage
+  of the cost scenario + stop slippage of the scenario (7 + 40 points in the base). Prices are
+  already whole ticks (point = tick = 0.01), so no rounding is needed.
+- **Only the stop changes.** Entry list, entry fills, volumes, initial stop, target, forced
+  close (16:45 New York) and the H1 trend exit are exactly Version 1.0's.
+- **Cost scenarios:** the trade list is the Version 1.0 **base-scenario** list (the only list
+  stored per trade). Each scenario of the grid replays that fixed list with its own entry,
+  stop and market-exit slippage; sizing is not re-run. The control reconciles with Version
+  1.0 only in the base scenario, where it must match every trade exactly.
+- **Ledgers:** compounding = Version 1.0's volumes with a running £1,000 balance per period;
+  fixed risk = each trade's net result in R (net ÷ its estimated loss at sizing), shown as
+  R × £20.
+- **Sensitivity, never mixed into the primary results:** an *intrabar* variant (the stop
+  moves the moment the trigger is touched). On M15 this is ambiguous when the trigger bar also
+  touches the break-even level, so two orderings are reported (break-even exit in the trigger
+  bar, or not). From 2025-06-13 onwards the ambiguous bars are resolved with read-only tick
+  data where ticks cover the whole bar.
+
+### A1.3 Cost floor comparisons (strategies A, B, C)
+
+Each strategy backtest is registered with two arms, fixed before running:
+- **no floor;**
+- **floor:** skip when estimated cost C > 0.10 × stop distance.
+
+C is computed per trade at the entry bar, from that bar's spread: C = entry-bar spread + 7 +
+40 points (base entry and p90 stop slippage), the same in every cost scenario, so that both
+arms trade the same list across the grid. The exit-bar spread of a short is unknown at entry,
+so the entry-bar spread is used as its estimate (an assumption); realised costs use the actual
+exit-bar spread. The threshold is not changed after results are seen.
+
+### A1.4 News restriction
+
+Every strategy run applies the official calendar (FOMC statements, CPI, Employment
+Situation) as specified: no entries from 30 minutes before to 15 minutes after an event. The
+filter fails closed: when a date is outside the calendar's verified coverage, entries are
+rejected. A second, news-off run of each arm is reported only to count what the calendar
+excludes. The calendar covers three event types, not every high-impact USD release; reports
+state this.
+
+## Amendment 2 (2026-11-11): news calendar coverage, before any strategy run
+
+Recorded before any EXP-003, EXP-005 or EXP-007 result.
+
+- **Calendar:** `config/economic_calendar.yaml`, built by `scripts/build_economic_calendar.py`
+  from official pages only.
+- **FOMC statements, 2022-11-01 to 2026-11-11:** complete and verified. There are 34
+  statements, each time read from its own federalreserve.gov release page, with the EDT/EST
+  label checked against US daylight saving. One is the 2025-08-22 notation-vote statement,
+  released at 10:00, not 14:00.
+- **Future FOMC meetings** (to 2027-12-31): dates only. A meeting day without a published
+  time blocks the whole New York day.
+- **CPI and Employment Situation are unavailable:** bls.gov refused automated access
+  (HTTP 403, site-wide) on 2026-11-11.
+  - Disguising requests as a browser to get past that block was declined.
+  - The owner can supply saved BLS pages, or authorise a request that identifies itself with
+    contact details, as BLS asks.
+- **Deviation from A1.4:** the news-on arms of EXP-003, EXP-005 and EXP-007 require
+  **FOMC statements only**.
+  - Requiring CPI and Employment Situation, which have no coverage, would fail closed and
+    reject every entry, which yields no information.
+  - Every report labels the news filter **partial: FOMC only; CPI and payrolls not
+    filtered**.
+  - The news-off arm is reported as before.
+  - When BLS dates are added, the runs are repeated as new runs under new ids. These are not
+    replaced.
+
+## Amendment 3 (2026-11-11): decision-rule terms for EXP-003, EXP-005 and EXP-007, before any run
+
+- **Events** (for "fewer than 100 events in a period"): setup events that produced a signal in
+  the period (one signal per event, candidate Amendment 1). Detected setups that never reached
+  a signal are reported separately.
+- **Volatility terciles:**
+  - `ADR` ratio = `ADR` on the trade's day ÷ median `ADR` over the previous 60 trading days.
+  - The cut-offs are the terciles of the arm's 2023–2024 trades, applied unchanged to all
+    trades.
+- **Pooled:** all 2023-01 to 2026-10 trades of the arm. Each period still starts its ledger at
+  £1,000.
+- **Primary result:** base cost scenario, fixed-risk ledger, news filter on (FOMC only,
+  Amendment 2).
+- **Order of rejection checks at entry:**
+  1. news;
+  2. cost floor;
+  3. B reward:risk;
+  4. the Version 1.0 engine's checks: spread, stop wider than 3 × `ATR15`, risk, margin.

@@ -10,7 +10,11 @@ from trading.backtest.bars import Bar
 from trading.market_data.mcp_export import BrokerClock
 from trading.market_data.sessions import MarketCalendar
 
-TIMEFRAMES = {"M15": timedelta(minutes=15), "H1": timedelta(hours=1)}
+TIMEFRAMES = {
+    "M1": timedelta(minutes=1),
+    "M15": timedelta(minutes=15),
+    "H1": timedelta(hours=1),
+}
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,417 @@
+description: Official economic calendar for research backtests (news restriction).
+timezone: America/New_York
+built_utc: '2026-11-11T09:33:53+00:00'
+coverage:
+- kind: fomc_statement
+  from: '2022-11-01'
+  to: '2026-11-11'
+  note: every meeting and notation-vote statement listed on the Fed calendar page in this range, each
+    time verified on its release page
+- kind: fomc_statement
+  from: '2026-11-11'
+  to: '2027-12-31'
+  note: scheduled meetings only (dates from the Fed calendar page; release times not yet published, so
+    each meeting blocks its whole New York day)
+unavailable:
+  cpi: bls.gov refused automated access (HTTP 403) on 2026-11-11; not sourced
+  employment_situation: bls.gov refused automated access (HTTP 403) on 2026-11-11; not sourced
+events:
+- kind: fomc_statement
+  date: '2022-11-02'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20221102a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2022-12-14'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20221214a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2023-02-01'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230201a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2023-03-22'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230322a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2023-05-03'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230503a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2023-06-14'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230614a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2023-07-26'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230726a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2023-09-20'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230920a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2023-11-01'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20231101a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2023-12-13'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20231213a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2024-01-31'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240131a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2024-03-20'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240320a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2024-05-01'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240501a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2024-06-12'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240612a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2024-07-31'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240731a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2024-09-18'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240918a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2024-11-07'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20241107a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2024-12-18'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20241218a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2025-01-29'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250129a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2025-03-19'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250319a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2025-05-07'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250507a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2025-06-18'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250618a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2025-07-30'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2025-08-22'
+  time: '10:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm
+  note: notation vote
+- kind: fomc_statement
+  date: '2025-09-17'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2025-10-29'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2025-12-10'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2026-01-28'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260128a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2026-03-18'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260318a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2026-04-29'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260429a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2026-06-17'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2026-07-29'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2026-09-16'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2026-10-28'
+  time: '14:00'
+  status: published
+  source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm
+  note: scheduled meeting
+- kind: fomc_statement
+  date: '2026-12-09'
+  time: null
+  status: scheduled
+  source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  note: future meeting; release time not yet published
+- kind: fomc_statement
+  date: '2027-01-27'
+  time: null
+  status: scheduled
+  source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  note: future meeting; release time not yet published
+- kind: fomc_statement
+  date: '2027-03-17'
+  time: null
+  status: scheduled
+  source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  note: future meeting; release time not yet published
+- kind: fomc_statement
+  date: '2027-04-28'
+  time: null
+  status: scheduled
+  source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  note: future meeting; release time not yet published
+- kind: fomc_statement
+  date: '2027-06-09'
+  time: null
+  status: scheduled
+  source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  note: future meeting; release time not yet published
+- kind: fomc_statement
+  date: '2027-07-28'
+  time: null
+  status: scheduled
+  source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  note: future meeting; release time not yet published
+- kind: fomc_statement
+  date: '2027-09-15'
+  time: null
+  status: scheduled
+  source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  note: future meeting; release time not yet published
+- kind: fomc_statement
+  date: '2027-10-27'
+  time: null
+  status: scheduled
+  source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  note: future meeting; release time not yet published
+- kind: fomc_statement
+  date: '2027-12-08'
+  time: null
+  status: scheduled
+  source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  note: future meeting; release time not yet published
+sources:
+- url: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+  file: data/calendar/raw/fomccalendars.html
+  sha256: d07b30b19594df9a5da2c5f56b7ef5da029148e802196dfb1117e280bb21150d
+  retrieved_utc: '2026-11-11T09:28:42+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260128a.htm
+  file: data/calendar/raw/fomc/monetary20260128a.htm
+  sha256: e7dde02768a385f897865c61031d9bf781fe8a68b2fdbb8d632595827f7fbb12
+  retrieved_utc: '2026-11-11T09:30:24+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260318a.htm
+  file: data/calendar/raw/fomc/monetary20260318a.htm
+  sha256: 6b92280703958833736be81a2d657a782312a06bdd5181b87f1236bfba9ad9dd
+  retrieved_utc: '2026-11-11T09:30:26+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260429a.htm
+  file: data/calendar/raw/fomc/monetary20260429a.htm
+  sha256: c228cfd087e7326018fbf1ac6c0753357e0fe4b07b5fab22969e4a21d340269d
+  retrieved_utc: '2026-11-11T09:30:29+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm
+  file: data/calendar/raw/fomc/monetary20260617a.htm
+  sha256: 68a89b174208df4fe02959023e1650b3afb6fc475d1457088a7dba078a37d8f3
+  retrieved_utc: '2026-11-11T09:30:31+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm
+  file: data/calendar/raw/fomc/monetary20260729a.htm
+  sha256: 6281eedccb618a9c85d2dde314e93d79de5b39d79240efe8d23d082b45d74d0e
+  retrieved_utc: '2026-11-11T09:30:33+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm
+  file: data/calendar/raw/fomc/monetary20260916a.htm
+  sha256: 9248499872f6147ca4904844b721de7b6bce78c054ac490dd100a28b8aa03fb5
+  retrieved_utc: '2026-11-11T09:30:36+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm
+  file: data/calendar/raw/fomc/monetary20261028a.htm
+  sha256: c4b7beb41a43ec1a50a3fbeb9b85a29aa93c1166baee159c1555c225716c6ee8
+  retrieved_utc: '2026-11-11T09:30:47+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250129a.htm
+  file: data/calendar/raw/fomc/monetary20250129a.htm
+  sha256: 59f4a8d50e293792f117c2673d575615bbb3f38682f1d94e54c45b1fb578133e
+  retrieved_utc: '2026-11-11T09:30:03+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250319a.htm
+  file: data/calendar/raw/fomc/monetary20250319a.htm
+  sha256: 0e0b1108b11f502dd1e3393bae736ccf15e360fb1caf5182cf084dc714ea2154
+  retrieved_utc: '2026-11-11T09:30:05+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250507a.htm
+  file: data/calendar/raw/fomc/monetary20250507a.htm
+  sha256: 38f7ae68553171a19b435cf94af1c5cbb48f146a991f396340de66d87b30a3d6
+  retrieved_utc: '2026-11-11T09:30:07+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250618a.htm
+  file: data/calendar/raw/fomc/monetary20250618a.htm
+  sha256: 33c99ae1d7ebb348fc85df69adf0c0074d6a58eaa1e394ec54c5a3bdb1ec332b
+  retrieved_utc: '2026-11-11T09:30:10+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm
+  file: data/calendar/raw/fomc/monetary20250730a.htm
+  sha256: 0551738ba6cdea8b5c64abfc0c88cbf28129df35bdc389aa82c13f3c1a55844c
+  retrieved_utc: '2026-11-11T09:30:12+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm
+  file: data/calendar/raw/fomc/monetary20250822a.htm
+  sha256: 4a3043d6d96567ca21fec38b9869b9d86521a5f18d01c099fb59ee994df5e74c
+  retrieved_utc: '2026-11-11T09:30:14+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm
+  file: data/calendar/raw/fomc/monetary20250917a.htm
+  sha256: ad0f01b67c9d53e133b35daebf183d1c45662868b61827fbf09015c983291969
+  retrieved_utc: '2026-11-11T09:30:17+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm
+  file: data/calendar/raw/fomc/monetary20251029a.htm
+  sha256: 08daa01afe028d0424ca62d015b052fef9bf788eb888fe3ac26c79172d59e052
+  retrieved_utc: '2026-11-11T09:30:19+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm
+  file: data/calendar/raw/fomc/monetary20251210a.htm
+  sha256: 5bf4a69b560ab84eddc6db960e1b1f44d3104d4ac22d2e002abd17c62a024a42
+  retrieved_utc: '2026-11-11T09:30:21+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240131a.htm
+  file: data/calendar/raw/fomc/monetary20240131a.htm
+  sha256: 173053d20225f7987c2571658e88cafc2354b918ec02fe2de93b13e28ec61e04
+  retrieved_utc: '2026-11-11T09:29:42+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240320a.htm
+  file: data/calendar/raw/fomc/monetary20240320a.htm
+  sha256: e8be872bf53fbdf17b7ce592753b2a812ba7de7b8d63d4c7a3f373b4eea6af65
+  retrieved_utc: '2026-11-11T09:29:45+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240501a.htm
+  file: data/calendar/raw/fomc/monetary20240501a.htm
+  sha256: 7a17ede0fa4dea93034168b93ef0dbb370017d044eed0f08ca51df08f59c68a5
+  retrieved_utc: '2026-11-11T09:29:47+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240612a.htm
+  file: data/calendar/raw/fomc/monetary20240612a.htm
+  sha256: 4f9de1b4fc6bbc32093167824c9835a027a661d26acec20cb101d034df55c288
+  retrieved_utc: '2026-11-11T09:29:50+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240731a.htm
+  file: data/calendar/raw/fomc/monetary20240731a.htm
+  sha256: 083c6054a5e45bf9decc8cba4077984a9b61f3c73e21e6d45eeb409d1d69aabd
+  retrieved_utc: '2026-11-11T09:29:52+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240918a.htm
+  file: data/calendar/raw/fomc/monetary20240918a.htm
+  sha256: b36b9f0a9a403642ad53d1143c3cc24484b162e77ccbf9a409ecc7962d11424d
+  retrieved_utc: '2026-11-11T09:29:55+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20241107a.htm
+  file: data/calendar/raw/fomc/monetary20241107a.htm
+  sha256: 5995e81dcb5ee7be2eebbc876b3576f166d65388c2f024ea3e19d40da08967b3
+  retrieved_utc: '2026-11-11T09:29:57+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20241218a.htm
+  file: data/calendar/raw/fomc/monetary20241218a.htm
+  sha256: 8d589ee990be1fbd1a339a872121a8c19d97b32a31a7b0c24385c02b1b51ee22
+  retrieved_utc: '2026-11-11T09:29:59+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230201a.htm
+  file: data/calendar/raw/fomc/monetary20230201a.htm
+  sha256: fc5b7f1f40a4696327e75f5a7620049fbd7f93a82c383f55624bf8441ba68921
+  retrieved_utc: '2026-11-11T09:29:24+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230322a.htm
+  file: data/calendar/raw/fomc/monetary20230322a.htm
+  sha256: ecbb7624f94a5ecc6c7f9555e8c138c5e6760ae1f6bd255f1a87622c0315ac31
+  retrieved_utc: '2026-11-11T09:29:26+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230503a.htm
+  file: data/calendar/raw/fomc/monetary20230503a.htm
+  sha256: f8c0d6adf16c409b7e38d2d52f079248ac5cf221d5016a7b654eb83d070d788d
+  retrieved_utc: '2026-11-11T09:29:28+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230614a.htm
+  file: data/calendar/raw/fomc/monetary20230614a.htm
+  sha256: f088861933edaa6aed6653b592befc674f53c41de1f4c706b56b8c16860a178c
+  retrieved_utc: '2026-11-11T09:29:30+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230726a.htm
+  file: data/calendar/raw/fomc/monetary20230726a.htm
+  sha256: dd434f86c07a9692d1d8c79f6ed34d7d46360d2ab6d0242123f8f481d287dde6
+  retrieved_utc: '2026-11-11T09:29:33+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230920a.htm
+  file: data/calendar/raw/fomc/monetary20230920a.htm
+  sha256: c5101ac7b83716698a708b7457f593ac6072533ccabf8e3a65c35d0a3422a891
+  retrieved_utc: '2026-11-11T09:29:35+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20231101a.htm
+  file: data/calendar/raw/fomc/monetary20231101a.htm
+  sha256: 0b17fa8cbc76ecb11ef7ac4068833bcfdba2fc49f64020db75b4d698db4f985d
+  retrieved_utc: '2026-11-11T09:29:38+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20231213a.htm
+  file: data/calendar/raw/fomc/monetary20231213a.htm
+  sha256: 31a72f63e751c2e539c24f8b74494a220f7cfdb61d534985e643f5014acd611f
+  retrieved_utc: '2026-11-11T09:29:40+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20221102a.htm
+  file: data/calendar/raw/fomc/monetary20221102a.htm
+  sha256: 437533e0df8408c99a790d89549fcf29c2c8ee387830bf2c35419fd2141ae9f7
+  retrieved_utc: '2026-11-11T09:29:19+00:00'
+- url: https://www.federalreserve.gov/newsevents/pressreleases/monetary20221214a.htm
+  file: data/calendar/raw/fomc/monetary20221214a.htm
+  sha256: fb5ef33462234b6a6a550a765427c43201ecf96242e37ab2b9ee5db8bd31e490
+  retrieved_utc: '2026-11-11T09:29:21+00:00'
