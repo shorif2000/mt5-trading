@@ -9,7 +9,14 @@ from datetime import UTC, date, datetime, time
 
 import pytest
 
-from trading.research.bls_calendar import build_events, parse_archive, parse_schedule
+from trading.research.bls_calendar import (
+    apply_release_times,
+    build_events,
+    embargo,
+    not_published,
+    parse_archive,
+    parse_schedule,
+)
 from trading.research.news import Calendar, Coverage, EconomicEvent, NewsFilter
 
 SCHEDULE = """
@@ -24,7 +31,10 @@ ARCHIVE = """
 <a href="/news.release/archives/cpi_03122024.pdf">PDF</a></li>
 <li>CPI for March 2024 <a href="/news.release/archives/cpi_04102024.htm">HTML</a></li>
 <li>CPI for August 2024 <a href="/news.release/archives/cpi_09112024.htm">HTML</a></li>
-<li>Employment <a href="/news.release/archives/empsit_03082024.htm">HTML</a></li></ul>"""
+<li>Employment <a href="/news.release/archives/empsit_03082024.htm">HTML</a></li>
+<li>October 2025 Consumer Price Index &ndash; Not published because of 2025 lapse in federal
+government appropriations</li>
+<!-- <li><a href="/news.release/archives/cpi_12102026.htm">November 2026 CPI</a></li> --></ul>"""
 URLS = ("https://www.bls.gov/schedule/news_release/cpi.htm",
         "https://www.bls.gov/bls/news-release/cpi.htm")  # fmt: skip
 
@@ -100,3 +110,32 @@ def test_dates_before_bls_coverage_fail_closed():
                    {})  # fmt: skip
     f = NewsFilter(cal, ["cpi"])
     assert f.check(datetime(2024, 2, 1, 15, 0, tzinfo=UTC)) == "economic calendar unavailable (cpi)"
+
+
+def test_placeholder_links_inside_html_comments_are_not_publications():
+    assert date(2026, 12, 10) not in parse_archive(ARCHIVE, "cpi")
+
+
+def test_releases_bls_marks_as_not_published_are_reported():
+    [note] = not_published(ARCHIVE)
+    assert note.startswith("October 2025 Consumer Price Index - Not published because of 2025")
+
+
+RELEASE = """<pre>Transmission of material in this release is embargoed until
+8:30 a.m. (ET) Wednesday, April 10, 2024</pre>"""
+
+
+def test_release_embargo_statement_gives_the_verified_time():
+    assert embargo(RELEASE) == (date(2024, 4, 10), time(8, 30))
+    events = built().events
+    findings = apply_release_times("cpi", events, {date(2024, 4, 10): RELEASE})
+    event = next(e for e in events if e["date"] == "2024-04-10")
+    assert event["time"] == "08:30" and "embargo statement" in str(event["note"])
+    assert findings == []
+
+
+def test_a_release_dated_differently_from_the_archive_is_reported_not_used():
+    events = built().events
+    findings = apply_release_times("cpi", events, {date(2024, 3, 12): RELEASE})
+    assert findings == ["cpi: 2024-03-12 release says 2024-04-10; time not used"]
+    assert next(e for e in events if e["date"] == "2024-04-10")["time"] is None

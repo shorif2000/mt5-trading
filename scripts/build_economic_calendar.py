@@ -26,7 +26,14 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
-from trading.research.bls_calendar import build_events, parse_archive, parse_schedule
+from trading.research.bls_calendar import (
+    ARCHIVE_NAMES,
+    apply_release_times,
+    build_events,
+    not_published,
+    parse_archive,
+    parse_schedule,
+)
 
 RAW = Path("data/calendar/raw")
 BLS = RAW / "bls"
@@ -185,6 +192,30 @@ def bls_manifest() -> dict[str, dict[str, str]]:
             for row in (line.split("\t") for line in lines[1:] if line)}  # fmt: skip
 
 
+def saved_releases(kind: str) -> tuple[dict[date, str], list[dict[str, str]]]:
+    """Release documents downloaded by scripts/download_bls_releases.sh, each checked against
+    the sha256 recorded at download (data/calendar/raw/bls/releases/MANIFEST.tsv)."""
+    folder = BLS / "releases"
+    manifest = folder / "MANIFEST.tsv"
+    if not manifest.exists():
+        return {}, []
+    lines = manifest.read_text(encoding="utf-8").splitlines()
+    header = lines[0].split("\t")
+    out, sources = {}, []
+    for row in (dict(zip(header, line.split("\t"), strict=True)) for line in lines[1:] if line):
+        name = row["file"]
+        if not name.startswith(f"{ARCHIVE_NAMES[kind]}_"):
+            continue
+        path = folder / name
+        if not path.exists() or sha(path) != row["sha256"]:
+            raise SystemExit(f"{path} is missing or changed since download; download it again")
+        day = datetime.strptime(name.split("_")[1][:8], "%m%d%Y").date()
+        out[day] = path.read_text(encoding="utf-8", errors="ignore")
+        sources.append({"url": row["url"], "file": str(path), "sha256": row["sha256"],
+                        "retrieved_utc": row["downloaded_utc"]})  # fmt: skip
+    return out, sources
+
+
 def add_bls(kind: str, schedule_path: Path, archive_path: Path, data: dict[str, object]) -> bool:
     """Add one BLS release to ``data`` from the saved pages; False when they are not saved.
     Each file must match the sha256 recorded when it was saved, so the calendar is built from
@@ -197,7 +228,8 @@ def add_bls(kind: str, schedule_path: Path, archive_path: Path, data: dict[str, 
         if sha(p) != manifest[p.name]["sha256"]:
             raise SystemExit(f"{p} changed since it was saved and verified; save it again")
     schedule = parse_schedule(schedule_path.read_text(encoding="utf-8", errors="ignore"))
-    archive = parse_archive(archive_path.read_text(encoding="utf-8", errors="ignore"), kind)
+    archive_html = archive_path.read_text(encoding="utf-8", errors="ignore")
+    archive = parse_archive(archive_html, kind)
     if not schedule or not archive:
         raise SystemExit(f"{kind}: no {'schedule rows' if not schedule else 'archive links'} "
                          "found; the saved page layout is not the one expected")  # fmt: skip
@@ -205,6 +237,12 @@ def add_bls(kind: str, schedule_path: Path, archive_path: Path, data: dict[str, 
                 for p in files).date()  # fmt: skip
     urls = (manifest[schedule_path.name]["url"], manifest[archive_path.name]["url"])
     built = build_events(kind, schedule, archive, saved, COVERAGE_FROM, *urls)
+    built.findings.extend(
+        f"{kind}: BLS archive says: {note}" for note in not_published(archive_html)
+    )
+    releases, release_sources = saved_releases(kind)
+    built.findings.extend(apply_release_times(kind, built.events, releases))
+    data["sources"].extend(release_sources)  # type: ignore[attr-defined]
     untimed = sum(e["time"] is None for e in built.events)
     if untimed:
         built.findings.append(

@@ -54,9 +54,10 @@ def test_a_required_event_type_that_was_never_sourced_rejects_every_entry():
     )
 
 
-def test_committed_calendar_has_verified_times_for_every_published_event():
+def test_committed_calendar_uses_official_sources_and_verified_fomc_times():
     cal = load_calendar(Path("config/economic_calendar.yaml"))
-    published = [e for e in cal.events if e.status == "published"]
-    assert published and all(e.release_time is not None for e in published)
-    assert all(e.source.startswith("https://www.federalreserve.gov/") for e in cal.events)
-    assert {"cpi", "employment_situation"} <= cal.unavailable.keys()
+    fomc = [e for e in cal.events if e.kind == "fomc_statement" and e.status == "published"]
+    assert fomc and all(e.release_time is not None for e in fomc)
+    assert all(e.source.startswith(("https://www.federalreserve.gov/", "https://www.bls.gov/"))
+               for e in cal.events)  # fmt: skip
+    assert not {e.kind for e in cal.events} & cal.unavailable.keys()
