@@ -34,6 +34,30 @@ fi
 
 printf 'file\turl\tsha256\tbytes\tsaved_utc\tverified_utc\n' > "$MANIFEST.tmp"
 failed=0
+
+check() {  # prints a reason and returns 1 when the saved file is not the genuine page
+  local path="$1" marker="$2"
+  if [[ ! -s "$path" ]]; then
+    echo "   NOT FOUND: $path"
+    local recent
+    recent=$(find "$HOME/Downloads" -maxdepth 1 -newer "$MANIFEST.tmp" \( -iname '*.htm' -o -iname '*.html' \) 2>/dev/null | head -3)
+    if [[ -n "$recent" ]]; then
+      echo "   Chrome saved these to Downloads instead; move the right one to the path above:"
+      echo "$recent" | sed 's/^/     /'
+    fi
+    return 1
+  fi
+  if grep -qi "Access Denied" "$path"; then
+    echo "   REJECTED: this is BLS's 'Access Denied' page. If Chrome shows it too, BLS is"
+    echo "   blocking your connection (VPN or network); try another network, then save again."
+    return 1
+  fi
+  if ! grep -q "$marker" "$path"; then
+    echo "   REJECTED: '$marker' is not in the file; is this the right page?"
+    return 1
+  fi
+}
+
 for entry in "${PAGES[@]}"; do
   IFS='|' read -r name url marker <<< "$entry"
   path="$DEST/$name"
@@ -43,36 +67,27 @@ for entry in "${PAGES[@]}"; do
   if [[ "$(uname)" == "Darwin" ]]; then
     open -a "Google Chrome" "$url"
   fi
-  echo "   In Chrome: Cmd+S -> Format 'Webpage, HTML Only' -> save as:"
-  echo "   $(pwd)/$path"
-  read -r -p "   Press Enter when saved (or type 'skip'): " answer
-  if [[ "$answer" == "skip" ]]; then
-    echo "   skipped"
-    failed=1
-    continue
-  fi
-  if [[ ! -s "$path" ]]; then
-    echo "   NOT FOUND: $path" >&2
-    failed=1
-    continue
-  fi
-  if grep -qi "Access Denied" "$path"; then
-    echo "   REJECTED: the saved file is an 'Access Denied' page; reload in Chrome and save again" >&2
-    failed=1
-    continue
-  fi
-  if ! grep -q "$marker" "$path"; then
-    echo "   REJECTED: '$marker' not found; is this the right page?" >&2
-    failed=1
-    continue
-  fi
-  sha=$(shasum -a 256 "$path" | cut -d' ' -f1)
-  bytes=$(wc -c < "$path" | tr -d ' ')
-  saved=$(date -u -r "$path" +%Y-%m-%dT%H:%M:%SZ)
-  verified=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-  printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$url" "$sha" "$bytes" "$saved" "$verified" \
-    >> "$MANIFEST.tmp"
-  echo "   ok  sha256 ${sha:0:16}…  ($bytes bytes)"
+  echo "   Wait for the page to load in Chrome, then: Cmd+S -> Format 'Webpage, HTML Only'"
+  echo "   -> save as exactly:  $(pwd)/$path"
+  while true; do
+    read -r -p "   Press Enter once the file is saved (or type 'skip'): " answer
+    if [[ "$answer" == "skip" ]]; then
+      echo "   skipped"
+      failed=1
+      break
+    fi
+    if check "$path" "$marker"; then
+      sha=$(shasum -a 256 "$path" | cut -d' ' -f1)
+      bytes=$(wc -c < "$path" | tr -d ' ')
+      saved=$(date -u -r "$path" +%Y-%m-%dT%H:%M:%SZ)
+      verified=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+      printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$name" "$url" "$sha" "$bytes" "$saved" "$verified" \
+        >> "$MANIFEST.tmp"
+      echo "   ok  sha256 ${sha:0:16}…  ($bytes bytes)"
+      break
+    fi
+    echo "   Fix it in Chrome/Finder, then press Enter to check again."
+  done
 done
 mv "$MANIFEST.tmp" "$MANIFEST"
 
