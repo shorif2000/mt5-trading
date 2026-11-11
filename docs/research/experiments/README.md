@@ -13,9 +13,9 @@ Changes go in a new experiment, which links back to the original.
 | EXP-005 | Strategy C backtest (cost-floor arms) | run | 2026-11-11 | `EXP-005-strategy-c-backtest.md` | run: `../../../reports/research/EXP-005_9294d7b6de.md` |
 | EXP-006 | Strategy B event study (2023–2024) | run | 2026-11-11 | `EXP-006-strategy-b-event-study.md` | run: `../../../reports/research/EXP-006_806154fa75.md` |
 | EXP-007 | Strategy B backtest (cost-floor arms) | run | 2026-11-11 | `EXP-007-strategy-b-backtest.md` | run: `../../../reports/research/EXP-007_806154fa75.md` |
-| EXP-008 | Strategy A backtest, complete news calendar (rerun of EXP-003) | registered | 2026-11-11 | `EXP-008-strategy-a-backtest-full-calendar.md` | pending |
-| EXP-009 | Strategy C backtest, complete news calendar (rerun of EXP-005) | registered | 2026-11-11 | `EXP-009-strategy-c-backtest-full-calendar.md` | pending |
-| EXP-010 | Strategy B backtest, complete news calendar (rerun of EXP-007) | registered | 2026-11-11 | `EXP-010-strategy-b-backtest-full-calendar.md` | pending |
+| EXP-008 | Strategy A backtest, complete news calendar (rerun of EXP-003) | run | 2026-11-11 | `EXP-008-strategy-a-backtest-full-calendar.md` | run: `../../../reports/research/EXP-008_ec87e37dc2.md` |
+| EXP-009 | Strategy C backtest, complete news calendar (rerun of EXP-005) | run | 2026-11-11 | `EXP-009-strategy-c-backtest-full-calendar.md` | run: `../../../reports/research/EXP-009_c73e00cac4.md` |
+| EXP-010 | Strategy B backtest, complete news calendar (rerun of EXP-007) | run | 2026-11-11 | `EXP-010-strategy-b-backtest-full-calendar.md` | run: `../../../reports/research/EXP-010_6d09960f77.md` |
 
 ## Template
 
