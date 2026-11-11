@@ -1,0 +1,5521 @@
+{
+  "code": {
+    "branch": "research/bls-calendar",
+    "commit": "6d09960f77a52268d4d2d38594ef4e6c5c39404b",
+    "commit_date": "2026-11-11T10:29:25Z",
+    "dirty": false,
+    "short_commit": "6d09960f77",
+    "uncommitted_diff_sha256": null,
+    "uncommitted_files": []
+  },
+  "command": "run_candidate_experiments.py --strategy B --backtest-id EXP-010 --skip-study --news-kinds fomc_statement,cpi,employment_situation --require-clean",
+  "environment": {
+    "packages": {
+      "mcp": "2.3.0",
+      "mt5-trading-research": "0.1.0",
+      "pydantic": "2.14.3",
+      "pyyaml": "6.0.3",
+      "truststore": "0.10.5",
+      "typer": "0.29.0"
+    },
+    "platform": "Darwin arm64",
+    "python": "3.12.13"
+  },
+  "inputs": {
+    "candidates": {
+      "bytes": 14336,
+      "path": "docs/research/xauusd-strategy-candidates.md",
+      "sha256": "805968e21c51894b53938aed7bd1a3608c6bb52867f3e4e9dd845bed44996095"
+    },
+    "cost_config": {
+      "bytes": 1535,
+      "path": "config/backtest.yaml",
+      "sha256": "923285c8203a5bf0c1099732987786a9d7f0df3cb5121e96a966223dac4a6a41"
+    },
+    "economic_calendar": {
+      "bytes": 71169,
+      "path": "config/economic_calendar.yaml",
+      "sha256": "6ce9b1bcb9d1234507d7ffe9127eb9260d9a09a42ee024d931a9d5dc70f0380e"
+    },
+    "history": {
+      "bytes": 39327471,
+      "path": "data/history/xauusd_backtest.local.json",
+      "sha256": "e3b35038566b61b599998500b56aac8d1de39927560fc85cc4a15745901d4be9"
+    },
+    "programme": {
+      "bytes": 20266,
+      "path": "docs/research/xauusd-research-programme.md",
+      "sha256": "3069e14f3c936c79494775456e3a7cef59439cdde70399c34c4e28b0fb6a809d"
+    },
+    "risk_config": {
+      "bytes": 2293,
+      "path": "config/risk.yaml",
+      "sha256": "0a8733521d0127de39edf93b07fef91239bea8715050816a26439476fc747925"
+    },
+    "sessions": {
+      "bytes": 8477,
+      "path": "config/market_sessions.yaml",
+      "sha256": "ee9d5817742ae74c9e57482428a2be2c7b24fdba263a005f26a535b4ee77fbdd"
+    },
+    "specification_export": {
+      "bytes": 507823,
+      "path": "data/mcp_export.local.json",
+      "sha256": "738b5ecec71004f550075fce227440eb3cf6bb55e8c17335f254f7bb76caa5cf"
+    }
+  },
+  "manifest_path": "reports/research/EXP-010_6d09960f77.json",
+  "parameters": {
+    "arms": {
+      "0.10R cost floor": "0.10",
+      "no cost floor": "None"
+    },
+    "base_scenario": "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts",
+    "cost_scenarios": [
+      "entry zero (0 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 60 pts",
+      "entry zero (0 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 60 pts",
+      "entry zero (0 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 60 pts",
+      "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 67 pts",
+      "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts",
+      "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 67 pts",
+      "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 100 pts",
+      "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts",
+      "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 100 pts"
+    ],
+    "cost_status": {
+      "commission": "measured \u00a30",
+      "entry_and_market_exit_slippage": "assumed scenarios",
+      "spread": "measured (bar spread)",
+      "stop_slippage": "measured percentiles",
+      "swap": "0 (no overnight positions)",
+      "take_profit": "measured 0"
+    },
+    "engine_params": {
+      "max_spread_points": 35,
+      "max_stop_atr": 3.0,
+      "target_r": 2.0
+    },
+    "experiment": "EXP-010",
+    "margin": "MT5 calc_margin, read-only (today's leverage)",
+    "news_filter": "FOMC statements, CPI and Employment Situation (official calendar; bls.gov pages saved by the owner in a browser)",
+    "news_kinds": [
+      "fomc_statement",
+      "cpi",
+      "employment_situation"
+    ],
+    "programme_sha256": "3069e14f3c936c79494775456e3a7cef59439cdde70399c34c4e28b0fb6a809d",
+    "specification": "docs/research/xauusd-strategy-candidates.md",
+    "specification_sha256": "805968e21c51894b53938aed7bd1a3608c6bb52867f3e4e9dd845bed44996095",
+    "strategy": "B: H1 range mean reversion",
+    "stress_scenario": "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts"
+  },
+  "results": {
+    "0.10R cost floor": {
+      "decision": {
+        "classification": "INCONCLUSIVE; INSUFFICIENT DATA in Training 2023-24, Validation 2025, 2026 (development)",
+        "events_per_period": {
+          "Out of sample": 0,
+          "Training": 1,
+          "Validation": 0
+        },
+        "gross_and_net_positive_every_period": false,
+        "pooled_ci_above_zero": false,
+        "pooled_net_r": [
+          NaN,
+          NaN,
+          NaN
+        ],
+        "positive_in_two_of_three_terciles": false,
+        "stress_40pt_entry_net_r": null,
+        "sum_r_without_best_10": 0,
+        "volatility_tercile_net_r": {}
+      },
+      "news off": {
+        "compounding": {
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          }
+        },
+        "fixed": {
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          }
+        }
+      },
+      "news on": {
+        "compounding": {
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          }
+        },
+        "fixed": {
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "filtered": 1
+              },
+              "rejections": {
+                "estimated cost above NR (cost floor)": 1
+              },
+              "signals": 1,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          }
+        }
+      }
+    },
+    "no cost floor": {
+      "decision": {
+        "classification": "INCONCLUSIVE; INSUFFICIENT DATA in Training 2023-24, Validation 2025, 2026 (development)",
+        "events_per_period": {
+          "Out of sample": 0,
+          "Training": 1,
+          "Validation": 0
+        },
+        "gross_and_net_positive_every_period": false,
+        "pooled_ci_above_zero": true,
+        "pooled_net_r": [
+          1.4176744769473795,
+          1.4176744769473795,
+          1.4176744769473795
+        ],
+        "positive_in_two_of_three_terciles": false,
+        "stress_40pt_entry_net_r": 1.1909680979941653,
+        "sum_r_without_best_10": 0,
+        "volatility_tercile_net_r": {}
+      },
+      "news off": {
+        "compounding": {
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 27.6125386583344,
+                "final_balance": 1027.6125386583344,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 27.6125386583344,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.08468409486190098,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.4276278110804,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4176744769473795,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5023585718092805,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 28.35348953894759,
+                "net_r_ci95": [
+                  1.4176744769473795,
+                  1.4176744769473795
+                ],
+                "net_r_per_trade": 1.4176744769473795,
+                "profit_factor": null,
+                "sum_r": 1.4176744769473795,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          }
+        },
+        "fixed": {
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 27.6125386583344,
+                "final_balance": 1027.6125386583344,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 27.6125386583344,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.08468409486190098,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.4276278110804,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4176744769473795,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5023585718092805,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 28.35348953894759,
+                "net_r_ci95": [
+                  1.4176744769473795,
+                  1.4176744769473795
+                ],
+                "net_r_per_trade": 1.4176744769473795,
+                "profit_factor": null,
+                "sum_r": 1.4176744769473795,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          }
+        }
+      },
+      "news on": {
+        "compounding": {
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 27.6125386583344,
+                "final_balance": 1027.6125386583344,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 27.6125386583344,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.08468409486190098,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.4276278110804,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4176744769473795,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5023585718092805,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 28.35348953894759,
+                "net_r_ci95": [
+                  1.4176744769473795,
+                  1.4176744769473795
+                ],
+                "net_r_per_trade": 1.4176744769473795,
+                "profit_factor": null,
+                "sum_r": 1.4176744769473795,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 27.6125386583344,
+                "final_balance": 1027.6125386583344,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 27.6125386583344,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.08468409486190098,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.4276278110804,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4176744769473795,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5023585718092805,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 28.35348953894759,
+                "net_r_ci95": [
+                  1.4176744769473795,
+                  1.4176744769473795
+                ],
+                "net_r_per_trade": 1.4176744769473795,
+                "profit_factor": null,
+                "sum_r": 1.4176744769473795,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 27.6125386583344,
+                "final_balance": 1027.6125386583344,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 27.6125386583344,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.08468409486190098,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.4276278110804,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4176744769473795,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5023585718092805,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 28.35348953894759,
+                "net_r_ci95": [
+                  1.4176744769473795,
+                  1.4176744769473795
+                ],
+                "net_r_per_trade": 1.4176744769473795,
+                "profit_factor": null,
+                "sum_r": 1.4176744769473795,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 22.39700660533595,
+                "final_balance": 1022.397006605336,
+                "gross_gbp": 25.60421518843895,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 22.39700660533595,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.17054435770799503,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 2.138139055402,
+                "exit_slippage": 0.0,
+                "spread": 1.069069527701,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.1909680979941653,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.3615124557021603,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 23.819361959883306,
+                "net_r_ci95": [
+                  1.1909680979941653,
+                  1.1909680979941653
+                ],
+                "net_r_per_trade": 1.1909680979941653,
+                "profit_factor": null,
+                "sum_r": 1.1909680979941653,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 22.39700660533595,
+                "final_balance": 1022.397006605336,
+                "gross_gbp": 25.60421518843895,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 22.39700660533595,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.17054435770799503,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 2.138139055402,
+                "exit_slippage": 0.0,
+                "spread": 1.069069527701,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.1909680979941653,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.3615124557021603,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 23.819361959883306,
+                "net_r_ci95": [
+                  1.1909680979941653,
+                  1.1909680979941653
+                ],
+                "net_r_per_trade": 1.1909680979941653,
+                "profit_factor": null,
+                "sum_r": 1.1909680979941653,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 22.39700660533595,
+                "final_balance": 1022.397006605336,
+                "gross_gbp": 25.60421518843895,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 22.39700660533595,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.17054435770799503,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 2.138139055402,
+                "exit_slippage": 0.0,
+                "spread": 1.069069527701,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.1909680979941653,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.3615124557021603,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 23.819361959883306,
+                "net_r_ci95": [
+                  1.1909680979941653,
+                  1.1909680979941653
+                ],
+                "net_r_per_trade": 1.1909680979941653,
+                "profit_factor": null,
+                "sum_r": 1.1909680979941653,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 28.0401664694148,
+                "final_balance": 1028.0401664694148,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 28.0401664694148,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.06413633965087007,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4719289949874648,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5360653346383348,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 29.438579899749296,
+                "net_r_ci95": [
+                  1.4719289949874648,
+                  1.4719289949874648
+                ],
+                "net_r_per_trade": 1.4719289949874648,
+                "profit_factor": null,
+                "sum_r": 1.4719289949874648,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 28.0401664694148,
+                "final_balance": 1028.0401664694148,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 28.0401664694148,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.06413633965087007,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4719289949874648,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5360653346383348,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 29.438579899749296,
+                "net_r_ci95": [
+                  1.4719289949874648,
+                  1.4719289949874648
+                ],
+                "net_r_per_trade": 1.4719289949874648,
+                "profit_factor": null,
+                "sum_r": 1.4719289949874648,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 28.0401664694148,
+                "final_balance": 1028.0401664694148,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 28.0401664694148,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.06413633965087007,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4719289949874648,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5360653346383348,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 29.438579899749296,
+                "net_r_ci95": [
+                  1.4719289949874648,
+                  1.4719289949874648
+                ],
+                "net_r_per_trade": 1.4719289949874648,
+                "profit_factor": null,
+                "sum_r": 1.4719289949874648,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          }
+        },
+        "fixed": {
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 27.6125386583344,
+                "final_balance": 1027.6125386583344,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 27.6125386583344,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.08468409486190098,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.4276278110804,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4176744769473795,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5023585718092805,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 28.35348953894759,
+                "net_r_ci95": [
+                  1.4176744769473795,
+                  1.4176744769473795
+                ],
+                "net_r_per_trade": 1.4176744769473795,
+                "profit_factor": null,
+                "sum_r": 1.4176744769473795,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 27.6125386583344,
+                "final_balance": 1027.6125386583344,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 27.6125386583344,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.08468409486190098,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.4276278110804,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4176744769473795,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5023585718092805,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 28.35348953894759,
+                "net_r_ci95": [
+                  1.4176744769473795,
+                  1.4176744769473795
+                ],
+                "net_r_per_trade": 1.4176744769473795,
+                "profit_factor": null,
+                "sum_r": 1.4176744769473795,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 67 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 27.6125386583344,
+                "final_balance": 1027.6125386583344,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 27.6125386583344,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.08468409486190098,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.4276278110804,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4176744769473795,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5023585718092805,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 28.35348953894759,
+                "net_r_ci95": [
+                  1.4176744769473795,
+                  1.4176744769473795
+                ],
+                "net_r_per_trade": 1.4176744769473795,
+                "profit_factor": null,
+                "sum_r": 1.4176744769473795,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 22.39700660533595,
+                "final_balance": 1022.397006605336,
+                "gross_gbp": 25.60421518843895,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 22.39700660533595,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.17054435770799503,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 2.138139055402,
+                "exit_slippage": 0.0,
+                "spread": 1.069069527701,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.1909680979941653,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.3615124557021603,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 23.819361959883306,
+                "net_r_ci95": [
+                  1.1909680979941653,
+                  1.1909680979941653
+                ],
+                "net_r_per_trade": 1.1909680979941653,
+                "profit_factor": null,
+                "sum_r": 1.1909680979941653,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 22.39700660533595,
+                "final_balance": 1022.397006605336,
+                "gross_gbp": 25.60421518843895,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 22.39700660533595,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.17054435770799503,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 2.138139055402,
+                "exit_slippage": 0.0,
+                "spread": 1.069069527701,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.1909680979941653,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.3615124557021603,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 23.819361959883306,
+                "net_r_ci95": [
+                  1.1909680979941653,
+                  1.1909680979941653
+                ],
+                "net_r_per_trade": 1.1909680979941653,
+                "profit_factor": null,
+                "sum_r": 1.1909680979941653,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 100 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 22.39700660533595,
+                "final_balance": 1022.397006605336,
+                "gross_gbp": 25.60421518843895,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 22.39700660533595,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.17054435770799503,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 2.138139055402,
+                "exit_slippage": 0.0,
+                "spread": 1.069069527701,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.1909680979941653,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.3615124557021603,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 23.819361959883306,
+                "net_r_ci95": [
+                  1.1909680979941653,
+                  1.1909680979941653
+                ],
+                "net_r_per_trade": 1.1909680979941653,
+                "profit_factor": null,
+                "sum_r": 1.1909680979941653,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p50 (7 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 28.0401664694148,
+                "final_balance": 1028.0401664694148,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 28.0401664694148,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.06413633965087007,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4719289949874648,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5360653346383348,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 29.438579899749296,
+                "net_r_ci95": [
+                  1.4719289949874648,
+                  1.4719289949874648
+                ],
+                "net_r_per_trade": 1.4719289949874648,
+                "profit_factor": null,
+                "sum_r": 1.4719289949874648,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 28.0401664694148,
+                "final_balance": 1028.0401664694148,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 28.0401664694148,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.06413633965087007,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4719289949874648,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5360653346383348,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 29.438579899749296,
+                "net_r_ci95": [
+                  1.4719289949874648,
+                  1.4719289949874648
+                ],
+                "net_r_per_trade": 1.4719289949874648,
+                "profit_factor": null,
+                "sum_r": 1.4719289949874648,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          },
+          "entry zero (0 pts, SCENARIO) / stop exits p95 (60 pts, evidence) / sizing allowance 60 pts": {
+            "Out of sample": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            },
+            "Training": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": 28.0401664694148,
+                "final_balance": 1028.0401664694148,
+                "gross_gbp": 29.2619602153588,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 28.0401664694148,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": 0.06413633965087007,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 1.221793745944,
+                "swap": 0.0
+              },
+              "events": 1,
+              "exits": {
+                "target": 1
+              },
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": 1.4719289949874648,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": 1.5360653346383348,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 1,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 29.438579899749296,
+                "net_r_ci95": [
+                  1.4719289949874648,
+                  1.4719289949874648
+                ],
+                "net_r_per_trade": 1.4719289949874648,
+                "profit_factor": null,
+                "sum_r": 1.4719289949874648,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {
+                "executable": 1
+              },
+              "rejections": {},
+              "signals": 1,
+              "trades": 1,
+              "win_rate": 1.0
+            },
+            "Validation": {
+              "compounding": {
+                "average_loss_gbp": null,
+                "average_win_gbp": null,
+                "final_balance": 1000.0,
+                "gross_gbp": 0.0,
+                "max_drawdown_gbp": 0.0,
+                "max_drawdown_percent": 0.0,
+                "net_gbp": 0,
+                "profit_factor": null
+              },
+              "cost_r_per_trade": null,
+              "costs_gbp": {
+                "commission": 0.0,
+                "entry_slippage": 0.0,
+                "exit_slippage": 0.0,
+                "spread": 0.0,
+                "swap": 0.0
+              },
+              "events": 0,
+              "exits": {},
+              "fixed_risk": {
+                "average_loss_r": null,
+                "average_win_r": null,
+                "gross_profit_factor": null,
+                "gross_r_per_trade": null,
+                "max_consecutive_losses": 0,
+                "max_consecutive_wins": 0,
+                "max_drawdown_r": 0.0,
+                "net_gbp": 0.0,
+                "net_r_ci95": null,
+                "net_r_per_trade": null,
+                "profit_factor": null,
+                "sum_r": 0,
+                "sum_r_without_best_10": 0
+              },
+              "outcomes": {},
+              "rejections": {},
+              "signals": 0,
+              "trades": 0,
+              "win_rate": null
+            }
+          }
+        }
+      }
+    }
+  },
+  "run_id": "20261111T102925Z_6d09960f77",
+  "started_utc": "2026-11-11T10:29:25.778887+00:00"
+}

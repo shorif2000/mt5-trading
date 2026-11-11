@@ -25,5 +25,8 @@ dist/
 *.local.json
 *.local.md
 
-# Official calendar pages (public; sha256 and retrieval time recorded in config/economic_calendar.yaml)
-data/calendar/raw/
+# Official calendar pages are committed (public; sha256 recorded). The 96 BLS release documents
+# (~112 MB) are not: data/calendar/bls_release_evidence.tsv keeps each one's URL, sha256 and
+# embargo statement. Browser-saved page assets are not needed.
+data/calendar/raw/bls/releases/
+data/calendar/raw/**/*_files/

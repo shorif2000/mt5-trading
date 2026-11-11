@@ -212,17 +212,37 @@ def main() -> None:  # noqa: PLR0915
     parser.add_argument("--strategy", choices=sorted(STRATEGIES), required=True)
     parser.add_argument("--require-clean", action="store_true")
     parser.add_argument("--reports-dir", type=Path, default=REPORTS)
+    parser.add_argument(
+        "--news-kinds",
+        default="fomc_statement",
+        help="comma-separated event kinds the news filter requires",
+    )
+    parser.add_argument(
+        "--backtest-id",
+        help="registered id for a rerun (e.g. EXP-008); original reports are never replaced",
+    )
+    parser.add_argument(
+        "--skip-study",
+        action="store_true",
+        help="backtest only (the event study does not use the calendar)",
+    )
     args = parser.parse_args()
     started = datetime.now(UTC)
     code = code_state()
     if args.require_clean and code["dirty"]:
         raise SystemExit(f"uncommitted changes: {code['uncommitted_files']}")
     study_id, backtest_id = EXPERIMENTS[args.strategy]
+    backtest_id = args.backtest_id or backtest_id
+    kinds = [k.strip() for k in args.news_kinds.split(",") if k.strip()]
+    calendar = load_calendar(CALENDAR)
+    missing = [k for k in kinds if k in calendar.unavailable]
+    if missing:
+        raise SystemExit(f"calendar has no coverage for {missing}: {calendar.unavailable}")
     inp = load_inputs()
     tick = Decimal(str(inp.spec.tick_size))
     point = Decimal(str(inp.spec.point or inp.spec.tick_size))
     cand = STRATEGIES[args.strategy](inp.m15, inp.h1, inp.calendar, tick)
-    news = NewsFilter(load_calendar(CALENDAR), ["fomc_statement"])
+    news = NewsFilter(calendar, kinds)
     study = event_study(cand, point)
     grid = inp.cost_model.grid()
     base = inp.cost_model.base()
@@ -270,8 +290,8 @@ def main() -> None:  # noqa: PLR0915
         "programme_sha256": file_sha256(PROGRAMME),
         "engine_params": dataclasses.asdict(cand.params),
         "arms": {k: str(v) for k, v in ARMS.items()},
-        "news_filter": "FOMC statements only (Amendment 2): CPI and Employment Situation not "
-                       "filtered (bls.gov refused automated access)",
+        "news_filter": news_description(kinds),
+        "news_kinds": kinds,
         "cost_scenarios": [c.label for c in grid], "base_scenario": base.label,
         "stress_scenario": stress,
         "cost_status": {"spread": "measured (bar spread)", "stop_slippage": "measured percentiles",
@@ -280,21 +300,35 @@ def main() -> None:  # noqa: PLR0915
                         "swap": "0 (no overnight positions)"},
         "margin": "MT5 calc_margin, read-only (today's leverage)",
     }  # fmt: skip
-    m1 = build_manifest(code=code, started=started, command=sys.argv, input_paths=common_inputs,
-                        parameters={**params, "experiment": study_id},
-                        manifest_path=study_manifest, results=study)  # fmt: skip
-    study_manifest.write_text(json.dumps(m1, indent=2, sort_keys=True), encoding="utf-8")
-    study_report.write_text(render_study(m1, study_id, cand.name), encoding="utf-8")
+    if not args.skip_study:
+        m1 = build_manifest(code=code, started=started, command=sys.argv,
+                            input_paths=common_inputs,
+                            parameters={**params, "experiment": study_id},
+                            manifest_path=study_manifest, results=study)  # fmt: skip
+        study_manifest.write_text(json.dumps(m1, indent=2, sort_keys=True), encoding="utf-8")
+        study_report.write_text(render_study(m1, study_id, cand.name), encoding="utf-8")
     m2 = build_manifest(code=code, started=started, command=sys.argv, input_paths=common_inputs,
                         parameters={**params, "experiment": backtest_id},
                         manifest_path=manifest_path, results=results)  # fmt: skip
     manifest_path.write_text(json.dumps(m2, indent=2, sort_keys=True), encoding="utf-8")
     report_path.write_text(render_backtest(m2, backtest_id, cand.name, base.label, grid),
                            encoding="utf-8")  # fmt: skip
-    print(f"{study_report}\n{report_path}")
+    print(report_path if args.skip_study else f"{study_report}\n{report_path}")
 
 
 # --- reports --------------------------------------------------------------------------------
+
+
+def news_description(kinds: list[str]) -> str:
+    if set(kinds) >= {"fomc_statement", "cpi", "employment_situation"}:
+        return (
+            "FOMC statements, CPI and Employment Situation (official calendar; "
+            "bls.gov pages saved by the owner in a browser)"
+        )
+    return (
+        "partial — " + ", ".join(kinds) + " only; CPI and payrolls are not filtered "
+        "(bls.gov refused automated access; programme Amendment 2)"
+    )
 
 
 def _provenance(m: dict[str, Any]) -> list[str]:
@@ -347,8 +381,7 @@ def render_backtest(m: dict[str, Any], exp: str, name: str, base: str,
          "Research only. Registered before running. No orders; MT5 used read-only for margin. "
          "Parameters fixed; nothing tuned. **2026 is development evidence; 2026-11-01 onwards "
          "is excluded (the forward hold-out starts 2026-11-16).**", "", *_provenance(m), "",
-         "**News filter: partial — FOMC statements only; CPI and payrolls are not filtered** "
-         "(bls.gov refused automated access; programme Amendment 2).", "",
+         f"**News filter: {m['parameters']['news_filter']}**", "",
          "**Costs:** spread and stop slippage measured; entry and market-exit slippage are "
          "assumed scenarios; commission £0 and take-profit slippage 0 measured; swap 0 (no "
          "overnight positions). Fixed risk = 2% of a constant £1,000 (R; £20 per R); "

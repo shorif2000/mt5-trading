@@ -325,3 +325,19 @@ Recorded before any EXP-003, EXP-005 or EXP-007 result.
   2. cost floor;
   3. B reward:risk;
   4. the Version 1.0 engine's checks: spread, stop wider than 3 × `ATR15`, risk, margin.
+
+## Amendment 4 (2026-11-11): complete news calendar, before any rerun
+
+- **The gap in Amendment 2 is closed:** `config/economic_calendar.yaml` (commit `0c489c1`) now
+  covers CPI and Employment Situation from 2022-11-01.
+  - The owner saved the BLS schedule and archive pages in a browser.
+  - The 96 archived releases were downloaded with requests that identify the tool and a
+    contact, as BLS asks scripts to do.
+  - Each release time (08:30 ET) is read from the release's own embargo statement, and its
+    date is checked against the archive.
+- **2025 lapse in appropriations:** October 2025 CPI and October 2025 Employment Situation were
+  not published. This is recorded with BLS's note.
+- **Reruns:** EXP-008, EXP-009 and EXP-010 rerun EXP-003, EXP-005 and EXP-007 with all three
+  event types required. Nothing else changes.
+- **The FOMC-only reports remain the original, unchanged record.** The reruns are reported
+  alongside them, not in their place.

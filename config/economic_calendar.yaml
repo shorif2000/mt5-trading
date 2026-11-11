@@ -1,6 +1,6 @@
 description: Official economic calendar for research backtests (news restriction).
 timezone: America/New_York
-built_utc: '2026-11-11T09:33:53+00:00'
+built_utc: '2026-11-11T10:28:01+00:00'
 coverage:
 - kind: fomc_statement
   from: '2022-11-01'
@@ -12,9 +12,30 @@ coverage:
   to: '2027-12-31'
   note: scheduled meetings only (dates from the Fed calendar page; release times not yet published, so
     each meeting blocks its whole New York day)
-unavailable:
-  cpi: bls.gov refused automated access (HTTP 403) on 2026-11-11; not sourced
-  employment_situation: bls.gov refused automated access (HTTP 403) on 2026-11-11; not sourced
+- kind: cpi
+  from: '2022-11-01'
+  to: '2026-11-11'
+  note: publication dates from the BLS archive page saved on 2026-11-11
+- kind: cpi
+  from: '2026-11-11'
+  to: '2027-12-10'
+  note: scheduled releases from the BLS schedule page
+- kind: employment_situation
+  from: '2022-11-01'
+  to: '2026-11-11'
+  note: publication dates from the BLS archive page saved on 2026-11-11
+- kind: employment_situation
+  from: '2026-11-11'
+  to: '2027-12-03'
+  note: scheduled releases from the BLS schedule page
+unavailable: {}
+findings:
+- 'cpi: 55 days between publications 2025-10-24 and 2025-12-18'
+- 'cpi: BLS archive says: October 2025 Consumer Price Index - Not published because of 2025 lapse in federal
+  government appropriations'
+- 'employment_situation: 76 days between publications 2025-09-05 and 2025-11-20'
+- 'employment_situation: BLS archive says: October 2025 Employment Situation - Not published because of
+  2025 lapse in federal government appropriations'
 events:
 - kind: fomc_statement
   date: '2022-11-02'
@@ -22,258 +43,990 @@ events:
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20221102a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2022-11-04'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2022-11-04)
+- kind: cpi
+  date: '2022-11-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2022-11-10)
+- kind: employment_situation
+  date: '2022-12-02'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2022-12-02)
+- kind: cpi
+  date: '2022-12-13'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2022-12-13)
 - kind: fomc_statement
   date: '2022-12-14'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20221214a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2023-01-06'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-01-06)
+- kind: cpi
+  date: '2023-01-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-01-12)
 - kind: fomc_statement
   date: '2023-02-01'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230201a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2023-02-03'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-02-03)
+- kind: cpi
+  date: '2023-02-14'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-02-14)
+- kind: employment_situation
+  date: '2023-03-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-03-10)
+- kind: cpi
+  date: '2023-03-14'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-03-14)
 - kind: fomc_statement
   date: '2023-03-22'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230322a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2023-04-07'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-04-07)
+- kind: cpi
+  date: '2023-04-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-04-12)
 - kind: fomc_statement
   date: '2023-05-03'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230503a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2023-05-05'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-05-05)
+- kind: cpi
+  date: '2023-05-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-05-10)
+- kind: employment_situation
+  date: '2023-06-02'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-06-02)
+- kind: cpi
+  date: '2023-06-13'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-06-13)
 - kind: fomc_statement
   date: '2023-06-14'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230614a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2023-07-07'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-07-07)
+- kind: cpi
+  date: '2023-07-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-07-12)
 - kind: fomc_statement
   date: '2023-07-26'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230726a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2023-08-04'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-08-04)
+- kind: cpi
+  date: '2023-08-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-08-10)
+- kind: employment_situation
+  date: '2023-09-01'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-09-01)
+- kind: cpi
+  date: '2023-09-13'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-09-13)
 - kind: fomc_statement
   date: '2023-09-20'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20230920a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2023-10-06'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-10-06)
+- kind: cpi
+  date: '2023-10-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-10-12)
 - kind: fomc_statement
   date: '2023-11-01'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20231101a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2023-11-03'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-11-03)
+- kind: cpi
+  date: '2023-11-14'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-11-14)
+- kind: employment_situation
+  date: '2023-12-08'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-12-08)
+- kind: cpi
+  date: '2023-12-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2023-12-12)
 - kind: fomc_statement
   date: '2023-12-13'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20231213a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2024-01-05'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-01-05)
+- kind: cpi
+  date: '2024-01-11'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-01-11)
 - kind: fomc_statement
   date: '2024-01-31'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240131a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2024-02-02'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-02-02)
+- kind: cpi
+  date: '2024-02-13'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-02-13)
+- kind: employment_situation
+  date: '2024-03-08'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-03-08)
+- kind: cpi
+  date: '2024-03-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-03-12)
 - kind: fomc_statement
   date: '2024-03-20'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240320a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2024-04-05'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-04-05)
+- kind: cpi
+  date: '2024-04-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-04-10)
 - kind: fomc_statement
   date: '2024-05-01'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240501a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2024-05-03'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-05-03)
+- kind: cpi
+  date: '2024-05-15'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-05-15)
+- kind: employment_situation
+  date: '2024-06-07'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-06-07)
+- kind: cpi
+  date: '2024-06-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-06-12)
 - kind: fomc_statement
   date: '2024-06-12'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240612a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2024-07-05'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-07-05)
+- kind: cpi
+  date: '2024-07-11'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-07-11)
 - kind: fomc_statement
   date: '2024-07-31'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240731a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2024-08-02'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-08-02)
+- kind: cpi
+  date: '2024-08-14'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-08-14)
+- kind: employment_situation
+  date: '2024-09-06'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-09-06)
+- kind: cpi
+  date: '2024-09-11'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-09-11)
 - kind: fomc_statement
   date: '2024-09-18'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20240918a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2024-10-04'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-10-04)
+- kind: cpi
+  date: '2024-10-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-10-10)
+- kind: employment_situation
+  date: '2024-11-01'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-11-01)
 - kind: fomc_statement
   date: '2024-11-07'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20241107a.htm
   note: scheduled meeting
+- kind: cpi
+  date: '2024-11-13'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-11-13)
+- kind: employment_situation
+  date: '2024-12-06'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-12-06)
+- kind: cpi
+  date: '2024-12-11'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2024-12-11)
 - kind: fomc_statement
   date: '2024-12-18'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20241218a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2025-01-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-01-10)
+- kind: cpi
+  date: '2025-01-15'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-01-15)
 - kind: fomc_statement
   date: '2025-01-29'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250129a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2025-02-07'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-02-07)
+- kind: cpi
+  date: '2025-02-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-02-12)
+- kind: employment_situation
+  date: '2025-03-07'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-03-07)
+- kind: cpi
+  date: '2025-03-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-03-12)
 - kind: fomc_statement
   date: '2025-03-19'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250319a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2025-04-04'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-04-04)
+- kind: cpi
+  date: '2025-04-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-04-10)
+- kind: employment_situation
+  date: '2025-05-02'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-05-02)
 - kind: fomc_statement
   date: '2025-05-07'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250507a.htm
   note: scheduled meeting
+- kind: cpi
+  date: '2025-05-13'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-05-13)
+- kind: employment_situation
+  date: '2025-06-06'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-06-06)
+- kind: cpi
+  date: '2025-06-11'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-06-11)
 - kind: fomc_statement
   date: '2025-06-18'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250618a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2025-07-03'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-07-03)
+- kind: cpi
+  date: '2025-07-15'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-07-15)
 - kind: fomc_statement
   date: '2025-07-30'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2025-08-01'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-08-01)
+- kind: cpi
+  date: '2025-08-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-08-12)
 - kind: fomc_statement
   date: '2025-08-22'
   time: '10:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm
   note: notation vote
+- kind: employment_situation
+  date: '2025-09-05'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-09-05)
+- kind: cpi
+  date: '2025-09-11'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-09-11)
 - kind: fomc_statement
   date: '2025-09-17'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm
   note: scheduled meeting
+- kind: cpi
+  date: '2025-10-24'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-10-24)
 - kind: fomc_statement
   date: '2025-10-29'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2025-11-20'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-11-20)
 - kind: fomc_statement
   date: '2025-12-10'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2025-12-16'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-12-16)
+- kind: cpi
+  date: '2025-12-18'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2025-12-18)
+- kind: employment_situation
+  date: '2026-01-09'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-01-09)
+- kind: cpi
+  date: '2026-01-13'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-01-13)
 - kind: fomc_statement
   date: '2026-01-28'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260128a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2026-02-11'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-02-11)
+- kind: cpi
+  date: '2026-02-13'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-02-13)
+- kind: employment_situation
+  date: '2026-03-06'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-03-06)
+- kind: cpi
+  date: '2026-03-11'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-03-11)
 - kind: fomc_statement
   date: '2026-03-18'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260318a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2026-04-03'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-04-03)
+- kind: cpi
+  date: '2026-04-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-04-10)
 - kind: fomc_statement
   date: '2026-04-29'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260429a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2026-05-08'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-05-08)
+- kind: cpi
+  date: '2026-05-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-05-12)
+- kind: employment_situation
+  date: '2026-06-05'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-06-05)
+- kind: cpi
+  date: '2026-06-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-06-10)
 - kind: fomc_statement
   date: '2026-06-17'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2026-07-02'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-07-02)
+- kind: cpi
+  date: '2026-07-14'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-07-14)
 - kind: fomc_statement
   date: '2026-07-29'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2026-08-07'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-08-07)
+- kind: cpi
+  date: '2026-08-12'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-08-12)
+- kind: employment_situation
+  date: '2026-09-04'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-09-04)
+- kind: cpi
+  date: '2026-09-11'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-09-11)
 - kind: fomc_statement
   date: '2026-09-16'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2026-10-02'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-10-02)
+- kind: cpi
+  date: '2026-10-14'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-10-14)
 - kind: fomc_statement
   date: '2026-10-28'
   time: '14:00'
   status: published
   source: https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm
   note: scheduled meeting
+- kind: employment_situation
+  date: '2026-11-06'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/empsit.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-11-06)
+- kind: cpi
+  date: '2026-11-10'
+  time: 08:30
+  status: published
+  source: https://www.bls.gov/bls/news-release/cpi.htm
+  note: publication date from the archive; time from the release's embargo statement (08:30 ET, 2026-11-10)
+- kind: employment_situation
+  date: '2026-12-04'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'November 2026 Dec. 04, 2026 08:30 AM'
 - kind: fomc_statement
   date: '2026-12-09'
   time: null
   status: scheduled
   source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
   note: future meeting; release time not yet published
+- kind: cpi
+  date: '2026-12-10'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'November 2026 Dec. 10, 2026 08:30 AM'
+- kind: employment_situation
+  date: '2027-01-08'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'December 2026 Jan. 08, 2027 08:30 AM'
+- kind: cpi
+  date: '2027-01-13'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'December 2026 Jan. 13, 2027 08:30 AM'
 - kind: fomc_statement
   date: '2027-01-27'
   time: null
   status: scheduled
   source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
   note: future meeting; release time not yet published
+- kind: employment_situation
+  date: '2027-02-05'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'January 2027 Feb. 05, 2027 08:30 AM'
+- kind: cpi
+  date: '2027-02-11'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'January 2027 Feb. 11, 2027 08:30 AM'
+- kind: employment_situation
+  date: '2027-03-05'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'February 2027 Mar. 05, 2027 08:30 AM'
+- kind: cpi
+  date: '2027-03-10'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'February 2027 Mar. 10, 2027 08:30 AM'
 - kind: fomc_statement
   date: '2027-03-17'
   time: null
   status: scheduled
   source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
   note: future meeting; release time not yet published
+- kind: employment_situation
+  date: '2027-04-02'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'March 2027 Apr. 02, 2027 08:30 AM'
+- kind: cpi
+  date: '2027-04-13'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'March 2027 Apr. 13, 2027 08:30 AM'
 - kind: fomc_statement
   date: '2027-04-28'
   time: null
   status: scheduled
   source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
   note: future meeting; release time not yet published
+- kind: employment_situation
+  date: '2027-05-07'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'April 2027 May 07, 2027 08:30 AM'
+- kind: cpi
+  date: '2027-05-12'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'April 2027 May 12, 2027 08:30 AM'
+- kind: employment_situation
+  date: '2027-06-04'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'May 2027 Jun. 04, 2027 08:30 AM'
 - kind: fomc_statement
   date: '2027-06-09'
   time: null
   status: scheduled
   source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
   note: future meeting; release time not yet published
+- kind: cpi
+  date: '2027-06-10'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'May 2027 Jun. 10, 2027 08:30 AM'
+- kind: employment_situation
+  date: '2027-07-02'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'June 2027 Jul. 02, 2027 08:30 AM'
+- kind: cpi
+  date: '2027-07-14'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'June 2027 Jul. 14, 2027 08:30 AM'
 - kind: fomc_statement
   date: '2027-07-28'
   time: null
   status: scheduled
   source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
   note: future meeting; release time not yet published
+- kind: employment_situation
+  date: '2027-08-06'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'July 2027 Aug. 06, 2027 08:30 AM'
+- kind: cpi
+  date: '2027-08-11'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'July 2027 Aug. 11, 2027 08:30 AM'
+- kind: employment_situation
+  date: '2027-09-03'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'August 2027 Sep. 03, 2027 08:30 AM'
+- kind: cpi
+  date: '2027-09-14'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'August 2027 Sep. 14, 2027 08:30 AM'
 - kind: fomc_statement
   date: '2027-09-15'
   time: null
   status: scheduled
   source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
   note: future meeting; release time not yet published
+- kind: employment_situation
+  date: '2027-10-08'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'September 2027 Oct. 08, 2027 08:30 AM'
+- kind: cpi
+  date: '2027-10-14'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'September 2027 Oct. 14, 2027 08:30 AM'
 - kind: fomc_statement
   date: '2027-10-27'
   time: null
   status: scheduled
   source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
   note: future meeting; release time not yet published
+- kind: employment_situation
+  date: '2027-11-05'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'October 2027 Nov. 05, 2027 08:30 AM'
+- kind: cpi
+  date: '2027-11-10'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'October 2027 Nov. 10, 2027 08:30 AM'
+- kind: employment_situation
+  date: '2027-12-03'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/empsit.htm
+  note: schedule row 'November 2027 Dec. 03, 2027 08:30 AM'
 - kind: fomc_statement
   date: '2027-12-08'
   time: null
   status: scheduled
   source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
   note: future meeting; release time not yet published
+- kind: cpi
+  date: '2027-12-10'
+  time: 08:30
+  status: scheduled
+  source: https://www.bls.gov/schedule/news_release/cpi.htm
+  note: schedule row 'November 2027 Dec. 10, 2027 08:30 AM'
 sources:
 - url: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
   file: data/calendar/raw/fomccalendars.html
@@ -415,3 +1168,407 @@ sources:
   file: data/calendar/raw/fomc/monetary20221214a.htm
   sha256: fb5ef33462234b6a6a550a765427c43201ecf96242e37ab2b9ee5db8bd31e490
   retrieved_utc: '2026-11-11T09:29:21+00:00'
+- url: https://www.bls.gov/news.release/archives/cpi_11102022.htm
+  file: data/calendar/raw/bls/releases/cpi_11102022.htm
+  sha256: 003a8366cdc1ba4750dff3bf753d79ae3aba7b5965821dd0fb44581ed17d80f0
+  retrieved_utc: '2026-11-11T10:19:31Z'
+- url: https://www.bls.gov/news.release/archives/cpi_12132022.htm
+  file: data/calendar/raw/bls/releases/cpi_12132022.htm
+  sha256: a4897e63121e1941cdfee5d6f412df676a00e1f1b2c852859b2554bae48c2b69
+  retrieved_utc: '2026-11-11T10:19:33Z'
+- url: https://www.bls.gov/news.release/archives/cpi_01122023.htm
+  file: data/calendar/raw/bls/releases/cpi_01122023.htm
+  sha256: 9d5d5aa086ad1b9f299e9ea2603ef76695b4b2c8abe48ca90554c9237e8d60a1
+  retrieved_utc: '2026-11-11T10:19:36Z'
+- url: https://www.bls.gov/news.release/archives/cpi_02142023.htm
+  file: data/calendar/raw/bls/releases/cpi_02142023.htm
+  sha256: 5bddfbdd162cc083d7b8db217f5093612544f1b6f29a525740f65bfb34223c00
+  retrieved_utc: '2026-11-11T10:19:39Z'
+- url: https://www.bls.gov/news.release/archives/cpi_03142023.htm
+  file: data/calendar/raw/bls/releases/cpi_03142023.htm
+  sha256: 0d1282519139a5511365c44bafe20353c3a0fd41a81f0b94202df7238042cf41
+  retrieved_utc: '2026-11-11T10:19:41Z'
+- url: https://www.bls.gov/news.release/archives/cpi_04122023.htm
+  file: data/calendar/raw/bls/releases/cpi_04122023.htm
+  sha256: ffdfcfe1c00558469848e28eeb1f0a1f716be8f90879a45f6ccd8d18daa34cb9
+  retrieved_utc: '2026-11-11T10:19:44Z'
+- url: https://www.bls.gov/news.release/archives/cpi_05102023.htm
+  file: data/calendar/raw/bls/releases/cpi_05102023.htm
+  sha256: 0586dd5f313c59d400ca5795c3d202e0740317dd643fb25325abe3b513a27766
+  retrieved_utc: '2026-11-11T10:19:47Z'
+- url: https://www.bls.gov/news.release/archives/cpi_06132023.htm
+  file: data/calendar/raw/bls/releases/cpi_06132023.htm
+  sha256: 441fbaa7e7e15727f107dbf06b7965dd0e35621501952af435d9a2ce12b26f65
+  retrieved_utc: '2026-11-11T10:19:49Z'
+- url: https://www.bls.gov/news.release/archives/cpi_07122023.htm
+  file: data/calendar/raw/bls/releases/cpi_07122023.htm
+  sha256: 0dac29c5d2b108e4b32731f6b1db8d8da5372ddf6ac4802b4b1ee4932b3265d1
+  retrieved_utc: '2026-11-11T10:19:52Z'
+- url: https://www.bls.gov/news.release/archives/cpi_08102023.htm
+  file: data/calendar/raw/bls/releases/cpi_08102023.htm
+  sha256: 847727876ffbf92677e38b6591743411666107ba883e90f2bd9da3584d96568b
+  retrieved_utc: '2026-11-11T10:19:54Z'
+- url: https://www.bls.gov/news.release/archives/cpi_09132023.htm
+  file: data/calendar/raw/bls/releases/cpi_09132023.htm
+  sha256: 83a7380d4e81463a3266935617ac086f8edc5f2ef3b9fee826bd2b521eaccf49
+  retrieved_utc: '2026-11-11T10:19:57Z'
+- url: https://www.bls.gov/news.release/archives/cpi_10122023.htm
+  file: data/calendar/raw/bls/releases/cpi_10122023.htm
+  sha256: 5d33f0a6efd860412cdefe5911ab4cf0fa27e0dc852102c1cc5a6619bfb413cd
+  retrieved_utc: '2026-11-11T10:19:59Z'
+- url: https://www.bls.gov/news.release/archives/cpi_11142023.htm
+  file: data/calendar/raw/bls/releases/cpi_11142023.htm
+  sha256: 95e006e0d5d3093939016bd5b08159fb688aae1de2f256ef56caf041763d946b
+  retrieved_utc: '2026-11-11T10:20:02Z'
+- url: https://www.bls.gov/news.release/archives/cpi_12122023.htm
+  file: data/calendar/raw/bls/releases/cpi_12122023.htm
+  sha256: 0342155f3fcb4dd68166c8c8e33e0a049662c97100de2d0f4903628d179b660e
+  retrieved_utc: '2026-11-11T10:20:05Z'
+- url: https://www.bls.gov/news.release/archives/cpi_01112024.htm
+  file: data/calendar/raw/bls/releases/cpi_01112024.htm
+  sha256: 5af03777daf991ada26ce61a3002e3f49d9f8f25c3e4ce88131692c86a6eb7e6
+  retrieved_utc: '2026-11-11T10:20:07Z'
+- url: https://www.bls.gov/news.release/archives/cpi_02132024.htm
+  file: data/calendar/raw/bls/releases/cpi_02132024.htm
+  sha256: 90914201190d8f8b1f19da73932f83e2c3651f31316a65de6de5dd605647cb16
+  retrieved_utc: '2026-11-11T10:20:10Z'
+- url: https://www.bls.gov/news.release/archives/cpi_03122024.htm
+  file: data/calendar/raw/bls/releases/cpi_03122024.htm
+  sha256: 233d5f46067ec4110fcbb59e3c19a880f81184177f56733062dd312e4253ae66
+  retrieved_utc: '2026-11-11T10:20:13Z'
+- url: https://www.bls.gov/news.release/archives/cpi_04102024.htm
+  file: data/calendar/raw/bls/releases/cpi_04102024.htm
+  sha256: c23838dff36779ca5a3e439b9d5c451b1cbb8689adebcfb42c477dd9284337b8
+  retrieved_utc: '2026-11-11T10:20:15Z'
+- url: https://www.bls.gov/news.release/archives/cpi_05152024.htm
+  file: data/calendar/raw/bls/releases/cpi_05152024.htm
+  sha256: 5ed19921c617b95f99140ad464a59c142d5d24726a39508a67d471660a4185c8
+  retrieved_utc: '2026-11-11T10:20:18Z'
+- url: https://www.bls.gov/news.release/archives/cpi_06122024.htm
+  file: data/calendar/raw/bls/releases/cpi_06122024.htm
+  sha256: 76eff97eff76a812263bd21d8e55c29c42ea2b883c7dea4ff98f326112cf8437
+  retrieved_utc: '2026-11-11T10:20:21Z'
+- url: https://www.bls.gov/news.release/archives/cpi_07112024.htm
+  file: data/calendar/raw/bls/releases/cpi_07112024.htm
+  sha256: fb0a5c1351be3a2a15c6c249ed792d630af5e47e4c7278db492c079a702086db
+  retrieved_utc: '2026-11-11T10:20:23Z'
+- url: https://www.bls.gov/news.release/archives/cpi_08142024.htm
+  file: data/calendar/raw/bls/releases/cpi_08142024.htm
+  sha256: 4568374b38f65dac54e32f3a166725e7e62fa2ed8ba38bc7aa280ba625e82781
+  retrieved_utc: '2026-11-11T10:20:26Z'
+- url: https://www.bls.gov/news.release/archives/cpi_09112024.htm
+  file: data/calendar/raw/bls/releases/cpi_09112024.htm
+  sha256: 0d933d2577073291772e8123c6f1b7def0822ae3f4a009c0ef028587bad98217
+  retrieved_utc: '2026-11-11T10:20:28Z'
+- url: https://www.bls.gov/news.release/archives/cpi_10102024.htm
+  file: data/calendar/raw/bls/releases/cpi_10102024.htm
+  sha256: e2d8d6f1689494275ef6879be7548b97fcaec8862c944f6fc0f1911c621f6ac0
+  retrieved_utc: '2026-11-11T10:20:31Z'
+- url: https://www.bls.gov/news.release/archives/cpi_11132024.htm
+  file: data/calendar/raw/bls/releases/cpi_11132024.htm
+  sha256: ad0279d8d9bf165360affa63a8b640b28dbea9c49c6bfcc6f66f451d9e637769
+  retrieved_utc: '2026-11-11T10:20:33Z'
+- url: https://www.bls.gov/news.release/archives/cpi_12112024.htm
+  file: data/calendar/raw/bls/releases/cpi_12112024.htm
+  sha256: 415282398015c224606261fb978ec7c61c35647ec5b3438fa3f613111217bb0e
+  retrieved_utc: '2026-11-11T10:20:36Z'
+- url: https://www.bls.gov/news.release/archives/cpi_01152025.htm
+  file: data/calendar/raw/bls/releases/cpi_01152025.htm
+  sha256: 6e90f322584a8e8e776433678ff20e96ca1eb4f3545ecbfb067b9408a92e5abc
+  retrieved_utc: '2026-11-11T10:20:39Z'
+- url: https://www.bls.gov/news.release/archives/cpi_02122025.htm
+  file: data/calendar/raw/bls/releases/cpi_02122025.htm
+  sha256: 92bf745a006f02fe197e880f81d2d7c56e56f8d297a713a02b0fe5aef4e588e1
+  retrieved_utc: '2026-11-11T10:20:41Z'
+- url: https://www.bls.gov/news.release/archives/cpi_03122025.htm
+  file: data/calendar/raw/bls/releases/cpi_03122025.htm
+  sha256: 8d76b5e0f06f42521a0d325ed4dfa56985629fab354dde5b3ac52269e487fa53
+  retrieved_utc: '2026-11-11T10:20:44Z'
+- url: https://www.bls.gov/news.release/archives/cpi_04102025.htm
+  file: data/calendar/raw/bls/releases/cpi_04102025.htm
+  sha256: b40ef03dec713fc7ca0e5e64e4043f2d9fa95e42a0e806b9dc101a64ca9bf424
+  retrieved_utc: '2026-11-11T10:20:47Z'
+- url: https://www.bls.gov/news.release/archives/cpi_05132025.htm
+  file: data/calendar/raw/bls/releases/cpi_05132025.htm
+  sha256: d6b6ade9054d2af5f2de6aa342b8bbc7ba2ca0f5a5b090080ce7fc7dd6b45c10
+  retrieved_utc: '2026-11-11T10:20:49Z'
+- url: https://www.bls.gov/news.release/archives/cpi_06112025.htm
+  file: data/calendar/raw/bls/releases/cpi_06112025.htm
+  sha256: 0250b81ace8d66bb97595624259c8079deb2ad941e23f42dd4ce955b5ea75cf3
+  retrieved_utc: '2026-11-11T10:20:52Z'
+- url: https://www.bls.gov/news.release/archives/cpi_07152025.htm
+  file: data/calendar/raw/bls/releases/cpi_07152025.htm
+  sha256: a0905a0de50db59be573b829d999a98d32512dc9d4e6f22ed789c64eed4fbcb2
+  retrieved_utc: '2026-11-11T10:20:55Z'
+- url: https://www.bls.gov/news.release/archives/cpi_08122025.htm
+  file: data/calendar/raw/bls/releases/cpi_08122025.htm
+  sha256: a7651ec9f9870e9efab3f1659639d06aa80c43c2862d009a76ade1d16f941913
+  retrieved_utc: '2026-11-11T10:20:57Z'
+- url: https://www.bls.gov/news.release/archives/cpi_09112025.htm
+  file: data/calendar/raw/bls/releases/cpi_09112025.htm
+  sha256: f376b178ee4e16a7cc2ae6810e2164cad96aa8da156900623b2ff780a78f26bf
+  retrieved_utc: '2026-11-11T10:21:00Z'
+- url: https://www.bls.gov/news.release/archives/cpi_10242025.htm
+  file: data/calendar/raw/bls/releases/cpi_10242025.htm
+  sha256: ab7e0e431246f6f983575529cf4eae509706963fa893b6156576a2c320556397
+  retrieved_utc: '2026-11-11T10:21:03Z'
+- url: https://www.bls.gov/news.release/archives/cpi_12182025.htm
+  file: data/calendar/raw/bls/releases/cpi_12182025.htm
+  sha256: 85627e2f11db4d58fbdebc5877b27e71022c0ef17db77ddfb04497c4e33105b5
+  retrieved_utc: '2026-11-11T10:21:05Z'
+- url: https://www.bls.gov/news.release/archives/cpi_01132026.htm
+  file: data/calendar/raw/bls/releases/cpi_01132026.htm
+  sha256: bbdb2ecf47afdc9e0daad8555b1a3bf38b8a8981eacaf42d08d3d4953ba632fd
+  retrieved_utc: '2026-11-11T10:21:08Z'
+- url: https://www.bls.gov/news.release/archives/cpi_02132026.htm
+  file: data/calendar/raw/bls/releases/cpi_02132026.htm
+  sha256: e187d5e926bb71670d6b82fad7540c4a4804a9e25ec132a27d8fb701b0d371fc
+  retrieved_utc: '2026-11-11T10:21:11Z'
+- url: https://www.bls.gov/news.release/archives/cpi_03112026.htm
+  file: data/calendar/raw/bls/releases/cpi_03112026.htm
+  sha256: 11f673e859eccffabc53987c0fb6cb02760c0601a4d24c1f03d62d162774f168
+  retrieved_utc: '2026-11-11T10:21:13Z'
+- url: https://www.bls.gov/news.release/archives/cpi_04102026.htm
+  file: data/calendar/raw/bls/releases/cpi_04102026.htm
+  sha256: 2f00ec5a10c8d2f0e6e879d8ae8762af555cb7ef26805b37b627ad47c93012f0
+  retrieved_utc: '2026-11-11T10:21:16Z'
+- url: https://www.bls.gov/news.release/archives/cpi_05122026.htm
+  file: data/calendar/raw/bls/releases/cpi_05122026.htm
+  sha256: bfee220ac431aefa8dcd000040996fce59d17c06ea2fe2b297db0f3a6d5b659f
+  retrieved_utc: '2026-11-11T10:21:19Z'
+- url: https://www.bls.gov/news.release/archives/cpi_06102026.htm
+  file: data/calendar/raw/bls/releases/cpi_06102026.htm
+  sha256: ba198a462a41b85b997df781558b90d3ab4663d9640efc8cdccca9e81e046a2f
+  retrieved_utc: '2026-11-11T10:21:21Z'
+- url: https://www.bls.gov/news.release/archives/cpi_07142026.htm
+  file: data/calendar/raw/bls/releases/cpi_07142026.htm
+  sha256: 382f20db3bdeba1f45a7783dacdaebb87e4ca8461ae2e701db803538afdfc790
+  retrieved_utc: '2026-11-11T10:21:24Z'
+- url: https://www.bls.gov/news.release/archives/cpi_08122026.htm
+  file: data/calendar/raw/bls/releases/cpi_08122026.htm
+  sha256: d18471db7736e302e35085e14d746eddf51a4f6d27b954642e3ddec3e85778e5
+  retrieved_utc: '2026-11-11T10:21:26Z'
+- url: https://www.bls.gov/news.release/archives/cpi_09112026.htm
+  file: data/calendar/raw/bls/releases/cpi_09112026.htm
+  sha256: aee0cdff604c295d784e6302b2ba74130f10f535675a5a0fb7262c936edaaabd
+  retrieved_utc: '2026-11-11T10:21:29Z'
+- url: https://www.bls.gov/news.release/archives/cpi_10142026.htm
+  file: data/calendar/raw/bls/releases/cpi_10142026.htm
+  sha256: b9f981390c08f4a530d839495fce582124015b979bac0398bfcc35ffde0544e4
+  retrieved_utc: '2026-11-11T10:21:32Z'
+- url: https://www.bls.gov/news.release/archives/cpi_11102026.htm
+  file: data/calendar/raw/bls/releases/cpi_11102026.htm
+  sha256: 7041541ddfc6fc155e33eab0d191e6dff6ba44c1b847921f1926cf9425126c18
+  retrieved_utc: '2026-11-11T10:21:34Z'
+- url: https://www.bls.gov/schedule/news_release/cpi.htm
+  file: data/calendar/raw/bls/cpi_schedule.html
+  sha256: cece37b1f964eed1cd51215764a55fb26e310da31b441ab9c65758989c9afc17
+  retrieved_utc: '2026-11-11T10:10:04Z'
+  saved_by: owner, in a browser
+- url: https://www.bls.gov/bls/news-release/cpi.htm
+  file: data/calendar/raw/bls/cpi_archive.html
+  sha256: a069474cfb01f3d64419d2c1f6ac6d25354fed8afe71216994d34220762359dd
+  retrieved_utc: '2026-11-11T10:09:24Z'
+  saved_by: owner, in a browser
+- url: https://www.bls.gov/news.release/archives/empsit_11042022.htm
+  file: data/calendar/raw/bls/releases/empsit_11042022.htm
+  sha256: b1b493d96f186fc8b61974b9f0f0b431f76c096f40a6cb7a5a37bec46e2fb132
+  retrieved_utc: '2026-11-11T10:21:37Z'
+- url: https://www.bls.gov/news.release/archives/empsit_12022022.htm
+  file: data/calendar/raw/bls/releases/empsit_12022022.htm
+  sha256: db127342d027e2aef0d40422ba6a5b12228793929f5444d0404d61f58d860556
+  retrieved_utc: '2026-11-11T10:21:39Z'
+- url: https://www.bls.gov/news.release/archives/empsit_01062023.htm
+  file: data/calendar/raw/bls/releases/empsit_01062023.htm
+  sha256: 61d3c44629640c779d63ec2610b7e4c32debc8dcd84d8212b92b9ce4f61f910c
+  retrieved_utc: '2026-11-11T10:21:42Z'
+- url: https://www.bls.gov/news.release/archives/empsit_02032023.htm
+  file: data/calendar/raw/bls/releases/empsit_02032023.htm
+  sha256: 69fc64bcdbac73513fdb330d2823148e74a186c56aecdfe70f90bd5166a514c9
+  retrieved_utc: '2026-11-11T10:21:45Z'
+- url: https://www.bls.gov/news.release/archives/empsit_03102023.htm
+  file: data/calendar/raw/bls/releases/empsit_03102023.htm
+  sha256: 9820fae8710d5073e238fbf572fbe64ad2eb863d95249e352d8f87d1ac519aa5
+  retrieved_utc: '2026-11-11T10:21:47Z'
+- url: https://www.bls.gov/news.release/archives/empsit_04072023.htm
+  file: data/calendar/raw/bls/releases/empsit_04072023.htm
+  sha256: 784b1099e9e7bf68b5d286106f7ff578ee4f4277b92f4addbbb2a80a251bdf34
+  retrieved_utc: '2026-11-11T10:21:50Z'
+- url: https://www.bls.gov/news.release/archives/empsit_05052023.htm
+  file: data/calendar/raw/bls/releases/empsit_05052023.htm
+  sha256: 3ff75831ce5bdcaf45d93b54269931ab9f72011c538f3343a03ebdc555f11e4c
+  retrieved_utc: '2026-11-11T10:21:53Z'
+- url: https://www.bls.gov/news.release/archives/empsit_06022023.htm
+  file: data/calendar/raw/bls/releases/empsit_06022023.htm
+  sha256: ba5920d0b52089345cb0b162d59934287dce1749f708cba0d62f45d857278053
+  retrieved_utc: '2026-11-11T10:21:55Z'
+- url: https://www.bls.gov/news.release/archives/empsit_07072023.htm
+  file: data/calendar/raw/bls/releases/empsit_07072023.htm
+  sha256: e9dd547db8e841b0a64391376d0bac6877c481bc38c93dc6b8817046b359e841
+  retrieved_utc: '2026-11-11T10:21:58Z'
+- url: https://www.bls.gov/news.release/archives/empsit_08042023.htm
+  file: data/calendar/raw/bls/releases/empsit_08042023.htm
+  sha256: 5330787c9e90c82620b98998e99314f1658eaaa6b7804f2bece8b5e869db04bb
+  retrieved_utc: '2026-11-11T10:22:01Z'
+- url: https://www.bls.gov/news.release/archives/empsit_09012023.htm
+  file: data/calendar/raw/bls/releases/empsit_09012023.htm
+  sha256: 7002a690524bf7be0458439caf0de4fb6c6d74ae7365a8493d43476d00ca311f
+  retrieved_utc: '2026-11-11T10:22:03Z'
+- url: https://www.bls.gov/news.release/archives/empsit_10062023.htm
+  file: data/calendar/raw/bls/releases/empsit_10062023.htm
+  sha256: 785ca92afa1459606f5e2ea3d9db28e77accb0deabc232d4358395836f38137e
+  retrieved_utc: '2026-11-11T10:22:06Z'
+- url: https://www.bls.gov/news.release/archives/empsit_11032023.htm
+  file: data/calendar/raw/bls/releases/empsit_11032023.htm
+  sha256: 96fdce55a2cc628ca6b107c5383855ec58d011d77f546a5267fac8defcdb12fd
+  retrieved_utc: '2026-11-11T10:22:08Z'
+- url: https://www.bls.gov/news.release/archives/empsit_12082023.htm
+  file: data/calendar/raw/bls/releases/empsit_12082023.htm
+  sha256: 76819044164efb1ffb8bedfca24f004fac24efe6ee29b930c9da4495ffe00a9a
+  retrieved_utc: '2026-11-11T10:22:11Z'
+- url: https://www.bls.gov/news.release/archives/empsit_01052024.htm
+  file: data/calendar/raw/bls/releases/empsit_01052024.htm
+  sha256: da3fd6f940aac5a11cc3ee5ce5c53a6b6901b1486dbc29c07957d1d42002b29a
+  retrieved_utc: '2026-11-11T10:22:13Z'
+- url: https://www.bls.gov/news.release/archives/empsit_02022024.htm
+  file: data/calendar/raw/bls/releases/empsit_02022024.htm
+  sha256: bbf1e54126c64258fa0e9dee99812520e6bac52fe5ff3021124e6153b98cd56a
+  retrieved_utc: '2026-11-11T10:22:16Z'
+- url: https://www.bls.gov/news.release/archives/empsit_03082024.htm
+  file: data/calendar/raw/bls/releases/empsit_03082024.htm
+  sha256: 7ac4bd1da8ba4eb93d793fd6b6943cc574daf4c24206f90cc8d46172b47c76d1
+  retrieved_utc: '2026-11-11T10:22:19Z'
+- url: https://www.bls.gov/news.release/archives/empsit_04052024.htm
+  file: data/calendar/raw/bls/releases/empsit_04052024.htm
+  sha256: a07782baaf7f65434c7cc38f8a46ace8a4492786d06c6780c3bdb24d8d4f8a7a
+  retrieved_utc: '2026-11-11T10:22:21Z'
+- url: https://www.bls.gov/news.release/archives/empsit_05032024.htm
+  file: data/calendar/raw/bls/releases/empsit_05032024.htm
+  sha256: 4b96d16d2b358e55d24f0be1b8743811d7e9519282d5d7d8d88d08abce23c7c1
+  retrieved_utc: '2026-11-11T10:22:24Z'
+- url: https://www.bls.gov/news.release/archives/empsit_06072024.htm
+  file: data/calendar/raw/bls/releases/empsit_06072024.htm
+  sha256: 83ae972096689ade37cfa50edcff3277f13315fb8365cf7f01ade4b844b1eaff
+  retrieved_utc: '2026-11-11T10:22:26Z'
+- url: https://www.bls.gov/news.release/archives/empsit_07052024.htm
+  file: data/calendar/raw/bls/releases/empsit_07052024.htm
+  sha256: 9ebf777cf22d766a377c8c905ddb6b7605188718f44f601bb9e34b6a1f63b69a
+  retrieved_utc: '2026-11-11T10:22:29Z'
+- url: https://www.bls.gov/news.release/archives/empsit_08022024.htm
+  file: data/calendar/raw/bls/releases/empsit_08022024.htm
+  sha256: 783294006c3db5aa531d6221d3f8a481dfa82f30e9657cb216c036cb7be1702c
+  retrieved_utc: '2026-11-11T10:22:32Z'
+- url: https://www.bls.gov/news.release/archives/empsit_09062024.htm
+  file: data/calendar/raw/bls/releases/empsit_09062024.htm
+  sha256: 0a8eefbcfd8e3c087160b7613af03f7c399e697f2e9eeda4661da650f3041b7e
+  retrieved_utc: '2026-11-11T10:22:34Z'
+- url: https://www.bls.gov/news.release/archives/empsit_10042024.htm
+  file: data/calendar/raw/bls/releases/empsit_10042024.htm
+  sha256: 681459f0b0e14e72aae4f4b996aa45c79793d73d89f933208c85f09f0751d1ee
+  retrieved_utc: '2026-11-11T10:22:37Z'
+- url: https://www.bls.gov/news.release/archives/empsit_11012024.htm
+  file: data/calendar/raw/bls/releases/empsit_11012024.htm
+  sha256: 7dcc515f63d18cdb850482212987270b1cf36cf2d83daaf3101bd6d37b52d0a0
+  retrieved_utc: '2026-11-11T10:22:39Z'
+- url: https://www.bls.gov/news.release/archives/empsit_12062024.htm
+  file: data/calendar/raw/bls/releases/empsit_12062024.htm
+  sha256: 709c4ef002562bdf6ef311754c47315aa28e0964be97d8d77089ab4285c8f8ee
+  retrieved_utc: '2026-11-11T10:22:42Z'
+- url: https://www.bls.gov/news.release/archives/empsit_01102025.htm
+  file: data/calendar/raw/bls/releases/empsit_01102025.htm
+  sha256: 696ad6dd62fb4666a2333386ca09e81e5096ddf612d32c4d2ffd716ce796084c
+  retrieved_utc: '2026-11-11T10:22:45Z'
+- url: https://www.bls.gov/news.release/archives/empsit_02072025.htm
+  file: data/calendar/raw/bls/releases/empsit_02072025.htm
+  sha256: e653df54e98d870033b675cd6c2bf57f0ea944b4563ce30679bd6b32a8941991
+  retrieved_utc: '2026-11-11T10:22:47Z'
+- url: https://www.bls.gov/news.release/archives/empsit_03072025.htm
+  file: data/calendar/raw/bls/releases/empsit_03072025.htm
+  sha256: d3d200716e88a6594647942a43e9a93f952d4103c246ced3aa2cee374af6d298
+  retrieved_utc: '2026-11-11T10:22:50Z'
+- url: https://www.bls.gov/news.release/archives/empsit_04042025.htm
+  file: data/calendar/raw/bls/releases/empsit_04042025.htm
+  sha256: 3b6a767171cc0f963f109033d36e751340db2200abafad1201fc3108e6e587ac
+  retrieved_utc: '2026-11-11T10:22:52Z'
+- url: https://www.bls.gov/news.release/archives/empsit_05022025.htm
+  file: data/calendar/raw/bls/releases/empsit_05022025.htm
+  sha256: d66ab0a84207da1342f12861c29a0e4978ccbebbd742c52b1e8533023cdc3873
+  retrieved_utc: '2026-11-11T10:22:55Z'
+- url: https://www.bls.gov/news.release/archives/empsit_06062025.htm
+  file: data/calendar/raw/bls/releases/empsit_06062025.htm
+  sha256: 427359066f3ccecb6c291c86f706e52280862acea8cb640f990bb9010a3982df
+  retrieved_utc: '2026-11-11T10:22:58Z'
+- url: https://www.bls.gov/news.release/archives/empsit_07032025.htm
+  file: data/calendar/raw/bls/releases/empsit_07032025.htm
+  sha256: cdebd2b9d549e47842226ce3ecb40f108c0d10390d60a1ff37f43c9abac25a9d
+  retrieved_utc: '2026-11-11T10:23:00Z'
+- url: https://www.bls.gov/news.release/archives/empsit_08012025.htm
+  file: data/calendar/raw/bls/releases/empsit_08012025.htm
+  sha256: 3dd179efacf0239bb6c2c8a9780dc30231411bfc5a2385275ff1bfa46e8ef153
+  retrieved_utc: '2026-11-11T10:23:03Z'
+- url: https://www.bls.gov/news.release/archives/empsit_09052025.htm
+  file: data/calendar/raw/bls/releases/empsit_09052025.htm
+  sha256: ca6186dccc99238b7a30b671c931cef474d4ed4484d6bb8e0d425e2f9a04713a
+  retrieved_utc: '2026-11-11T10:23:05Z'
+- url: https://www.bls.gov/news.release/archives/empsit_11202025.htm
+  file: data/calendar/raw/bls/releases/empsit_11202025.htm
+  sha256: 32423903015128e72093392cfaf331a097db1aeb2e8e7d300bec15eef9b6dd8e
+  retrieved_utc: '2026-11-11T10:23:08Z'
+- url: https://www.bls.gov/news.release/archives/empsit_12162025.htm
+  file: data/calendar/raw/bls/releases/empsit_12162025.htm
+  sha256: 69c3fa7418e51c61aebe003969fc72878c19f3ea9c25e14155e244a2591e7947
+  retrieved_utc: '2026-11-11T10:23:10Z'
+- url: https://www.bls.gov/news.release/archives/empsit_01092026.htm
+  file: data/calendar/raw/bls/releases/empsit_01092026.htm
+  sha256: 7cc113005b6baba66c5cf85feb83d4467479924b5661d59a6ef1237ff135df27
+  retrieved_utc: '2026-11-11T10:23:13Z'
+- url: https://www.bls.gov/news.release/archives/empsit_02112026.htm
+  file: data/calendar/raw/bls/releases/empsit_02112026.htm
+  sha256: cd282f892c07c124d465f184ad9fab298893d4616b64d99fff467feae60a939f
+  retrieved_utc: '2026-11-11T10:23:16Z'
+- url: https://www.bls.gov/news.release/archives/empsit_03062026.htm
+  file: data/calendar/raw/bls/releases/empsit_03062026.htm
+  sha256: 596a68af690cac8805340128de322b5b4ff3f3b7773cc77151c061340b7d1435
+  retrieved_utc: '2026-11-11T10:23:18Z'
+- url: https://www.bls.gov/news.release/archives/empsit_04032026.htm
+  file: data/calendar/raw/bls/releases/empsit_04032026.htm
+  sha256: 532760a4d2854a7ee19f238ffbdcbcfc2397f5914c33ea8bd423917b1bd0d818
+  retrieved_utc: '2026-11-11T10:23:21Z'
+- url: https://www.bls.gov/news.release/archives/empsit_05082026.htm
+  file: data/calendar/raw/bls/releases/empsit_05082026.htm
+  sha256: 1fbf18cc3628258342ab2488beb30dbce1a47a79ce83ec8bb5ed4b018cdb321b
+  retrieved_utc: '2026-11-11T10:23:23Z'
+- url: https://www.bls.gov/news.release/archives/empsit_06052026.htm
+  file: data/calendar/raw/bls/releases/empsit_06052026.htm
+  sha256: 5c872de512f133555f2ab7ac98b80ff89005e348611d1cae91a449ed992225e8
+  retrieved_utc: '2026-11-11T10:23:26Z'
+- url: https://www.bls.gov/news.release/archives/empsit_07022026.htm
+  file: data/calendar/raw/bls/releases/empsit_07022026.htm
+  sha256: a1be102c0f196204af49cc772e153724e8c62bdfef027c139048eafa95e0825f
+  retrieved_utc: '2026-11-11T10:23:29Z'
+- url: https://www.bls.gov/news.release/archives/empsit_08072026.htm
+  file: data/calendar/raw/bls/releases/empsit_08072026.htm
+  sha256: 4602e50c53ccfc789d52ef73191171d9918141516b7734524e70f2b8326024a5
+  retrieved_utc: '2026-11-11T10:23:31Z'
+- url: https://www.bls.gov/news.release/archives/empsit_09042026.htm
+  file: data/calendar/raw/bls/releases/empsit_09042026.htm
+  sha256: 6d83eeecf867f1e8c9a2a5449a4b064896062f4529ad36c4ff2a37e6968b7481
+  retrieved_utc: '2026-11-11T10:23:34Z'
+- url: https://www.bls.gov/news.release/archives/empsit_10022026.htm
+  file: data/calendar/raw/bls/releases/empsit_10022026.htm
+  sha256: 1de7921a0f1a8fe0d512e9faf5f588383d65e2e3a90e62d8c6c8c7c730f4c4fe
+  retrieved_utc: '2026-11-11T10:23:36Z'
+- url: https://www.bls.gov/news.release/archives/empsit_11062026.htm
+  file: data/calendar/raw/bls/releases/empsit_11062026.htm
+  sha256: 571a2b5daba284001377cca5a09012c51b22d7954642db4c79e63f0757b98f9c
+  retrieved_utc: '2026-11-11T10:23:39Z'
+- url: https://www.bls.gov/schedule/news_release/empsit.htm
+  file: data/calendar/raw/bls/empsit_schedule.html
+  sha256: 939d7d01d2d4e136e54f7fec49ea3108e73dfcf9f50dba383fc7c723e21a556e
+  retrieved_utc: '2026-11-11T10:09:01Z'
+  saved_by: owner, in a browser
+- url: https://www.bls.gov/bls/news-release/empsit.htm
+  file: data/calendar/raw/bls/empsit_archive.html
+  sha256: 876329bf65bbcd0b5640b9ff04307a5d79779fbd696ce36a6865c9b11b2203ef
+  retrieved_utc: '2026-11-11T10:09:42Z'
+  saved_by: owner, in a browser
