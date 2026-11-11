@@ -37,3 +37,5 @@ Changes go in a new experiment, which links back to the original.
 - Comparisons so far in the programme: <count>
 - Result: <link to report, added after the run>
 ```
+| EXP-011 | Strategy A forward test (frozen; from 2026-11-16) | registered, collecting | 2026-11-11 | `EXP-011-strategy-a-forward-test.md` | weekly reports in `../../../reports/forward/` |
+| EXP-012 | Quote movement at the modelled entry (historical ticks) | registered | 2026-11-11 | `EXP-012-quote-movement-at-entry.md` | pending |
