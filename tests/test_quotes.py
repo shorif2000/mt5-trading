@@ -53,3 +53,12 @@ def test_offsets_beyond_the_fetched_window_are_not_filled():
 def test_no_quote_soon_after_the_entry_moment_gives_no_observation():
     late = [tick(-5, "2000.0", "2000.2"), tick(90, "2000.1", "2000.3")]
     assert observe(late, T, Direction.BUY, D("2000"), 20, POINT, window_end=END) is None
+
+
+def test_an_observation_serialises_to_json_for_the_quote_log():
+    import json
+
+    o = observe(TICKS, T, Direction.BUY, D("2000.00"), 20, POINT, window_end=END)
+    assert o is not None
+    row = json.loads(json.dumps(o.as_dict()))
+    assert row["adverse_points"]["1.0"] == "10" and row["direction"] == "buy"

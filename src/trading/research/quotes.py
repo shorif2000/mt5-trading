@@ -43,9 +43,13 @@ class QuoteObservation:
         out["entry_time"] = self.entry_time.isoformat()
         out["first_tick_time"] = self.first_tick_time.isoformat()
         out["direction"] = self.direction.value
-        out["adverse_points"] = {str(k): v for k, v in self.adverse_points.items()}
-        out["spread_points"] = {str(k): v for k, v in self.spread_points.items()}
-        return {k: (str(v) if isinstance(v, Decimal) else v) for k, v in out.items()}
+        out["adverse_points"] = {str(k): _plain(v) for k, v in self.adverse_points.items()}
+        out["spread_points"] = {str(k): _plain(v) for k, v in self.spread_points.items()}
+        return {k: _plain(v) for k, v in out.items()}
+
+
+def _plain(value: Any) -> Any:
+    return str(value) if isinstance(value, Decimal) else value
 
 
 def observe(
