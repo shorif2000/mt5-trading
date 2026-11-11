@@ -6,8 +6,11 @@ Sources (official only):
   (https://www.federalreserve.gov/newsevents/pressreleases/monetaryYYYYMMDDa.htm), "For
   release at h:mm a.m./p.m. EDT|EST". The date and the EDT/EST label are checked against the
   link date and US daylight saving; any disagreement stops the build.
-- BLS CPI and Employment Situation: bls.gov refused automated access (HTTP 403) on
-  2026-11-11, so they are recorded as unavailable. Saved BLS pages can be added later.
+- BLS CPI and Employment Situation: bls.gov refuses automated access (HTTP 403), so the owner
+  saves the official schedule and archive pages in a browser (scripts/save_bls_pages.sh, which
+  records each file's URL, sha256 and save time in data/calendar/raw/bls/MANIFEST.tsv).
+  Publication dates come from the archive, release times from the schedule
+  (src/trading/research/bls_calendar.py). Without those files both stay "unavailable".
 
 Nothing is invented: a meeting without a published statement page (a future meeting) is kept
 as "scheduled" with no time; the news filter then blocks its whole New York day.
@@ -23,7 +26,14 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
+from trading.research.bls_calendar import build_events, parse_archive, parse_schedule
+
 RAW = Path("data/calendar/raw")
+BLS = RAW / "bls"
+BLS_PAGES = {  # kind -> (schedule file, archive file)
+    "cpi": ("cpi_schedule.html", "cpi_archive.html"),
+    "employment_situation": ("empsit_schedule.html", "empsit_archive.html"),
+}
 OUT = Path("config/economic_calendar.yaml")
 FED = "https://www.federalreserve.gov"
 CALENDAR_URL = f"{FED}/monetarypolicy/fomccalendars.htm"
@@ -140,20 +150,79 @@ def main() -> None:
                 "not yet published, so each meeting blocks its whole New York day)",
             },
         ],  # fmt: skip
-        "unavailable": {
-            "cpi": "bls.gov refused automated access (HTTP 403) on 2026-11-11; not sourced",
-            "employment_situation": "bls.gov refused automated access (HTTP 403) on "
-            "2026-11-11; not sourced",
-        },
-        "events": sorted(events, key=lambda e: (str(e["date"]), str(e["time"]))),
+        "unavailable": {},
+        "findings": [],
+        "events": [],
         "sources": sources,
     }
+    for kind, (schedule_file, archive_file) in BLS_PAGES.items():
+        added = add_bls(kind, BLS / schedule_file, BLS / archive_file, data)
+        if not added:
+            data["unavailable"][kind] = (  # type: ignore[index]
+                "bls.gov refuses automated access (HTTP 403); official pages not saved in "
+                f"{BLS} (run scripts/save_bls_pages.sh)"
+            )
+    data["events"] = sorted([*events, *data["events"]],  # type: ignore[misc]
+                            key=lambda e: (str(e["date"]), str(e["time"])))  # fmt: skip
+    for finding in data["findings"]:  # type: ignore[attr-defined]
+        print(f"finding: {finding}")
     OUT.write_text(yaml.safe_dump(data, sort_keys=False, width=100), encoding="utf-8")
     published = sum(e["status"] == "published" for e in events)
     print(
         f"{OUT}: {published} published FOMC statements ({COVERAGE_FROM} to "
         f"{latest_verified}), {len(events) - published} scheduled"
     )
+
+
+def bls_manifest() -> dict[str, dict[str, str]]:
+    """Rows of data/calendar/raw/bls/MANIFEST.tsv (written by scripts/save_bls_pages.sh)."""
+    path = BLS / "MANIFEST.tsv"
+    if not path.exists():
+        return {}
+    lines = path.read_text(encoding="utf-8").splitlines()
+    header = lines[0].split("\t")
+    return {row[0]: dict(zip(header, row, strict=True))
+            for row in (line.split("\t") for line in lines[1:] if line)}  # fmt: skip
+
+
+def add_bls(kind: str, schedule_path: Path, archive_path: Path, data: dict[str, object]) -> bool:
+    """Add one BLS release to ``data`` from the saved pages; False when they are not saved.
+    Each file must match the sha256 recorded when it was saved, so the calendar is built from
+    exactly the verified pages."""
+    manifest = bls_manifest()
+    files = (schedule_path, archive_path)
+    if not all(p.exists() and p.name in manifest for p in files):
+        return False
+    for p in files:
+        if sha(p) != manifest[p.name]["sha256"]:
+            raise SystemExit(f"{p} changed since it was saved and verified; save it again")
+    schedule = parse_schedule(schedule_path.read_text(encoding="utf-8", errors="ignore"))
+    archive = parse_archive(archive_path.read_text(encoding="utf-8", errors="ignore"), kind)
+    if not schedule or not archive:
+        raise SystemExit(f"{kind}: no {'schedule rows' if not schedule else 'archive links'} "
+                         "found; the saved page layout is not the one expected")  # fmt: skip
+    saved = min(datetime.fromisoformat(manifest[p.name]["saved_utc"].replace("Z", "+00:00"))
+                for p in files).date()  # fmt: skip
+    urls = (manifest[schedule_path.name]["url"], manifest[archive_path.name]["url"])
+    built = build_events(kind, schedule, archive, saved, COVERAGE_FROM, *urls)
+    untimed = sum(e["time"] is None for e in built.events)
+    if untimed:
+        built.findings.append(
+            f"{kind}: {untimed} publications without a release time on the saved schedule "
+            "page (each blocks its whole New York day)")  # fmt: skip
+    data["events"].extend(built.events)  # type: ignore[attr-defined]
+    data["coverage"].extend(built.coverage)  # type: ignore[attr-defined]
+    data["findings"].extend(built.findings)  # type: ignore[attr-defined]
+    for p in files:
+        row = manifest[p.name]
+        data["sources"].append({"url": row["url"], "file": str(p), "sha256": row["sha256"],  # type: ignore[attr-defined]
+                                "retrieved_utc": row["saved_utc"],
+                                "saved_by": "owner, in a browser"})  # fmt: skip
+    print(
+        f"{kind}: {sum(e['status'] == 'published' for e in built.events)} published, "
+        f"{sum(e['status'] == 'scheduled' for e in built.events)} scheduled"
+    )
+    return True
 
 
 if __name__ == "__main__":
