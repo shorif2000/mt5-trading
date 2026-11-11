@@ -1,0 +1,38 @@
+{
+  "experiment": "EXP-011",
+  "frozen_at": "2026-11-11T10:55:56+00:00 on commit e5f6450f78 (research/phase2-forward-observation)",
+  "forward_start_utc": "2026-11-15T23:00:00+00:00",
+  "files": {
+    "docs/research/xauusd-strategy-candidates.md": "805968e21c51894b53938aed7bd1a3608c6bb52867f3e4e9dd845bed44996095",
+    "docs/research/strategy-a-forward-test.md": "91538a6f71c7540d9b5002b1ee37ce87fc5cb0af29ace5d2385bf80c75e150eb",
+    "src/trading/research/forward.py": "5aaf12801224cf9d42feb4a389b05071ae3e969f13f0b88f0dde9844a1d60bb3",
+    "src/trading/research/candidates.py": "faa4ed53be0e00b938ac6b7c137ed5fbfbb8bfe6c2cb945de2d22a7a14f1cfa2",
+    "src/trading/research/levels.py": "ce556972658a5ce6d31442d90a97438a04cd48c6bceafab2cfa9720439b51d2d",
+    "src/trading/research/candidate_engine.py": "fb076177f2497b121bef71d737ddc19534fcbe4dbe92e85a7afdecbc259f5353",
+    "src/trading/research/news.py": "149139a1a82842fb755ec3649af748eb2ae4b50276af4ca34f0ad8553775904f",
+    "src/trading/research/stats.py": "8f30e2928d40304c8490d6acc1ff90d52fd45b0d5a688048f936d78cb5e4dda3",
+    "src/trading/backtest/engine.py": "1ac53dbf1c95b2579851a0eadb53fae37a366b132d2fafcefd641cadbfbbf94a",
+    "src/trading/strategies/xauusd_m15_pullback.py": "7edd8e6a0568f85f526901a889e30999e1fa10e8bc210419b59c20c59a9a37ba",
+    "src/trading/analysis/indicators.py": "45b37fc8aa5ce5600329cf4b363a2b95aec87fd0af4a536241f21d451e8bcb11",
+    "src/trading/risk/position_sizing.py": "f1c06ebac873469a516287eea031e22fbf5f57e6e9d588b66911ebe0d9f71aba",
+    "src/trading/risk/margin.py": "4ee26aa4fbbfbc6a8db36637fcad15d1680847aff93375046796fcea0e763a13",
+    "src/trading/risk/sizing_config.py": "91c389babb20864b2938f76dcf553d51bb4dc09d3814057dce1d3521af2f27fe",
+    "config/risk.yaml": "0a8733521d0127de39edf93b07fef91239bea8715050816a26439476fc747925",
+    "config/backtest.yaml": "923285c8203a5bf0c1099732987786a9d7f0df3cb5121e96a966223dac4a6a41",
+    "config/market_sessions.yaml": "ee9d5817742ae74c9e57482428a2be2c7b24fdba263a005f26a535b4ee77fbdd"
+  },
+  "volatility_cutoffs": {
+    "no cost floor": [
+      0.9003176154409948,
+      1.0889426831172888
+    ],
+    "0.10R cost floor": [
+      0.94647827017769,
+      1.0718372536554341
+    ]
+  },
+  "volatility_cutoff_signals": {
+    "no cost floor": 221,
+    "0.10R cost floor": 54
+  }
+}

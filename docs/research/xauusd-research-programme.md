@@ -341,3 +341,30 @@ Recorded before any EXP-003, EXP-005 or EXP-007 result.
   event types required. Nothing else changes.
 - **The FOMC-only reports remain the original, unchanged record.** The reruns are reported
   alongside them, not in their place.
+
+## Amendment 5 (2026-11-11): phase 2, status of every line of research
+
+| Area | Status |
+|---|---|
+| Version 1.0 | Historical baseline. Not an approved trading strategy. |
+| Version 1.1 | Experimental. Not adopted. |
+| Break-even rules (EXP-001) | Not adopted. |
+| Strategy A | **Forward observation only** (EXP-011, frozen; `strategy-a-forward-test.md`) |
+| Strategy B | Parked |
+| Strategy C | Parked |
+| Strategy D | Parked |
+| New indicators | Not added without a specific, registered research hypothesis |
+
+- **Why stop developing strategies:** the evidence points to costs relative to stop size, not
+  to missing indicators. More indicators now would start another cycle of parameter
+  exploration without solving the cost problem.
+- **Phase 2 work:**
+  1. Complete the official calendar. Done (Amendment 4).
+  2. Freeze Strategy A.
+  3. Observe it forward from 2026-11-16 without placing orders.
+  4. Improve the cost evidence with read-only bid/ask observations: forward (EXP-011 quote
+     log) and historical (EXP-012).
+  5. Review weekly without making adoption decisions until the registered sample and period
+     are reached.
+- **Out of scope:** a demo execution study, which would measure real slippage. It needs a
+  separate explicit authorisation, outside this read-only workflow.

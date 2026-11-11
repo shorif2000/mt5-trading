@@ -47,15 +47,18 @@ def max_drawdown(values: Sequence[float]) -> float:
     return worst
 
 
-def bootstrap_mean(values: Sequence[float], draws: int = 2000) -> tuple[float, float, float]:
-    """Mean and 95% bootstrap interval; trades resampled independently (this overstates
-    precision when outcomes are serially dependent)."""
+def bootstrap_mean(
+    values: Sequence[float], draws: int = 2000, level: float = 0.95
+) -> tuple[float, float, float]:
+    """Mean and two-sided bootstrap interval at ``level`` (default 95%); trades resampled
+    independently (this overstates precision when outcomes are serially dependent)."""
     if not values:
         return float("nan"), float("nan"), float("nan")
     rng = random.Random(SEED)
     n = len(values)
     means = sorted(sum(rng.choices(values, k=n)) / n for _ in range(draws))
-    return statistics.fmean(values), means[int(0.025 * draws)], means[int(0.975 * draws)]
+    tail = (1 - level) / 2
+    return statistics.fmean(values), means[int(tail * draws)], means[int((1 - tail) * draws)]
 
 
 def _longest(values: Sequence[float], win: bool) -> int:
