@@ -306,3 +306,22 @@ Recorded before any EXP-003, EXP-005 or EXP-007 result.
   - The news-off arm is reported as before.
   - When BLS dates are added, the runs are repeated as new runs under new ids. These are not
     replaced.
+
+## Amendment 3 (2026-11-11): decision-rule terms for EXP-003, EXP-005 and EXP-007, before any run
+
+- **Events** (for "fewer than 100 events in a period"): setup events that produced a signal in
+  the period (one signal per event, candidate Amendment 1). Detected setups that never reached
+  a signal are reported separately.
+- **Volatility terciles:**
+  - `ADR` ratio = `ADR` on the trade's day ÷ median `ADR` over the previous 60 trading days.
+  - The cut-offs are the terciles of the arm's 2023–2024 trades, applied unchanged to all
+    trades.
+- **Pooled:** all 2023-01 to 2026-10 trades of the arm. Each period still starts its ledger at
+  £1,000.
+- **Primary result:** base cost scenario, fixed-risk ledger, news filter on (FOMC only,
+  Amendment 2).
+- **Order of rejection checks at entry:**
+  1. news;
+  2. cost floor;
+  3. B reward:risk;
+  4. the Version 1.0 engine's checks: spread, stop wider than 3 × `ATR15`, risk, margin.
