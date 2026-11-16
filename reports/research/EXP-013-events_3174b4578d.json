@@ -1,0 +1,368 @@
+{
+  "code": {
+    "branch": "research/fx-pool-strategy-a",
+    "commit": "3174b4578dcc86f5e8e234e83e8a824462fd68fb",
+    "commit_date": "2026-11-16T09:53:40Z",
+    "dirty": false,
+    "short_commit": "3174b4578d",
+    "uncommitted_diff_sha256": null,
+    "uncommitted_files": []
+  },
+  "command": "run_fx_pool_experiments.py --require-clean",
+  "environment": {
+    "packages": {
+      "mcp": "2.3.0",
+      "mt5-trading-research": "0.1.0",
+      "pydantic": "2.14.3",
+      "pyyaml": "6.0.3",
+      "truststore": "0.10.5",
+      "typer": "0.29.0"
+    },
+    "platform": "Darwin arm64",
+    "python": "3.12.13"
+  },
+  "inputs": {
+    "economic_calendar": {
+      "bytes": 71169,
+      "path": "config/economic_calendar.yaml",
+      "sha256": "6ce9b1bcb9d1234507d7ffe9127eb9260d9a09a42ee024d931a9d5dc70f0380e"
+    },
+    "fx_pool_history": {
+      "bytes": 70992760,
+      "path": "data/history/fx_pool.local.json",
+      "sha256": "d276cd7d66cbdc2c3e0ceb55dad87d73725df25ac38a80598fd42981f567ca56"
+    },
+    "programme": {
+      "bytes": 24688,
+      "path": "docs/research/xauusd-research-programme.md",
+      "sha256": "5bdf333268bc8ce7e5bdb23abef84f6f488e62c593dbe514810e6fe5b4057541"
+    },
+    "specification": {
+      "bytes": 6933,
+      "path": "docs/research/strategy-a-fx-pool.md",
+      "sha256": "59d3de3f19a6ff8b38f95d6b1ea66eb19030a91c221ec14be90f309e0f63c86b"
+    },
+    "xauusd_history_for_gbpusd": {
+      "bytes": 39327471,
+      "path": "data/history/xauusd_backtest.local.json",
+      "sha256": "e3b35038566b61b599998500b56aac8d1de39927560fc85cc4a15745901d4be9"
+    }
+  },
+  "manifest_path": "reports/research/EXP-013-events_3174b4578d.json",
+  "parameters": {
+    "base_scenario": "entry stop-median-proxy (7 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 67 pts",
+    "cost_status": {
+      "spread": "measured per instrument",
+      "stop_and_entry_slippage": "carried over from gold's evidence, not measured for EURUSD/GBPUSD/USDJPY (see specification section 3)"
+    },
+    "experiment": "EXP-013-events",
+    "news_filter": "FOMC, CPI, Employment Situation",
+    "specification_sha256": "59d3de3f19a6ff8b38f95d6b1ea66eb19030a91c221ec14be90f309e0f63c86b",
+    "strategy": "A: session breakout and retest (FX pool)",
+    "stress_scenario": "entry stop-p90-proxy (40 pts, SCENARIO) / stop exits p90 (40 pts, evidence) / sizing allowance 100 pts"
+  },
+  "results": {
+    "EURUSD": {
+      "events": 668,
+      "events_by_month": {
+        "2023-01": 26,
+        "2023-02": 27,
+        "2023-03": 25,
+        "2023-04": 24,
+        "2023-05": 29,
+        "2023-06": 31,
+        "2023-07": 28,
+        "2023-08": 32,
+        "2023-09": 27,
+        "2023-10": 33,
+        "2023-11": 24,
+        "2023-12": 24,
+        "2024-01": 24,
+        "2024-02": 32,
+        "2024-03": 30,
+        "2024-04": 33,
+        "2024-05": 32,
+        "2024-06": 21,
+        "2024-07": 30,
+        "2024-08": 26,
+        "2024-09": 28,
+        "2024-10": 36,
+        "2024-11": 23,
+        "2024-12": 23
+      },
+      "events_by_new_york_hour": {
+        "10": 27,
+        "2": 223,
+        "3": 156,
+        "4": 80,
+        "5": 39,
+        "6": 28,
+        "7": 30,
+        "8": 58,
+        "9": 27
+      },
+      "first_touch_16_bars_before_costs": {
+        "+2R first": 33,
+        "-1R first (or same bar)": 123,
+        "neither": 80
+      },
+      "period": "2023-01-01 to 2025-01-01",
+      "quantiles_10_25_50_75_90": {
+        "atr15": [
+          0.0003542857142857197,
+          0.00044714285714288405,
+          0.0005921428571428665,
+          0.0007614285714285954,
+          0.0009042857142856908
+        ],
+        "cost_r": [
+          0.24267782426778242,
+          0.3372093023255814,
+          0.4915254237288136,
+          0.6704545454545454,
+          0.8571428571428571
+        ],
+        "mae_r": [
+          0.2830188679245283,
+          0.5378151260504201,
+          1.097938144329897,
+          2.0597014925373136,
+          3.4705882352941178
+        ],
+        "mfe_r": [
+          0.1111111111111111,
+          0.3163841807909605,
+          0.9298245614035088,
+          1.706896551724138,
+          3.2429906542056073
+        ],
+        "stop_atr": [
+          1.2231578947368624,
+          1.6205787781350378,
+          2.141552511415464,
+          2.778625954198638,
+          3.352631578947346
+        ],
+        "stop_usd": [
+          0.00067,
+          0.00087,
+          0.00118,
+          0.00172,
+          0.00239
+        ]
+      },
+      "share_within_cost_floor": 0.0,
+      "signals": 236,
+      "stages": {
+        "invalidated (failed breakout)": 317,
+        "no retest": 62,
+        "retest, no confirmation": 3,
+        "signal": 236,
+        "superseded (other side signalled first)": 19,
+        "window ended (11:00)": 31
+      }
+    },
+    "GBPUSD": {
+      "events": 678,
+      "events_by_month": {
+        "2023-01": 27,
+        "2023-02": 28,
+        "2023-03": 27,
+        "2023-04": 29,
+        "2023-05": 30,
+        "2023-06": 30,
+        "2023-07": 26,
+        "2023-08": 33,
+        "2023-09": 27,
+        "2023-10": 37,
+        "2023-11": 29,
+        "2023-12": 26,
+        "2024-01": 27,
+        "2024-02": 29,
+        "2024-03": 29,
+        "2024-04": 27,
+        "2024-05": 34,
+        "2024-06": 27,
+        "2024-07": 28,
+        "2024-08": 26,
+        "2024-09": 27,
+        "2024-10": 32,
+        "2024-11": 18,
+        "2024-12": 25
+      },
+      "events_by_new_york_hour": {
+        "10": 23,
+        "2": 280,
+        "3": 140,
+        "4": 76,
+        "5": 40,
+        "6": 24,
+        "7": 22,
+        "8": 44,
+        "9": 29
+      },
+      "first_touch_16_bars_before_costs": {
+        "+2R first": 39,
+        "-1R first (or same bar)": 145,
+        "neither": 66
+      },
+      "period": "2023-01-01 to 2025-01-01",
+      "quantiles_10_25_50_75_90": {
+        "atr15": [
+          0.0004621428571428237,
+          0.0006007142857142719,
+          0.0007935714285714093,
+          0.0010178571428571814,
+          0.0012321428571428403
+        ],
+        "cost_r": [
+          0.1870967741935484,
+          0.24786324786323727,
+          0.36774193548387096,
+          0.504424778761062,
+          0.6627906976744186
+        ],
+        "mae_r": [
+          0.2981132075471698,
+          0.6017699115044248,
+          1.2040816326530612,
+          2.0948905109489053,
+          3.164233576642336
+        ],
+        "mfe_r": [
+          0.08527131782945736,
+          0.27027027027029105,
+          0.7933884297521487,
+          1.7537313432835822,
+          3.0418118466897197
+        ],
+        "stop_atr": [
+          1.2599999999999592,
+          1.6386488609584067,
+          2.1379310344827838,
+          2.7265917602995255,
+          3.395626242544858
+        ],
+        "stop_usd": [
+          0.00087,
+          0.00113,
+          0.00156,
+          0.00232,
+          0.00308
+        ]
+      },
+      "share_within_cost_floor": 0.024,
+      "signals": 250,
+      "stages": {
+        "invalidated (failed breakout)": 314,
+        "no retest": 64,
+        "retest, no confirmation": 1,
+        "signal": 250,
+        "superseded (other side signalled first)": 27,
+        "window ended (11:00)": 22
+      }
+    },
+    "USDJPY": {
+      "events": 413,
+      "events_by_month": {
+        "2023-01": 14,
+        "2023-02": 19,
+        "2023-03": 16,
+        "2023-04": 20,
+        "2023-05": 23,
+        "2023-06": 22,
+        "2023-07": 13,
+        "2023-08": 29,
+        "2023-09": 19,
+        "2023-10": 20,
+        "2023-11": 20,
+        "2023-12": 17,
+        "2024-01": 17,
+        "2024-02": 23,
+        "2024-03": 9,
+        "2024-04": 15,
+        "2024-05": 19,
+        "2024-06": 17,
+        "2024-07": 9,
+        "2024-08": 17,
+        "2024-09": 13,
+        "2024-10": 16,
+        "2024-11": 11,
+        "2024-12": 15
+      },
+      "events_by_new_york_hour": {
+        "10": 31,
+        "2": 130,
+        "3": 67,
+        "4": 38,
+        "5": 20,
+        "6": 16,
+        "7": 15,
+        "8": 67,
+        "9": 29
+      },
+      "first_touch_16_bars_before_costs": {
+        "+2R first": 27,
+        "-1R first (or same bar)": 86,
+        "neither": 53
+      },
+      "period": "2023-01-01 to 2025-01-01",
+      "quantiles_10_25_50_75_90": {
+        "atr15": [
+          0.053428571428572776,
+          0.07535714285714741,
+          0.10542857142856933,
+          0.14185714285713807,
+          0.1707857142857096
+        ],
+        "cost_r": [
+          0.16260162601626016,
+          0.22058823529411764,
+          0.3076923076923077,
+          0.46875,
+          0.6421052631578947
+        ],
+        "mae_r": [
+          0.2457627118644068,
+          0.5214285714285715,
+          1.0662650602409638,
+          1.7397260273972603,
+          2.727272727272727
+        ],
+        "mfe_r": [
+          0.09137055837563451,
+          0.3358070500927644,
+          0.8105263157894737,
+          1.5657894736842106,
+          2.892857142857143
+        ],
+        "stop_atr": [
+          1.1269523428113675,
+          1.489361702127707,
+          1.8782991202344805,
+          2.419604471195162,
+          2.9088471849867803
+        ],
+        "stop_usd": [
+          0.093,
+          0.128,
+          0.193,
+          0.272,
+          0.365
+        ]
+      },
+      "share_within_cost_floor": 0.04216867469879518,
+      "signals": 166,
+      "stages": {
+        "invalidated (failed breakout)": 168,
+        "no retest": 23,
+        "retest, no confirmation": 1,
+        "signal": 166,
+        "superseded (other side signalled first)": 14,
+        "window ended (11:00)": 41
+      }
+    }
+  },
+  "run_id": "20261116T095341Z_3174b4578d",
+  "started_utc": "2026-11-16T09:53:41.069594+00:00"
+}
