@@ -27,7 +27,11 @@ FROM, TO = datetime(2023, 1, 1, tzinfo=UTC), datetime(2025, 1, 1, tzinfo=UTC)
 FORWARD_START_NOTE = "shared with EXP-011: 2026-11-15T23:00:00+00:00"
 
 
-def tercile_cutoffs(values: list[float]) -> list[float]:
+def tercile_cutoffs(values: list[float]) -> list[float] | None:
+    """None when there are too few signals to split into terciles at all: itself a finding
+    (see the 0.10R-floor arm below), recorded rather than hidden or crashed on."""
+    if len(values) < 3:
+        return None
     v = sorted(values)
     return [v[len(v) // 3], v[2 * len(v) // 3]]
 
@@ -39,7 +43,7 @@ def main() -> None:
     if code["dirty"]:
         raise SystemExit(f"commit first; uncommitted: {code['uncommitted_files']}")
     inp = FxPoolInputs()
-    cutoffs: dict[str, dict[str, list[float]]] = {}
+    cutoffs: dict[str, dict[str, list[float] | None]] = {}
     signal_counts: dict[str, dict[str, int]] = {}
     for symbol in ("EURUSD", "GBPUSD", "USDJPY"):
         point = Decimal(str(SPECS[symbol].point))
