@@ -368,3 +368,42 @@ Recorded before any EXP-003, EXP-005 or EXP-007 result.
      are reached.
 - **Out of scope:** a demo execution study, which would measure real slippage. It needs a
   separate explicit authorisation, outside this read-only workflow.
+
+## Amendment 6 (2026-11-16): pool EURUSD, GBPUSD, USDJPY into Strategy A's forward test
+
+Owner decision 2026-11-16, before any new backtest or forward result exists: Strategy A's
+forward observation (EXP-011, XAUUSD) needs about 10-11 months at the 2023-24 event rate to
+reach 100 events. Rather than lower that threshold, Strategy A, completely unchanged, is run
+on EURUSD, GBPUSD and USDJPY too, from the same forward clock, so the pooled event count
+reaches 100 faster. This changes the claim under test from "works on XAUUSD" to "works across
+these four instruments", and the decision rule is extended accordingly (a result must be
+positive in at least 3 of the 4 instruments individually, not just pooled).
+
+- **EXP-011 (XAUUSD) is completely unaffected:** its own freeze, forward stream and reports
+  continue exactly as registered in Amendment 1 (A1.1, A1.2) and `strategy-a-forward-test.md`.
+- **Full specification:** `docs/research/strategy-a-fx-pool.md` (frozen 2026-11-16).
+- **Broker symbols verified** (`list_symbols`, `get_symbol_info`, read-only, 2026-11-16):
+  EURUSD, GBPUSD, USDJPY trade on this broker under those exact names. GBPJPY exists too and
+  is used only as a conversion rate for USDJPY (never traded).
+- **Commission verified** from every deal this account has in each symbol's history
+  (`get_history_deals`): £0 for all three (43, 42 and 10 deals respectively), the same
+  spread-based pricing pattern as gold, though with far fewer deals.
+- **A real bug found and fixed, not just a label issue:** the frozen `engine.py` tags every
+  margin request `symbol="XAUUSD"` regardless of what is traded, and `parse_margin_response`
+  validates that tag against the broker's own "symbol" field in the response. Confirmed live
+  against MT5's `calc_margin` for EURUSD: reusing the frozen engine unmodified would have
+  rejected every single margin check for a non-gold instrument. `src/trading/research/
+  multi_market.py` (`GenericCandidateBacktest`) fixes this and the few other module-constant
+  symbol references, importing and reusing everything else from the frozen pipeline unchanged.
+- **No forced close, no no-entry window for EURUSD/GBPUSD/USDJPY:** gold's 16:45 New York
+  close and 16:00-19:00 no-entry window exist because gold has an actual daily break; the
+  "forex" session profile in `config/market_sessions.yaml` confirms these three trade
+  continuously, with no equivalent to anchor a forced-close rule to. A position runs until its
+  stop or the 2R target only.
+- **Stop and entry slippage for the FX instruments are carried-over assumptions, not
+  measured:** the existing point-count cost grid was derived from gold's 6,583 measured stop
+  exits; these three instruments have only 10-43 deals each, too few for a comparable
+  estimate. Every report states this plainly; only spread is measured for them.
+- **EXP-013** (registered below): historical event study and backtest, EURUSD/GBPUSD/USDJPY,
+  descriptive, same periods and arms as the XAUUSD backtests. **EXP-014**: the pooled forward
+  test itself, frozen alongside EXP-011, same forward start (2026-11-15 23:00 UTC).
